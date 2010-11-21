@@ -1,0 +1,18 @@
+<!-- sidebar_articles begin -->
+<div id="sidebar-wrapper">
+   <div id="sidebar">
+      <div class="box">
+         <h3>News Archives</h3>
+         <ul>
+            <et:find url="/news">
+            <et:children:each order="desc">
+            <et:if_different><li><a href="<et:site_url /><et:date format="/news/%Y/%m/" />"><et:date format="%B %Y" /></a></li></et:if_different>
+            </et:children:each>
+            </et:find>
+         </ul>
+      </div>
+      <et:design:snippet name="newsletter" />
+      <div class="spot"><et:design:snippet name="rss" /></div>
+   </div>
+</div>
+<!-- sidebar_articles end -->

@@ -1,0 +1,15 @@
+<!-- sitemap_inner begin -->
+<et:children:each sort="title" order="asc">
+   <et:if_content part="no-map">
+   <et:else />
+      <li>
+         <et:pagelink />
+         <et:if_children>
+            <ul class="second">
+               <et:design:snippet name="sitemap_inner" />
+            </ul>
+         </et:if_children>
+      </li>
+   </et:if_content>
+</et:children:each>
+<!-- sitemap_inner end -->

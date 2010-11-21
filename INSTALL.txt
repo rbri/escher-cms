@@ -1,0 +1,191 @@
+================================================================================
+
+Escher CMS Installation
+
+================================================================================
+
+1. Requirements
+
+HTTP server. The current release has been tested only under the Apache HTTP
+server, but other HTTP servers should also work.
+
+PHP 5.2 or later (5.3 preferred). Escher CMS will **not** run under PHP 4 or any
+version of PHP older than 5.2.0. Escher CMS requires that PHP's short tag option
+be enabled, which you can do in your php.ini file as follows:
+
+	short_open_tag = On
+
+PHP Modules. The following PHP modules are required: PDO, Date, Session. These
+modules should be enabled by default in PHP 5 and later.
+
+If PDO is not enabled, you should be able to enable it in your php.ini file as
+follows:
+
+	extension=pdo.so
+
+PDO SQLite3 database driver. This driver should be enabled by default in PHP 5
+and later. If not, you should be able to enable it in your php.ini file as
+follows:
+
+	extension=pdo_sqlite.so
+
+Optional: PDO MySQL database driver. In order to use MySQL for your database,
+make sure that the driver is enabled. You may need to enable it in your php.ini
+file as follows:
+
+	extension=pdo_mysql.so
+
+IMPORTANT: In order to use MySQL with Escher, you must be running MySQL 5.0 or
+later with InnoDB enabled.
+
+================================================================================
+
+2. Upload
+
+Upload the entire contents of the Escher directory to the document root of your
+web server. Alternatively, you may place it in a subdirectory of the document
+root if you prefer.
+
+================================================================================
+
+3. Install
+
+In your browser, visit Escher's admin page. For example:
+
+http://www.mysite.com/admin
+
+Or, if you placed Escher into a subdirectory named "escher":
+
+http://www.mysite.com/escher/admin
+
+Hint: If you get a blank page, you probably do not have short tags enabled in
+your php.ini configuration file. Ask your web host how to enable this option.
+
+Follow the instructions in the installer. You may need to adjust permissions on
+some files and directories in order for installation to proceed. The installer
+will alert you if this is the case.
+
+File permissions can be changed from the command line, if you have shell access,
+like so:
+
+	$ chmod 666 myfile		# give **everyone** read/write access
+
+If you don't have shell access to your hosting account, your file transfer
+application should have an interface for setting file permissions.
+
+================================================================================
+
+4. Reinstall
+
+Should you ever wish to reinstall Escher, simply open the file "site-config.php"
+in the config directory and remove everything from the following line down:
+
+	$sites['default'] = array
+
+(Should be around line 30.)
+
+Then re-run the installer, per Step 3.
+
+Be sure to choose a different name for your database. If you want to use the
+same database name again, you will need to first delete the old database file.
+
+================================================================================
+
+5. Configure
+
+Upon successful installation, log in via the user name and password you chose.
+Visit the Preferences link under the Admin tab to acquaint yourself with
+Escher's configuration options.
+
+Clean URLs:
+
+By default, Escher's "index.php" file will be visible in all URLs
+(both in the Escher administrative interface and in the sites you create). If
+your http server supports URL rewriting (as Apache does if you have the
+mod_rewrite module enabled), you can eliminate "index.php" from your URLs,
+resulting in clean URLs (also known as "pretty" URLs).
+
+Enabling clean URLs requires two steps:
+
+	1) Configure the appropriate URL rewrite rules for your http server.
+	
+	Escher ships with a default .htaccess file that should work in most Apache
+	configurations.
+	
+	2) Set the 'use_index_file' option to false in your Escher config files.
+	
+	Escher sets this option to true by default. Edit the following two files to
+	change this setting:
+	
+		config/admin-config.php
+		config/site-config.php
+
+================================================================================
+
+6. Secure
+
+Change the permissions on your config file (config/site-config.php) so that it
+is no longer writable by the web server.
+
+We also receommend that you remove the installation script file once you have
+completed the installation process. The file ito remove is: admin/install.php
+If you later decide to reinstall Escher CMS, you will need to recreate the
+install.php file.
+
+It is recommended that you install Escher CMS on a dedicated server or VPS, as
+this affords you the best and most granular control over the security of your
+installation.
+
+If you are hosting in a shared environement, be aware that many shared hosts
+implement their PHP functionality in such a way as to grant all user accounts
+access to the files in every other user account. This usually occurs because
+they are running mod_php under apache as a single user for all accounts. In such
+a configuration, it may be possible for any user to read your files, including
+sensitive configuration files containing user names and passwords, and even your
+SQLite database file. Be sure you understand how your web host implements PHP!
+
+In order to make initial installation as simple as possible, the default
+configuration houses all Escher CMS files under the server's web root. The
+default configuration should be relatively secure, however security can be
+enhanced by moving the majority of the files outside of the server's web root.
+
+If you have the ability to place files outside of the web root, you should take
+advantage of this capability to move most of the Escher CMS code, and especially
+your database file (if you are using SQLite) outside of the web root. Escher's
+configuration files allow the flexibility of locating its core code and database
+files anywhere in the file system. This simplifies sharing the Escher code base
+among multiple Escher sites and enables additional security enhancements, such
+as locating the Escher Admin interface under its own SSL-secured subdomain.
+See the Escher documentation for more details about how to accomplish this.
+
+If you must leave the entire Escher installation under the web root, you will
+want to ensure that code and database files cannot be directly accessed via the
+web. By default, Escher includes hidden .htaccess files in all sensitive
+directories, prohibiting accesss to those directories from the web browser. In
+addition, all Escher code files contain a header snippet that prohibits direct
+access.
+
+If you create additional files or directories that should not be web-accessible,
+be sure to protect them similarly. And if you are using a web server that does
+not support Apache-style .htaccess files, you will need to devise your own
+method of protecting sensitive directories from access.
+
+Escher CMS supports code caching to boost performance. When this feature is
+enabled, PHP code is cached to a writable directory on the web server. It is
+recommended that code caching **not** be enabled in shared hosting environments
+due to the security concerns discussed above. To disable code caching, find
+the line containing the "plug_cache_dir" setting in the following config files
+and comment it out, remove it, or set plug_cache_dir to NULL:
+
+		config/admin-config.php
+		config/site-config.php
+
+================================================================================
+
+7. Enjoy!
+
+I hope you enjoy using Escher CMS. Please join the Escher online community at:
+
+http://eschercms.org/community
+
+================================================================================

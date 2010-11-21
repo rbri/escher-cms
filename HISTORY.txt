@@ -1,0 +1,6 @@
+Escher CMS Change History
+=========================
+
+Version 0.9.0 [2010-11-20]
+	Initial Release
+	Requires Spark/Plug v1.0.0

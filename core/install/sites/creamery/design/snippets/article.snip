@@ -1,0 +1,18 @@
+<!-- article begin -->
+<div id="content-wrapper">
+   <div id="content">
+      <et:if_page url="/news">
+         <et:design:snippet name="articles" />
+      <et:else />
+         <et:archives:if_index>
+            <et:design:snippet name="archives" />
+         <et:else />
+            <h3><et:title /></h3>
+            <et:design:snippet name="posted" />
+            <et:content />
+            <et:design:snippet name="comments" />
+         </et:archives:if_index>
+      </et:if_page>
+   </div>
+</div>
+<!-- article begin -->

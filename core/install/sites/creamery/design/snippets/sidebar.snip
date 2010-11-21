@@ -1,0 +1,13 @@
+<!-- sidebar begin -->
+<et:blocks:each category='<et:design:yield />'>
+   <div class="spot">
+   <et:image name='<et:blocks:name />.gif' />
+   <h3><et:blocks:title /></h3>
+   <et:blocks:content />
+   </div>
+</et:blocks:each>
+
+<et:design:snippet name="newsletter" />
+
+<div class="spot"><et:design:snippet name="rss" /></div>
+<!-- sidebar end -->

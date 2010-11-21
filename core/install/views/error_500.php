@@ -1,0 +1,1 @@
+<? include(escher_core_dir.'/admin/views/error_500.php'); ?>

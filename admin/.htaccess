@@ -1,0 +1,33 @@
+DirectoryIndex index.php
+Options -Indexes +FollowSymLinks
+AddDefaultCharset UTF-8
+AcceptPathInfo On
+
+<IfModule mod_php5.c>
+   php_flag register_globals off
+   php_flag magic_quotes_gpc off
+   php_flag short_open_tag on
+</IfModule>
+
+<IfModule mod_rewrite.c>
+   RewriteEngine On
+#   RewriteBase /escher
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteCond %{REQUEST_FILENAME} !-l
+   RewriteCond %{REQUEST_URI} !=/favicon.ico
+   RewriteRule ^(.*) index.php [L]
+</IfModule>
+
+FileETag none
+
+<IfModule mod_headers.c>
+   Header unset ETag
+</IfModule>
+
+<IfModule mod_expires.c>
+   ExpiresActive On
+   ExpiresByType image/* "access plus 7 day"
+   ExpiresByType text/css "access plus 7 day"
+   ExpiresByType application/x-javascript "access plus 7 day"
+</IfModule>

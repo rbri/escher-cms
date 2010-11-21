@@ -1,0 +1,64 @@
+DirectoryIndex index.php
+Options -Indexes +FollowSymLinks
+AddDefaultCharset UTF-8
+AcceptPathInfo On
+ErrorDocument 403 /index.php
+
+<IfModule mod_php5.c>
+   php_flag register_globals off
+   php_flag magic_quotes_gpc off
+   php_flag short_open_tag on
+</IfModule>
+
+<IfModule mod_rewrite.c>
+   RewriteEngine On
+#   RewriteBase /escher
+
+################################################################################
+#
+#   Uncomment this block of rules for static file caching.
+#
+#   RewriteCond %{REQUEST_METHOD} ^GET$
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI} -f
+#   RewriteRule ^(.*)$ /cache/pages/$1 [L]
+
+#   RewriteCond %{REQUEST_METHOD} ^GET$
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI}.html -f
+#   RewriteRule ^(.*)$ /cache/pages/$1.html [L]
+
+#   RewriteCond %{REQUEST_METHOD} ^GET$
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI} -d
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI}index.html -f
+#   RewriteRule ^(.*)$ /cache/pages/$1index.html [L]
+#
+################################################################################
+
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteCond %{REQUEST_FILENAME} !-l
+   RewriteCond %{REQUEST_URI} !=/favicon.ico
+   RewriteRule ^(.*) index.php [L]
+</IfModule>
+
+################################################################################
+#
+#   If using static file caching, enable browser-side caching by uncommenting.
+#
+#FileETag none
+#
+#<IfModule mod_headers.c>
+#   Header unset ETag
+#</IfModule>
+#
+#<IfModule mod_expires.c>
+#   ExpiresActive On
+#   ExpiresByType image/* "access plus 7 day"
+#   ExpiresByType text/css "access plus 7 day"
+#   ExpiresByType application/x-javascript "access plus 7 day"
+#</IfModule>
+#
+#<Files *.html>
+#   Header append Cache-Control "max-age=0, no-cache, must-revalidate"
+#</Files>
+#
+################################################################################

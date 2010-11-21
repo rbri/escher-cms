@@ -1,0 +1,23 @@
+<!-- content begin -->
+<div id="content-wrapper">
+   <div id="content">
+      <et:if_page url="/">
+         <et:design:snippet name="featured"><et:content /></et:design:snippet>
+         <et:design:snippet name="articles" />
+      <et:else />
+         <et:content />
+      </et:if_page>
+      <et:if_page url="/tour">
+         <et:design:snippet name="tour" />
+      </et:if_page>
+      <et:if_page url="/sitemap">
+         <et:design:snippet name="sitemap" />
+      </et:if_page>
+     <et:if_content part="extended">
+         <div id="extended">
+            <et:content part="extended" />
+         </div>
+      </et:if_content>
+   </div>
+</div>
+<!-- content end -->
