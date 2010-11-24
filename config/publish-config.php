@@ -51,7 +51,7 @@ $config = array
 	'app_dir' => $rootDir . '/core/publish',
 	'lang_dir' => $rootDir . '/core/shared/languages',
 	'app_plug_dir' => $rootDir . '/plugins',
-	'sparkplug_dir' => $rootDir . '/sparkplug/sparkplug',
+	'sparkplug_dir' => $rootDir . '/sparkplug',
 //	'admin_site' => 'https://admin.mysite.com',
 	'routes' => array
 	(

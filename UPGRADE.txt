@@ -1,0 +1,51 @@
+================================================================================
+
+Escher CMS Ugrade Instructions
+
+Follow these steps to upgrade from a previous version of Escher CMS.
+
+================================================================================
+
+1. Check the Release Notes
+
+It is extremely important that you check the RELEASE.TXT file for any version-
+specific upgrade tasks that need to be performed.
+
+================================================================================
+
+2. Save Configuration Files
+
+If you are using the standard Escher CMS installation layout, move your /config
+directory to a safe location so that it will not be overwritten.
+
+================================================================================
+
+3. Upload
+
+Replace the contents of your current Escher CMS installation with the contents
+of the upgraded package. If necessary, move your modified configuration files
+back into place in the new config/ directory.
+
+================================================================================
+
+4. Log In
+
+In your browser, visit Escher's admin page. For example:
+
+http://www.mysite.com/admin
+
+Or, if you placed Escher into a subdirectory named "escher":
+
+http://www.mysite.com/escher/admin
+
+Escher will let you know if it needs to upgrade your database schema.
+
+================================================================================
+
+5. Enjoy!
+
+I hope you enjoy using Escher CMS. Please join the Escher online community at:
+
+http://eschercms.org/community
+
+================================================================================

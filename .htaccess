@@ -21,11 +21,11 @@ ErrorDocument 403 /index.php
 #   RewriteCond %{REQUEST_METHOD} ^GET$
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI} -f
 #   RewriteRule ^(.*)$ /cache/pages/$1 [L]
-
+#
 #   RewriteCond %{REQUEST_METHOD} ^GET$
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI}.html -f
 #   RewriteRule ^(.*)$ /cache/pages/$1.html [L]
-
+#
 #   RewriteCond %{REQUEST_METHOD} ^GET$
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI} -d
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI}index.html -f
@@ -48,6 +48,10 @@ ErrorDocument 403 /index.php
 #
 #<IfModule mod_headers.c>
 #   Header unset ETag
+#
+#   <Files *.html>
+#      Header append Cache-Control "max-age=0, no-cache, must-revalidate"
+#   </Files>
 #</IfModule>
 #
 #<IfModule mod_expires.c>
@@ -56,9 +60,5 @@ ErrorDocument 403 /index.php
 #   ExpiresByType text/css "access plus 7 day"
 #   ExpiresByType application/x-javascript "access plus 7 day"
 #</IfModule>
-#
-#<Files *.html>
-#   Header append Cache-Control "max-age=0, no-cache, must-revalidate"
-#</Files>
 #
 ################################################################################

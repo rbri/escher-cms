@@ -1,0 +1,22 @@
+================================================================================
+
+Escher CMS Release Notes
+
+================================================================================
+
+Release 1.0.1
+
+There has been a minor adjustment to the default location of the main Spark/Plug
+directory. As a result, the "sparkplug_dir" config parameter has changed.
+
+If you are using a custom installation layout you may need to adjust the value
+of this parameter in the following config files:
+
+	config/admin-config.php
+	config/install-config.php
+	config/publish-config.php
+
+If you are using the standard installation layout, the new versions of the above
+files have already been adjusted for you.
+
+================================================================================
