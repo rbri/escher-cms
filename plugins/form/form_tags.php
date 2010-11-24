@@ -699,7 +699,7 @@ class FormTags extends EscherParser
 		$rules[] = self::makeInListRule(array_keys($options));	// anti-spoofing rule
 		$rule = implode('|', $rules);
 
-		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : explode(',', $default);
+		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : $this->glist($default);
 
 		if (strpos($rule, 'required') !== false)
 		{

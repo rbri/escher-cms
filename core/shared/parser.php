@@ -438,8 +438,8 @@ class Parser extends SparkPlug
   		{
 			if (($pos = strpos($val, $kvdelim)) !== false)
 			{
-				$key = substr($val, 0, $pos);
-				$val = substr($val, $pos+1);
+				$key = trim(substr($val, 0, $pos));
+				$val = trim(substr($val, $pos+1));
 			}
 			$result[$key] = $val;
   		}
