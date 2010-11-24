@@ -2,6 +2,7 @@ Escher CMS Change History
 =========================
 
 Changes Since Last Release
+	form plugin: allow setting default values for multiple checkboxes ("default" attribute now accepts comma-delimited list)
 	added missing semicolons in some inline styles of sample site
 	eliminated one level of directory hierachy in sparkplug directory
 	.htaccess: moved use of header directive inside check for enabled headers module

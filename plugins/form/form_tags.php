@@ -682,8 +682,8 @@ class FormTags extends EscherParser
 			'rule' => '',
 		),$atts));
 
-		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:radio')));
-		$options || check($options, $this->output->escape(self::$lang->get('attribute_required', 'options', 'form:radio')));
+		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:checkbox')));
+		$options || check($options, $this->output->escape(self::$lang->get('attribute_required', 'options', 'form:checkbox')));
 		
 		$origName = $name;
 		$name .= '[]';
@@ -699,7 +699,7 @@ class FormTags extends EscherParser
 		$rules[] = self::makeInListRule(array_keys($options));	// anti-spoofing rule
 		$rule = implode('|', $rules);
 
-		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : $default;
+		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : explode(',', $default);
 
 		if (strpos($rule, 'required') !== false)
 		{
