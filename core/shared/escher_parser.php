@@ -1479,94 +1479,27 @@ class _EscherParser extends CoreTagParser
 	}
 	
 	//---------------------------------------------------------------------------
-	// Meta Tags ("meta" namespace)
-	//---------------------------------------------------------------------------
-	
-	protected function _tag_ns_meta()
-	{
-		$this->pushNamespace('meta');
-		return true;
-	}
-		
-	protected function _xtag_ns_meta()
-	{
-		$this->popNamespace('meta');
-	}
-		
-	//---------------------------------------------------------------------------
 	// Meta Helpers
 	//---------------------------------------------------------------------------
 
-	final protected function meta($name, $atts)
+	final protected function meta($atts, $meta)
 	{
 		extract($this->gatts(array(
+			'name' => '',
 			'tag' => true,
 		),$atts));
 
-		$meta = $this->content->fetchPageMeta($this->currentPageContext());
-
 		$out = isset($meta[$name]) ? $this->output->escape($meta[$name]) : '';
 		
-		if ($out != '' && !$this->falsy($tag))
+		if ($out !== '' && !$this->falsy($tag))
 		{
-			$content = $out;
-			$atts = $this->matts(compact('name', 'content'));
+			$atts = $this->matts(array('name'=>$name, 'content'=>$out));
 			$out = $this->output->tag(NULL, 'meta', '', '', $atts);
 		}
 		
 		return $out;
 	}
 
-	//---------------------------------------------------------------------------
-	
-	protected function _tag_meta_keywords($atts)
-	{
-		return $this->meta('keywords', $atts);
-	}
-	
-	//---------------------------------------------------------------------------
-	
-	protected function _tag_meta_description($atts)
-	{
-		return $this->meta('description', $atts);
-	}
-	
-	//---------------------------------------------------------------------------
-	
-	protected function _tag_meta_author($atts)
-	{
-		return $this->meta('author', $atts);
-	}
-	
-	//---------------------------------------------------------------------------
-	
-	protected function _tag_meta_distribution($atts)
-	{
-		return $this->meta('distribution', $atts);
-	}
-	
-	//---------------------------------------------------------------------------
-	
-	protected function _tag_meta_robots($atts)
-	{
-		return $this->meta('robots', $atts);
-	}
-	
-	//---------------------------------------------------------------------------
-	
-	protected function _tag_meta_custom($atts)
-	{
-		extract($this->gatts(array(
-			'name' => '',
-		),$atts));
-
-		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'meta_custom')));
-
-		unset($atts['name']);
-
-		return $this->meta($name, $atts);
-	}
-	
 	//---------------------------------------------------------------------------
 	// Pages Tags ("pages" namespace)
 	//---------------------------------------------------------------------------
@@ -1630,6 +1563,15 @@ class _EscherParser extends CoreTagParser
 		return $this->output->escape($this->currentPageContext()->breadcrumb);
 	}
 
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_pages_meta($atts)
+	{
+		!empty($atts['name']) || check(!empty($atts['name']), $this->output->escape(self::$lang->get('attribute_required', 'name', 'pages_meta')));
+
+		return $this->meta($atts, $this->content->fetchPageMeta($this->currentPageContext()));
+	}
+	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_pages_level($atts)
