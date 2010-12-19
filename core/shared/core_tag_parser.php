@@ -46,7 +46,7 @@ class CoreTagParser extends Parser
 	{
 		parent::__construct($params, $cacher);
 
-		$this->_page_vars[] = array(array(), false);
+		$this->_page_vars[] = array(array(), false, false);
 		$this->_randoms = NULL;
 		$this->_cycles = NULL;
 		$this->_error_code = '';
@@ -175,10 +175,10 @@ class CoreTagParser extends Parser
 	{
 		$top = count($this->_page_vars) - 1;
 		$topScope =& $this->_page_vars[$top];
+		$scope =& $topScope;
 		
-		for (; $top >= 0; --$top)
+		for (;;)
 		{
-			$scope =& $this->_page_vars[$top];
 			if (isset($scope[0][$name]))
 			{
 				$result =& $scope[0][$name];
@@ -192,7 +192,20 @@ class CoreTagParser extends Parser
 			{
 				break;
 			}
+			if (--$top < 0)		// stop searching if no more scopes
+			{
+				break;
+			}
+			
+			// check parent scope
+			
 			unset($scope);
+			$scope =& $this->_page_vars[$top];
+			
+			if ($scope[2])		// stop searching if this is a private scope
+			{
+				break;
+			}
 		}
 		
 		// var not found, so create it if requested to do so
@@ -283,9 +296,10 @@ class CoreTagParser extends Parser
 	{
 		extract($this->gatts(array(
 			'local' => false,
+			'private' => false,
 		),$atts));
 
-		$this->_page_vars[] = array(array(), $this->truthy($local));
+		$this->_page_vars[] = array(array(), $this->truthy($local), $this->truthy($private));
 		return true;
 	}
 	
