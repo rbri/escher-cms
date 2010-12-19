@@ -79,14 +79,9 @@ class _EscherSite extends SparkApplication
 				exit;
 			}
 
-			$vars['heading'] = 'Oops!';
-			$vars['message'] = 'Problem accessing database.';
-			$vars['error'] = $e->getMessage();
-			$vars['exception'] = $e;
-			$this->display($this->render('error_500', $vars+$e->vars(), true));
-			exit;
+			$this->showExceptionPage(new SparkHTTPException_InternalServerError('Problem accessing database.'));
 		}
-		
+
 		// schema upgrades always throw us into maintenance mode
 		
 		if (!EscherVersion::validateSchemaVersion($this->_prefs['schema']))

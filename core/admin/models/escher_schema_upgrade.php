@@ -36,7 +36,7 @@ class _EscherSchemaUpgradeModel extends SparkModel
 
 		if (!$row = $db->selectRow('pref', 'val', 'name="schema"'))
 		{
-			throw new SparkException('Current schema version not detected.', SparkException::kApplication);
+			throw new SparkException('Current schema version not detected.');
 		}
 		
 		$upgradeFrom = intval($row['val']);
@@ -54,7 +54,7 @@ class _EscherSchemaUpgradeModel extends SparkModel
 				$method = 'upgrade_' . $upgrade;
 				if (!method_exists($this, $method))
 				{
-					throw new SparkException('No update available for this version.', SparkException::kApplication);
+					throw new SparkException('No update available for this version.');
 				}
 				$this->{$method}($db);
 				$db->updateRows('pref', array('val'=>$upgrade), 'name="schema"');
@@ -62,7 +62,7 @@ class _EscherSchemaUpgradeModel extends SparkModel
 		}
 		catch (Exception $e)
 		{
-			throw new SparkException('Schema update could not be completed: ' .  $e->getMessage(), SparkException::kApplication);
+			throw new SparkException('Schema update could not be completed: ' .  $e->getMessage());
 		}
 		
 		return true;		// upgrade successful

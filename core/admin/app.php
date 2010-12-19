@@ -112,7 +112,7 @@ class _EscherAdmin extends SparkApplication
 		}
 		catch (Exception $e)
 		{
-			exit($e->getMessage());
+			$this->showExceptionPage($e);
 		}
 		
 		// Do we need to update the database schema?

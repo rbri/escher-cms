@@ -73,7 +73,7 @@ class EventLogSettingsController extends SettingsController
 				}
 		}
 	
-		throw new SparkException("action not found: {$params[0]}", SparkException::kPageNotFound);
+		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
 	}
 
 	//---------------------------------------------------------------------------

@@ -36,6 +36,7 @@ class CoreTagParser extends Parser
 	private $_randoms;
 	private $_cycles;
 	private $_error_code;
+	private $_error_text;
 	private $_error_status;
 	private $_error_message;
 
@@ -49,6 +50,7 @@ class CoreTagParser extends Parser
 		$this->_randoms = NULL;
 		$this->_cycles = NULL;
 		$this->_error_code = '';
+		$this->_error_text = '';
 		$this->_error_status = '';
 		$this->_error_message = '';
 	}
@@ -103,15 +105,17 @@ class CoreTagParser extends Parser
 
 		if (isset($statusMessages[$code]))
 		{
-			$status .= (' ' . $statusMessages[$code]);
+			$text = $statusMessages[$code];
+			$status .= (' ' . $text);
 
 			if (empty($message))
 			{
-				$message = $statusMessages[$code];
+				$message = $text;
 			}
 		}
 
 		$this->_error_code = $code;
+		$this->_error_text = $text;
 		$this->_error_status = $status;
 		$this->_error_message = $message;
 		
@@ -570,12 +574,7 @@ class CoreTagParser extends Parser
 
 		$this->setStatus($status, $message);
 
-		if ($this->_error_code === '404')
-		{
-			throw new SparkException($this->_error_message, SparkException::kPageNotFound);
-		}
-		
-		throw new SparkException($this->_error_message, SparkException::kApplication, array('code'=>$this->_error_code, 'status'=>$this->_error_status, 'message'=>$this->_error_message));
+		throw new SparkHTTPException($this->_error_code, $this->_error_text, $this->_error_message, array('code'=>$this->_error_code, 'status'=>$this->_error_status, 'message'=>$this->_error_message));
 	}
 
 	//---------------------------------------------------------------------------

@@ -1,1 +1,0 @@
-<? include(escher_core_dir.'/admin/views/error_404.php'); ?>

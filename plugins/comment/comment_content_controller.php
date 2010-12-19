@@ -75,7 +75,7 @@ class CommentContentController extends ContentController
 				}
 		}
 	
-		throw new SparkException("action not found: {$params[0]}", SparkException::kPageNotFound);
+		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
 	}
 
 	//---------------------------------------------------------------------------
@@ -179,13 +179,13 @@ class CommentContentController extends ContentController
 		{
 			if (!$commentID = @$params[0])
 			{
-				throw new SparkException("comment not found", SparkException::kPageNotFound);
+				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'comment not found'));
 			}
 		}
 
 		if (!$comment = $this->_model->fetchComment($commentID))
 		{
-			throw new SparkException("comment not found", SparkException::kPageNotFound);
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'comment not found'));
 		}
 		
 		$this->getCommonVars($vars);
@@ -244,13 +244,13 @@ class CommentContentController extends ContentController
 		{
 			if (!$commentID = @$params[0])
 			{
-				throw new SparkException("comment not found", SparkException::kPageNotFound);
+				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'comment not found'));
 			}
 		}
 
 		if (!$comment = $this->_model->fetchComment($commentID))
 		{
-			throw new SparkException("comment not found", SparkException::kPageNotFound);
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'comment not found'));
 		}
 		
 		$this->getCommonVars($vars);

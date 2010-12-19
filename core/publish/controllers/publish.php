@@ -119,21 +119,18 @@ class _PublishController extends SparkController
 					}
 					else
 					{
-						throw new SparkException('page not found', SparkException::kPageNotFound);
+						throw new SparkHTTPException_NotFound(NULL, array('reason'=>'host scheme mismatch'));
 					}
 				}
 			}
 		}
-		catch (SparkException $e)
+		catch (SparkHTTPException $e)
 		{
-			if ($e->getCode() == SparkException::kPageNotFound)
-			{
-				$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
-				$content = $parser->errorPageTemplateContent('404', 'Page not Found', $contentType);
-				$this->display($content, $contentType);
-				return;
-			}
-			throw $e;
+			$this->app->setCacheable(false);		// don't cache error pages!
+			$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
+			$content = $parser->errorPageTemplateContent($e->getHTTPStatusCode(), $e->getMessage(), $contentType);
+			$this->display($content, $contentType);
+			return;
 		}
 
 		// Enable page caching for this page if page cache is globally enabled.
@@ -154,33 +151,13 @@ class _PublishController extends SparkController
 			{
 				$this->display($parsable ? $parser->parse($content) : $content, $contentType);
 			}
-			catch (SparkException $e)
+			catch (SparkHTTPException $e)
 			{
 				$this->app->setCacheable(false);		// don't cache error pages!
-				switch ($e->getCode())
-				{
-					case SparkException::kPageNotFound:
-						$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
-						$content = $parser->errorPageTemplateContent('404', 'Page not Found', $contentType);
-						$this->display($content, $contentType);
-						return;
-					case SparkException::kApplication:
-					default:
-						$eVars = $e->vars();
-						if (empty($eVars['code']))
-						{
-							$eVars['code'] = $e->getCode();
-						}
-						if (empty($eVars['message']))
-						{
-							$eVars['message'] = ($prefs['debug_level'] > 1) ? $e->getMessage() : '';
-						}
-						$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
-						$content = $parser->errorPageTemplateContent($eVars['code'], $eVars['message'], $contentType);
-						$this->display($content, $contentType);
-						return;
-				}
-				throw $e;
+				$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
+				$content = $parser->errorPageTemplateContent($e->getHTTPStatusCode(), $e->getMessage(), $contentType);
+				$this->display($content, $contentType);
+				return;
 			}
 		}
 	}

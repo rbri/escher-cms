@@ -95,7 +95,7 @@ class ArchiveTags extends EscherParser
 
 		if (!$this->getDateRange($page, $startDate, $endDate))
 		{
-			throw new SparkException('date not found', SparkException::kPageNotFound);
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'date not found'));
 		}
 
 		// find our real parent so we count only children of the archives section
@@ -124,7 +124,7 @@ class ArchiveTags extends EscherParser
 
 		if (!$this->getDateRange($page, $startDate, $endDate))
 		{
-			throw new SparkException('date not found', SparkException::kPageNotFound);
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'date not found'));
 		}
 
 		// find our real parent so we retrive only children of the archives section
@@ -182,7 +182,7 @@ class ArchiveTags extends EscherParser
 
 		if (!$this->getDateRange($page, $startDate, $endDate))
 		{
-			throw new SparkException('date not found', SparkException::kPageNotFound);
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'date not found'));
 		}
 
 		// find our real parent so we can retrive only children of the archives section
@@ -245,7 +245,7 @@ class ArchiveTags extends EscherParser
 		if (!$this->getDateRange($page, $startDate, $endDate))
 		{
 			$this->reportError(self::$lang->get('unknown_tag', '<et:archives:each>'), E_USER_WARNING);
-			throw new SparkException('date not found', SparkException::kPageNotFound);
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'date not found'));
 		}
 
 		// find our real parent so we can retrieve only children of the archives section

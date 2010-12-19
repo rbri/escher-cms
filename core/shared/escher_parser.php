@@ -95,7 +95,7 @@ class _EscherParser extends CoreTagParser
 
 		if (!$this->_current_page = $this->content->fetchPageByURI($currentURI))
 		{
-			throw new SparkException('page not found', SparkException::kPageNotFound);
+			throw new SparkHTTPException_NotFound();
 		}
 		
 		switch ($this->_current_page->status)
@@ -104,7 +104,7 @@ class _EscherParser extends CoreTagParser
 			case _Page::Status_sticky:
 				break;
 			default:
-				throw new SparkException('page not found', SparkException::kPageNotFound);
+				throw new SparkHTTPException_NotFound();
 		}
 		
 		$this->pushNamespace('pages');
@@ -119,7 +119,7 @@ class _EscherParser extends CoreTagParser
 		if (!$template = $this->currentPageContext()->fetchTemplate($this->content, $this->theme, $this->prefs))
 		{
 			$this->reportError(self::$lang->get('template_not_found', $this->currentPageContext()->activeTemplateName()), E_USER_WARNING);
-			throw new SparkException('template not found', SparkException::kPageNotFound);
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'template not found'));
 		}
 		
 		$contentType = !empty($template->ctype) ? $template->ctype : 'text/html';
@@ -151,14 +151,14 @@ class _EscherParser extends CoreTagParser
 		{
 			if (!$page = $this->content->fetchPageByURI('error/default'))
 			{
-				throw new SparkException('error page not found', SparkException::kPageNotFound);
+				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'error page not found'));
 			}
 		}
 
 		if (!$template = $page->fetchTemplate($this->content, $this->theme, $this->prefs))
 		{
 			$this->reportError(self::$lang->get('template_not_found', $page->activeTemplateName()), E_USER_WARNING);
-			throw new SparkException('template not found', SparkException::kPageNotFound);
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'template not found'));
 		}
 
 		$this->pushPageContext($page);
@@ -3610,7 +3610,7 @@ class _EscherParser extends CoreTagParser
 						if (!$category = $this->content->cacheCategoryChain(array('uri'=>implode('/', $magic))))
 						{
 							$this->reportError(self::$lang->get('category_not_found', implode('>', $magic)), E_USER_WARNING);
-							throw new SparkException('category not found', SparkException::kPageNotFound);
+							throw new SparkHTTPException_NotFound(NULL, array('reason'=>'category not found'));
 						}
 					}
 					else
@@ -3636,7 +3636,7 @@ class _EscherParser extends CoreTagParser
 			if ($handle)
 			{
 				$this->reportError(self::$lang->get('category_not_found', $handle), E_USER_WARNING);
-				throw new SparkException('category not found', SparkException::kPageNotFound);
+				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'category not found'));
 			}
 		}
 

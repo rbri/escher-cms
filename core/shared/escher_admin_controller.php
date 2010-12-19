@@ -107,7 +107,7 @@ class EscherAdminController extends SparkController
 		if (!$curUser->allowed($perm))
 		{
 			$this->_vars['subtabs'] = array();
-			throw new SparkException('Permission Denied', SparkException::kAuthorization, $this->_vars);
+			throw new SparkHTTPException_Forbidden(NULL, $this->_vars);
 		}
 
 		if (!empty($subTab))
@@ -116,7 +116,7 @@ class EscherAdminController extends SparkController
 			if (!$curUser->allowed($perm))
 			{
 				$this->_vars['subtabs'] = $this->get_tabs();
-				throw new SparkException('Permission Denied', SparkException::kAuthorization, $this->_vars);
+				throw new SparkHTTPException_Forbidden(NULL, $this->_vars);
 			}
 		}
 		
@@ -126,7 +126,7 @@ class EscherAdminController extends SparkController
 			if (!$curUser->allowed($perm))
 			{
 				$this->_vars['subtabs'] = $this->get_tabs();
-				throw new SparkException('Permission Denied', SparkException::kAuthorization, $this->_vars);
+				throw new SparkHTTPException_Forbidden(NULL, $this->_vars);
 			}
 		}
 

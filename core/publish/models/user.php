@@ -159,7 +159,7 @@ class _UserModel extends SparkModel
 	{
 		if ($roleID <= 1)
 		{
-			throw new SparkException('cannot delete administrator account', SparkException::kInternal);
+			throw new SparkException('cannot delete administrator account');
 		}
 		
 		$db = $this->loadDB();
@@ -317,7 +317,7 @@ class _UserModel extends SparkModel
 	{
 		if (!$user->id)
 		{
-			throw new SparkException('cannot update system user', SparkException::kInternal);
+			throw new SparkException('cannot update system user');
 		}
 		
 		$db = $this->loadDB();
@@ -347,7 +347,7 @@ class _UserModel extends SparkModel
 	{
 		if ($userID <= 1)
 		{
-			throw new SparkException('cannot delete administrator', SparkException::kInternal);
+			throw new SparkException('cannot delete administrator');
 		}
 		
 		$db = $this->loadDB();
@@ -374,7 +374,7 @@ class _UserModel extends SparkModel
 	{
 		if (!$user->id)
 		{
-			throw new SparkException('cannot update system user', SparkException::kInternal);
+			throw new SparkException('cannot update system user');
 		}
 		
 		$db = $this->loadDB();
@@ -408,7 +408,7 @@ class _UserModel extends SparkModel
 	{
 		if (!$id)
 		{
-			throw new SparkException('cannot fetch system user', SparkException::kInternal);
+			throw new SparkException('cannot fetch system user');
 		}
 
 		$db = $this->loadDB();
@@ -443,7 +443,7 @@ class _UserModel extends SparkModel
 	{
 		if (!$email)
 		{
-			throw new SparkException('cannot fetch system user', SparkException::kInternal);
+			throw new SparkException('cannot fetch system user');
 		}
 
 		$db = $this->loadDB();
@@ -505,7 +505,7 @@ class _UserModel extends SparkModel
 	{
 		if (!$user->id)
 		{
-			throw new SparkException('cannot fetch system user', SparkException::kInternal);
+			throw new SparkException('cannot fetch system user');
 		}
 
 		if (!$user->roles)
@@ -532,7 +532,7 @@ class _UserModel extends SparkModel
 	{
 		if (!$user->id)
 		{
-			throw new SparkException('cannot fetch system user', SparkException::kInternal);
+			throw new SparkException('cannot fetch system user');
 		}
 
 		if (!$user->isAdmin && !$user->permissions)
