@@ -32,6 +32,8 @@ ini_set('display_errors', '0');
 
 $plugs = array
 (
+	'sparkauth',
+	'sparkhasher',
 	'sparklang',
 	'sparkdb',
 	'sparksession',

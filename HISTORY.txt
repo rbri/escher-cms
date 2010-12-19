@@ -2,6 +2,8 @@ Escher CMS Change History
 =========================
 
 Changes Since Last Release
+	synced to changes in Spark/Plug's authentication model (using SparkHasher)
+	synced to changes in Spark/Plug's exception handling model
 	eliminated "meta" namespace and tags; added tag: <et:pages:meta name="">
 	form plugin: allow setting default values for multiple checkboxes ("default" attribute now accepts comma-delimited list)
 	added missing semicolons in some inline styles of sample site

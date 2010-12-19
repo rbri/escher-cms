@@ -76,6 +76,13 @@ class _InstallController extends SparkController
 		}
 	}
 
+	// --------------------------------------------------------------------------
+
+	public function _before_dispatch($method, $params)
+	{
+		return true;	// override SparkAuthController (which is active only so we can access SparkAuthModel)
+	}
+
 	//---------------------------------------------------------------------------
 
 	public function action_index($params)
@@ -307,7 +314,8 @@ class _InstallController extends SparkController
 					try
 					{
 						$userModel = $this->newModel('User');
-	
+						$authModel = $this->factory->manufacture('SparkAuthModel');
+
 						$userModel->addUser
 						(
 							$this->factory->manufacture
@@ -317,7 +325,7 @@ class _InstallController extends SparkController
 									'name'=>$params['post']['account_name'],
 									'email'=>$params['post']['account_email'],
 									'login'=>$params['post']['account_login'],
-									'password'=>md5($params['post']['account_password']),
+									'password'=>$authModel->encryptPassword($params['post']['account_password']),
 									'roles'=>array($this->factory->manufacture('Role', array('id'=>1))),
 								)
 							)

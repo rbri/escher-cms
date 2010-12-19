@@ -2259,51 +2259,54 @@ EOD;
 	{
 		// add admin elements
 
-		$user = $this->newModel('User');
-		$user->addUser
+		$userModel = $this->newModel('User');
+		$authModel = $this->factory->manufacture('SparkAuthModel');
+		$password = $authModel->encryptPassword('password');
+		
+		$userModel->addUser
 		(
-			$user->factory->manufacture
+			$userModel->factory->manufacture
 			(
 				'User', array
 				(
 					'name'=>'John Q Publisher', 'email'=>'publisher@example.com',
-					'login'=>'publisher', 'password'=>'5f4dcc3b5aa765d61d8327deb882cf99',
+					'login'=>'publisher', 'password'=>$password,
 					'roles'=>array($this->factory->manufacture('Role', array('id'=>2))),
 				)
 			)
 		);
-		$user->addUser
+		$userModel->addUser
 		(
-			$user->factory->manufacture
+			$userModel->factory->manufacture
 			(
 				'User', array
 				(
 					'name'=>'John Q Editor', 'email'=>'editor@example.com',
-					'login'=>'editor', 'password'=>'5f4dcc3b5aa765d61d8327deb882cf99',
+					'login'=>'editor', 'password'=>$password,
 					'roles'=>array($this->factory->manufacture('Role', array('id'=>3))),
 				)
 			)
 		);
-		$user->addUser
+		$userModel->addUser
 		(
-			$user->factory->manufacture
+			$userModel->factory->manufacture
 			(
 				'User', array
 				(
 					'name'=>'John Q Designer', 'email'=>'designer@example.com',
-					'login'=>'designer', 'password'=>'5f4dcc3b5aa765d61d8327deb882cf99',
+					'login'=>'designer', 'password'=>$password,
 					'roles'=>array($this->factory->manufacture('Role', array('id'=>4))),
 				)
 			)
 		);
-		$user->addUser
+		$userModel->addUser
 		(
-			$user->factory->manufacture
+			$userModel->factory->manufacture
 			(
 				'User', array
 				(
 					'name'=>'John Q Contributor', 'email'=>'contributor@example.com',
-					'login'=>'contributor', 'password'=>'5f4dcc3b5aa765d61d8327deb882cf99',
+					'login'=>'contributor', 'password'=>$password,
 					'roles'=>array($this->factory->manufacture('Role', array('id'=>5))),
 				)
 			)

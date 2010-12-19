@@ -36,6 +36,7 @@ $plugs = array
 	'sparkcache',
 	'sparkdatetime',
 	'sparkdb',
+	'sparkhasher',
 	'sparklang',
 	'sparkmailer',
 	'sparkpagination',

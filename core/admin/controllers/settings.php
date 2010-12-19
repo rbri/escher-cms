@@ -796,8 +796,9 @@ class _SettingsController extends EscherAdminController
 	
 				try
 				{
+					$authModel = $this->factory->manufacture('SparkAuthModel');
 					$savePassword = $user->password;
-					$user->password = md5($user->password);
+					$user->password = $authModel->encryptPassword($user->password);
 	
 					$model->addUser($user);
 					$user->password = '';
@@ -926,8 +927,9 @@ class _SettingsController extends EscherAdminController
 				{
 					if (!empty($user->password))
 					{
+						$authModel = $this->factory->manufacture('SparkAuthModel');
 						$savePassword = $user->password;
-						$user->password = md5($user->password);
+						$user->password = $authModel->encryptPassword($user->password);
 					}
 					$model->updateUser($user);
 					$user->password = '';
