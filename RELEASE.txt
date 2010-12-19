@@ -6,6 +6,17 @@ Escher CMS Release Notes
 
 Release 0.9.1
 
+--
+
+Spark/Plug now uses the PHPass library for password hashing. As a result, any
+Escher user password hashes stored in Escher 0.9.0 databases will no longer
+be recognized. This will cause login to fail once you install a version of
+Escher CMS newer than 0.9.0. The easiest fix is to use the "Forget your Password?"
+link on the Escher CMS login screen to regenerate the password hashes for each
+user account.
+
+--
+
 There has been a minor adjustment to the default location of the main Spark/Plug
 directory. As a result, the "sparkplug_dir" config parameter has changed.
 
@@ -18,5 +29,7 @@ of this parameter in the following config files:
 
 If you are using the standard installation layout, the new versions of the above
 files have already been adjusted for you.
+
+--
 
 ================================================================================
