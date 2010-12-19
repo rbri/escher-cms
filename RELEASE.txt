@@ -4,7 +4,7 @@ Escher CMS Release Notes
 
 ================================================================================
 
-Release 1.0.1
+Release 0.9.1
 
 There has been a minor adjustment to the default location of the main Spark/Plug
 directory. As a result, the "sparkplug_dir" config parameter has changed.
