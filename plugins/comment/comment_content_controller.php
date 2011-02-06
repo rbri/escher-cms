@@ -209,7 +209,7 @@ class CommentContentController extends ContentController
 					$this->session->flashSet('notice', 'Comment saved successfully.');
 					$this->redirect('/content/comments');
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}

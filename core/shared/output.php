@@ -41,7 +41,7 @@ class _Output extends SparkPlug
 
 	public function escape($content, $encodeAll = false, $charset = 'UTF-8')
 	{
-		return SparkView::escape($content, $encodeAll, $charset);
+		return SparkView::escape_html($content, $encodeAll, $charset);
 	}
 
 	//---------------------------------------------------------------------------

@@ -476,7 +476,7 @@ class _SettingsController extends EscherAdminController
 						$this->redirect('/settings/roles');
 					}
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -583,7 +583,7 @@ class _SettingsController extends EscherAdminController
 					}
 					$vars['notice'] = 'Role saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -834,7 +834,7 @@ class _SettingsController extends EscherAdminController
 						$this->redirect('/settings/users');
 					}
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -966,7 +966,7 @@ class _SettingsController extends EscherAdminController
 						$vars['warning'] = $warning;
 					}
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}

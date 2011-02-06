@@ -18,7 +18,7 @@ $sites['<?= $site_id ?>'] = array
 	),
 	'sanitizer' => array
 	(
-		'sanitizer_active' => true,
+		'active' => true,
 		'safe' => 1,
 		'deny_attribute' => 'style',
 	),

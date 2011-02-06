@@ -31,7 +31,7 @@
 		
 		$tabs = str_repeat("\t", $level);
 		$pageID = $page->id;
-		$pageTitle = SparkView::escape($page->title);
+		$pageTitle = SparkView::escape_html($page->title);
 		$pageClass = empty($page->children) ? ' no-children' : '';
 		$childDisplayClass = isset($treeState[$pageID]) ? ($treeState[$pageID] ? ' hidden' : '') : (($level > 0) ? ' hidden' : '');
 
@@ -82,7 +82,7 @@ if ($canAdd):
 EOD;
 			foreach($modelNames as $id => $name)
 			{
-				$name = SparkView::escape($name);
+				$name = SparkView::escape_html($name);
 				$out .= <<<EOD
 						{$tabs}<option value="{$pageID}/{$id}">{$name}</option>
 

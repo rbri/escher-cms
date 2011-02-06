@@ -393,7 +393,7 @@ class _ContentController extends EscherAdminController
 						$this->redirect('/content/models');
 					}
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -503,7 +503,7 @@ class _ContentController extends EscherAdminController
 					$vars['notice'] = 'Model saved successfully.';
 	
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -841,7 +841,7 @@ class _ContentController extends EscherAdminController
 						$this->redirect('/content/pages');
 					}
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -979,7 +979,7 @@ class _ContentController extends EscherAdminController
 					}
 					$vars['notice'] = 'Page saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1544,7 +1544,7 @@ class _ContentController extends EscherAdminController
 					$this->session->flashSet('notice', 'Block added successfully.');
 					$this->redirect('/content/blocks/edit/'.$block->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1638,7 +1638,7 @@ class _ContentController extends EscherAdminController
 					$this->observer->notify('escher:site_change:content:block:edit', $block);
 					$vars['notice'] = 'Block saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1796,7 +1796,7 @@ class _ContentController extends EscherAdminController
 					$this->session->flashSet('notice', 'Image added successfully.');
 					$this->redirect('/content/images/edit/'.$image->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1910,7 +1910,7 @@ class _ContentController extends EscherAdminController
 					$this->observer->notify('escher:site_change:content:image:edit', $image);
 					$vars['notice'] = 'Image saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -2070,7 +2070,7 @@ class _ContentController extends EscherAdminController
 					$this->session->flashSet('notice', 'File added successfully.');
 					$this->redirect('/content/files/edit/'.$file->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -2190,7 +2190,7 @@ class _ContentController extends EscherAdminController
 					$this->observer->notify('escher:site_change:content:file:edit', $file);
 					$vars['notice'] = 'File saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -2305,7 +2305,7 @@ class _ContentController extends EscherAdminController
 					$this->session->flashSet('notice', 'Link added successfully.');
 					$this->redirect('/content/links/edit/'.$link->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -2396,7 +2396,7 @@ class _ContentController extends EscherAdminController
 					$this->observer->notify('escher:site_change:content:link:edit', $link);
 					$vars['notice'] = 'Link saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -2565,7 +2565,7 @@ class _ContentController extends EscherAdminController
 					$this->session->flashSet('notice', 'Category added successfully.');
 					$this->redirect('/content/categories');
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -2633,7 +2633,7 @@ class _ContentController extends EscherAdminController
 					$this->observer->notify('escher:site_change:content:category:edit', $category);
 					$vars['notice'] = 'Category saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}

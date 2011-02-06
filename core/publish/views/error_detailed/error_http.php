@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title><?= $this->escape($status) ?></title>
+	<title><?= $this->escape_html($status) ?></title>
 	<style type="text/css">
 		h1 {
 			font-weight: bold;
@@ -23,9 +23,9 @@
 </head>
 <body id="error">
 	<h1>Oops!</h1>
-	<h2><?= $this->escape(!empty($message) ? $message : $status) ?></h2>
+	<h2><?= $this->escape_html(!empty($message) ? $message : $status) ?></h2>
 <? if (!empty($reason)): ?>
-	<h3><em>(<?= $this->escape($reason) ?>)</em></h3>
+	<h3><em>(<?= $this->escape_html($reason) ?>)</em></h3>
 <? endif; ?>
 	<p>
 <?

@@ -106,7 +106,7 @@ class _FormFieldGenerator extends SparkPlug
 			$atts['cols'] = 80;
 		}
 		
-		$value = SparkView::escape($atts['value']);
+		$value = SparkView::escape_html($atts['value']);
 		unset($atts['value']);
 		
 		return '<textarea' . $this->matts($atts) . '>' . $value . '</textarea>';
@@ -129,7 +129,7 @@ class _FormFieldGenerator extends SparkPlug
 	public function yesnoradio($atts)
 	{ 
 		$disabled = isset($atts['disabled']);
-		$name = SparkView::escape($atts['name']);
+		$name = SparkView::escape_html($atts['name']);
 		$checked0 = !$atts['val'] ? ' checked="checked"' : '';
 		$checked1 = $atts['val'] ? ' checked="checked"' : '';
 		
@@ -152,7 +152,7 @@ class _FormFieldGenerator extends SparkPlug
 	public function checkbox($atts)
 	{ 
 		$disabled = isset($atts['disabled']);
-		$name = SparkView::escape($atts['name']);
+		$name = SparkView::escape_html($atts['name']);
 		$checked = $atts['val'] ? ' checked="checked"' : '';
 		
 		return
@@ -185,7 +185,7 @@ class _FormFieldGenerator extends SparkPlug
 		foreach($options as $id => $name)
 		{
 			$selected = ($id == $val) ? ' selected="selected"' : '';
-			$html .= '<option value="'.$id.'"' . $selected . '>' . SparkView::escape($name) . '</option>';
+			$html .= '<option value="'.$id.'"' . $selected . '>' . SparkView::escape_html($name) . '</option>';
 		}
 	
 		$html .= '</select>';
@@ -387,7 +387,7 @@ class _FormFieldGenerator extends SparkPlug
 		foreach($timezones as $id => $name)
 		{
 			$selected = ($id == $val) ? ' selected="selected"' : '';
-			$html .= '<option value="'.$id.'"' . $selected . '>' . str_replace('  ', '&nbsp;&nbsp;', SparkView::escape($name)) . '</option>';
+			$html .= '<option value="'.$id.'"' . $selected . '>' . str_replace('  ', '&nbsp;&nbsp;', SparkView::escape_html($name)) . '</option>';
 		}
 	
 		$html .= '</select>';
@@ -428,7 +428,7 @@ class _FormFieldGenerator extends SparkPlug
 		foreach($themes as $id => $name)
 		{
 			$selected = ($id == $val) ? ' selected="selected"' : '';
-			$html .= '<option value="'.$id.'"' . $selected . '>' . str_replace('  ', '&nbsp;&nbsp;', SparkView::escape($name)) . '</option>';
+			$html .= '<option value="'.$id.'"' . $selected . '>' . str_replace('  ', '&nbsp;&nbsp;', SparkView::escape_html($name)) . '</option>';
 		}
 	
 		$html .= '</select>';
@@ -490,7 +490,7 @@ class _FormFieldGenerator extends SparkPlug
 		{
 			if ($val != '')
 			{
-				$matts .= ' ' . $key . '="' . SparkView::escape($val) . '"';
+				$matts .= ' ' . $key . '="' . SparkView::escape_html($val) . '"';
 			}
 		}
 		

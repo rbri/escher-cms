@@ -3,7 +3,7 @@
 	{
 		$tabs = str_repeat("\t", $level);
 		$themeID = $theme->id;
-		$themeTitle = SparkView::escape($theme->title);
+		$themeTitle = SparkView::escape_html($theme->title);
 		$themeClass = empty($theme->children) ? ' no-children' : '';
 		$childDisplayClass = ($level > 0) ? ' hidden' : '';
 

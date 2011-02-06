@@ -3,7 +3,7 @@
 	{
 		$tabs = str_repeat("\t", $level);
 		$categoryID = $category->id;
-		$categoryTitle = SparkView::escape($category->title);
+		$categoryTitle = SparkView::escape_html($category->title);
 		$categoryClass = empty($category->children) ? ' no-children' : '';
 		$childDisplayClass = ($level > 0) ? ' hidden' : '';
 

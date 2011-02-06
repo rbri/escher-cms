@@ -60,7 +60,7 @@ $config = array
 	'use_index_file' => true,
 	'sanitizer' => array
 	(
-		'sanitizer_active' => false,
+		'active' => false,
 	),
 	'session' => array
 	(

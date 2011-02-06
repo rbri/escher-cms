@@ -36,7 +36,7 @@ class TidyPublishController extends PublishController
 	
 	//---------------------------------------------------------------------------
 
-	protected function display($output, $contentType = 'text/html')
+	protected function display($output, $contentType = 'text/html', $status = NULL, $headers = NULL)
 	{
 		if (($contentType === 'text/html') && ($config = $this->getConfig()))
 		{
@@ -47,7 +47,7 @@ class TidyPublishController extends PublishController
 			}
 		}
 		
-		return parent::display($output, $contentType);
+		return parent::display($output, $contentType, $status, $headers);
 	}
 
 	//---------------------------------------------------------------------------

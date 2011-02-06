@@ -302,7 +302,7 @@ class _DesignController extends EscherAdminController
 					$this->session->flashSet('notice', 'Theme added successfully.');
 					$this->redirect('/design/themes');
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -372,7 +372,7 @@ class _DesignController extends EscherAdminController
 					$this->observer->notify('escher:site_change:design:theme:edit', $theme);
 					$vars['notice'] = 'Theme saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -510,7 +510,7 @@ class _DesignController extends EscherAdminController
 					$this->session->flashSet('notice', 'Template added successfully.');
 					$this->redirect('/design/templates/edit/'.$template->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -614,7 +614,7 @@ class _DesignController extends EscherAdminController
 					$this->observer->notify('escher:site_change:design:template:edit', $template);
 					$vars['notice'] = 'Template saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -731,7 +731,7 @@ class _DesignController extends EscherAdminController
 					$this->session->flashSet('notice', 'Snippet added successfully.');
 					$this->redirect('/design/snippets/edit/'.$snippet->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -835,7 +835,7 @@ class _DesignController extends EscherAdminController
 					$this->observer->notify('escher:site_change:design:snippet:edit', $snippet);
 					$vars['notice'] = 'Snippet saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -953,7 +953,7 @@ class _DesignController extends EscherAdminController
 					$this->session->flashSet('notice', 'Tag added successfully.');
 					$this->redirect('/design/tags/edit/'.$tag->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1058,7 +1058,7 @@ class _DesignController extends EscherAdminController
 					$this->observer->notify('escher:cache:request_flush:plug', $tag);
 					$vars['notice'] = 'Tag saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1177,7 +1177,7 @@ class _DesignController extends EscherAdminController
 					$this->session->flashSet('notice', 'Style added successfully.');
 					$this->redirect('/design/styles/edit/'.$style->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1281,7 +1281,7 @@ class _DesignController extends EscherAdminController
 					$this->observer->notify('escher:site_change:design:style:edit', $style);
 					$vars['notice'] = 'Style saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1399,7 +1399,7 @@ class _DesignController extends EscherAdminController
 					$this->session->flashSet('notice', 'Script added successfully.');
 					$this->redirect('/design/scripts/edit/'.$script->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1503,7 +1503,7 @@ class _DesignController extends EscherAdminController
 					$this->observer->notify('escher:site_change:design:script:edit', $script);
 					$vars['notice'] = 'Script saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1631,7 +1631,7 @@ class _DesignController extends EscherAdminController
 					$this->session->flashSet('notice', 'Image added successfully.');
 					$this->redirect('/design/images/edit/'.$image->id);
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
@@ -1756,7 +1756,7 @@ class _DesignController extends EscherAdminController
 					$this->observer->notify('escher:site_change:design:image:edit', $image);
 					$vars['notice'] = 'Image saved successfully.';
 				}
-				catch(SparkDBException $e)
+				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}

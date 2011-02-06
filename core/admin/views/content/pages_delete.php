@@ -3,7 +3,7 @@
 	{
 		$tabs = str_repeat("\t", $level);
 		$pageID = $page->id;
-		$pageTitle = SparkView::escape($page->title);
+		$pageTitle = SparkView::escape_html($page->title);
 		$pageClass = empty($page->children) ? ' no-children' : '';
 		$childDisplayClass = ($level > 0) ? ' hidden' : '';
 
