@@ -2,7 +2,7 @@
 
 /*
 /*
-Copyright 2009-2010 Sam Weiss
+Copyright 2009-2011 Sam Weiss
 All Rights Reserved.
 
 This file is part of Escher.
