@@ -247,7 +247,7 @@ class _DesignController extends EscherAdminController
 
 	protected function themes_add($params)
 	{
-		if (!$parentID = @$params['post']['parent_id'])
+		if (!$parentID = @$params['pv']['parent_id'])
 		{
 			if (!$parentID = @$params[0])
 			{
@@ -262,11 +262,11 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'themes', 'add');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build theme object from form data
 			
-			$this->buildTheme($params['post'], $theme);
+			$this->buildTheme($params['pv'], $theme);
 
 			if (!$vars['can_save'])
 			{
@@ -276,7 +276,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['theme_slug'] = 'A theme with this slug already exists.';
 			}
-			elseif ($this->validateTheme($params['post'], $errors))
+			elseif ($this->validateTheme($params['pv'], $errors))
 			{
 				// add theme object
 	
@@ -327,7 +327,7 @@ class _DesignController extends EscherAdminController
 
 	protected function themes_edit($params)
 	{
-		if (!$themeID = @$params['post']['theme_id'])
+		if (!$themeID = @$params['pv']['theme_id'])
 		{
 			if (!$themeID = @$params[0])
 			{
@@ -347,12 +347,12 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'themes', 'edit', $theme);
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build theme object from form data
 			
 			$oldSlug = $theme->slug;
-			$this->buildTheme($params['post'], $theme);
+			$this->buildTheme($params['pv'], $theme);
 			
 			if (!$vars['can_save'])
 			{
@@ -362,7 +362,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['theme_slug'] = 'A theme with this slug already exists.';
 			}
-			elseif ($this->validateTheme($params['post'], $errors))
+			elseif ($this->validateTheme($params['pv'], $errors))
 			{
 				$theme->makeSlug();
 				try
@@ -401,7 +401,7 @@ class _DesignController extends EscherAdminController
 
 	protected function themes_delete($params)
 	{
-		if (!$themeID = @$params['post']['theme_id'])
+		if (!$themeID = @$params['pv']['theme_id'])
 		{
 			if (!$themeID = @$params[0])
 			{
@@ -419,7 +419,7 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'themes', 'delete', $theme);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -461,7 +461,7 @@ class _DesignController extends EscherAdminController
 		$vars['action'] = 'list';
 		$vars['themes'] = $themes;
 		$vars['notice'] = $this->session->flashGet('notice');
-		$vars['tree_state'] = isset($params['cookie']['escherthemelist']) ? json_decode($params['cookie']['escherthemelist'], true) : NULL;
+		$vars['tree_state'] = isset($params[cv]['escherthemelist']) ? json_decode($params[cv]['escherthemelist'], true) : NULL;
 
 		$this->observer->notify('escher:render:before:design:theme:list', $themes);
 		$this->render('main', $vars);
@@ -486,11 +486,11 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'templates', 'add');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build template object from form data
 			
-			$this->buildTemplate($params['post'], $template);
+			$this->buildTemplate($params['pv'], $template);
 
 			if (!$vars['can_save'])
 			{
@@ -500,7 +500,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['template_name'] = 'A template with this name already exists.';
 			}
-			elseif ($this->validateTemplate($params['post'], $errors))
+			elseif ($this->validateTemplate($params['pv'], $errors))
 			{
 				try
 				{
@@ -540,7 +540,7 @@ class _DesignController extends EscherAdminController
 		
 		$themeID = $this->getSelectedTheme($params);
 
-		if (!$templateID = @$params['post']['selected_template_id'])
+		if (!$templateID = @$params['pv']['selected_template_id'])
 		{
 			$templateID = @$params[0];
 		}
@@ -588,14 +588,14 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'templates', 'edit', $template);
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
-			$params['post']['template_name'] = $template->name;
+			$params['pv']['template_name'] = $template->name;
 
 			// build template object from form data
 			
 			$oldName = $template->name;
-			$this->buildTemplate($params['post'], $template);
+			$this->buildTemplate($params['pv'], $template);
 
 			if (!$vars['can_save'])
 			{
@@ -605,7 +605,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['template_name'] = 'A template with this name already exists.';
 			}
-			elseif ($this->validateTemplate($params['post'], $errors))
+			elseif ($this->validateTemplate($params['pv'], $errors))
 			{
 				try
 				{
@@ -646,7 +646,7 @@ class _DesignController extends EscherAdminController
 
 	protected function templates_delete($params)
 	{
-		if (!$templateID = @$params['post']['template_id'])
+		if (!$templateID = @$params['pv']['template_id'])
 		{
 			if (!$templateID = @$params[0])
 			{
@@ -664,7 +664,7 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'templates', 'delete', $template);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -707,11 +707,11 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'snippets', 'add');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build snippet object from form data
 			
-			$this->buildSnippet($params['post'], $snippet);
+			$this->buildSnippet($params['pv'], $snippet);
 
 			if (!$vars['can_save'])
 			{
@@ -721,7 +721,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['snippet_name'] = 'A snippet with this name already exists.';
 			}
-			elseif ($this->validateSnippet($params['post'], $errors))
+			elseif ($this->validateSnippet($params['pv'], $errors))
 			{
 				try
 				{
@@ -761,7 +761,7 @@ class _DesignController extends EscherAdminController
 		
 		$themeID = $this->getSelectedTheme($params);
 
-		if (!$snippetID = @$params['post']['selected_snippet_id'])
+		if (!$snippetID = @$params['pv']['selected_snippet_id'])
 		{
 			$snippetID = @$params[0];
 		}
@@ -809,14 +809,14 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'snippets', 'edit', $snippet);
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
-			$params['post']['snippet_name'] = $snippet->name;
+			$params['pv']['snippet_name'] = $snippet->name;
 
 			// build snippet object from form data
 			
 			$oldName = $snippet->name;
-			$this->buildSnippet($params['post'], $snippet);
+			$this->buildSnippet($params['pv'], $snippet);
 
 			if (!$vars['can_save'])
 			{
@@ -826,7 +826,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['snippet_name'] = 'A snippet with this name already exists.';
 			}
-			elseif ($this->validateSnippet($params['post'], $errors))
+			elseif ($this->validateSnippet($params['pv'], $errors))
 			{
 				try
 				{
@@ -867,7 +867,7 @@ class _DesignController extends EscherAdminController
 
 	protected function snippets_delete($params)
 	{
-		if (!$snippetID = @$params['post']['snippet_id'])
+		if (!$snippetID = @$params['pv']['snippet_id'])
 		{
 			if (!$snippetID = @$params[0])
 			{
@@ -885,7 +885,7 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'snippets', 'delete', $snippet);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -928,11 +928,11 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'tags', 'add');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build tag object from form data
 			
-			$this->buildTag($params['post'], $tag);
+			$this->buildTag($params['pv'], $tag);
 
 			if (!$vars['can_save'])
 			{
@@ -942,7 +942,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['tag_name'] = 'A tag with this name already exists.';
 			}
-			elseif ($this->validateTag($params['post'], $errors))
+			elseif ($this->validateTag($params['pv'], $errors))
 			{
 				try
 				{
@@ -983,7 +983,7 @@ class _DesignController extends EscherAdminController
 		
 		$themeID = $this->getSelectedTheme($params);
 
-		if (!$tagID = @$params['post']['selected_tag_id'])
+		if (!$tagID = @$params['pv']['selected_tag_id'])
 		{
 			$tagID = @$params[0];
 		}
@@ -1031,14 +1031,14 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'tags', 'edit', $tag);
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
-			$params['post']['tag_name'] = $tag->name;
+			$params['pv']['tag_name'] = $tag->name;
 
 			// build tag object from form data
 			
 			$oldName = $tag->name;
-			$this->buildTag($params['post'], $tag);
+			$this->buildTag($params['pv'], $tag);
 
 			if (!$vars['can_save'])
 			{
@@ -1048,7 +1048,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['tag_name'] = 'A tag with this name already exists.';
 			}
-			elseif ($this->validateTag($params['post'], $errors))
+			elseif ($this->validateTag($params['pv'], $errors))
 			{
 				try
 				{
@@ -1090,7 +1090,7 @@ class _DesignController extends EscherAdminController
 
 	protected function tags_delete($params)
 	{
-		if (!$tagID = @$params['post']['tag_id'])
+		if (!$tagID = @$params['pv']['tag_id'])
 		{
 			if (!$tagID = @$params[0])
 			{
@@ -1108,7 +1108,7 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'tags', 'delete', $tag);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -1152,11 +1152,11 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'styles', 'add');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build style object from form data
 			
-			$this->buildStyle($params['post'], $style);
+			$this->buildStyle($params['pv'], $style);
 
 			if (!$vars['can_save'])
 			{
@@ -1166,7 +1166,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['style_slug'] = 'A style with this name already exists.';
 			}
-			elseif ($this->validateStyle($params['post'], $errors))
+			elseif ($this->validateStyle($params['pv'], $errors))
 			{
 				$style->makeSlug();
 				try
@@ -1207,7 +1207,7 @@ class _DesignController extends EscherAdminController
 		
 		$themeID = $this->getSelectedTheme($params);
 
-		if (!$styleID = @$params['post']['selected_style_id'])
+		if (!$styleID = @$params['pv']['selected_style_id'])
 		{
 			$styleID = @$params[0];
 		}
@@ -1255,14 +1255,14 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'styles', 'edit', $style);
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
-			$params['post']['style_name'] = $style->slug;
+			$params['pv']['style_name'] = $style->slug;
 
 			// build style object from form data
 			
 			$oldSlug = $style->slug;
-			$this->buildStyle($params['post'], $style);
+			$this->buildStyle($params['pv'], $style);
 
 			if (!$vars['can_save'])
 			{
@@ -1272,7 +1272,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['style_slug'] = 'A style with this name already exists.';
 			}
-			elseif ($this->validateStyle($params['post'], $errors))
+			elseif ($this->validateStyle($params['pv'], $errors))
 			{
 				try
 				{
@@ -1313,7 +1313,7 @@ class _DesignController extends EscherAdminController
 
 	protected function styles_delete($params)
 	{
-		if (!$styleID = @$params['post']['style_id'])
+		if (!$styleID = @$params['pv']['style_id'])
 		{
 			if (!$styleID = @$params[0])
 			{
@@ -1331,7 +1331,7 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'styles', 'delete', $style);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -1374,11 +1374,11 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'scripts', 'add');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build script object from form data
 			
-			$this->buildScript($params['post'], $script);
+			$this->buildScript($params['pv'], $script);
 
 			if (!$vars['can_save'])
 			{
@@ -1388,7 +1388,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['script_slug'] = 'A script with this name already exists.';
 			}
-			elseif ($this->validateScript($params['post'], $errors))
+			elseif ($this->validateScript($params['pv'], $errors))
 			{
 				$script->makeSlug();
 				try
@@ -1429,7 +1429,7 @@ class _DesignController extends EscherAdminController
 		
 		$themeID = $this->getSelectedTheme($params);
 
-		if (!$scriptID = @$params['post']['selected_script_id'])
+		if (!$scriptID = @$params['pv']['selected_script_id'])
 		{
 			$scriptID = @$params[0];
 		}
@@ -1477,14 +1477,14 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'scripts', 'edit', $script);
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
-			$params['post']['script_name'] = $script->slug;
+			$params['pv']['script_name'] = $script->slug;
 
 			// build script object from form data
 			
 			$oldSlug = $script->slug;
-			$this->buildScript($params['post'], $script);
+			$this->buildScript($params['pv'], $script);
 
 			if (!$vars['can_save'])
 			{
@@ -1494,7 +1494,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['script_slug'] = 'A script with this name already exists.';
 			}
-			elseif ($this->validateScript($params['post'], $errors))
+			elseif ($this->validateScript($params['pv'], $errors))
 			{
 				try
 				{
@@ -1535,7 +1535,7 @@ class _DesignController extends EscherAdminController
 
 	protected function scripts_delete($params)
 	{
-		if (!$scriptID = @$params['post']['script_id'])
+		if (!$scriptID = @$params['pv']['script_id'])
 		{
 			if (!$scriptID = @$params[0])
 			{
@@ -1553,7 +1553,7 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'scripts', 'delete', $script);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -1598,14 +1598,14 @@ class _DesignController extends EscherAdminController
 		$this->getDesignPerms($vars, 'images', 'add');
 		$vars['can_upload'] = $curUser->allowed('design:images:add:upload');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			require($this->config->get('core_dir') . '/admin/lib/image_helper.php');
 			$imageHelper = $this->factory->manufacture('ImageHelper');
 
 			// build image object from form data
 			
-			$imageHelper->buildImage($params['post'], $image);
+			$imageHelper->buildImage($params['pv'], $image);
 			$image->theme_id = $themeID;
 
 			if (!$vars['can_save'])
@@ -1616,7 +1616,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['image_slug'] = 'An image with this name already exists.';
 			}
-			elseif ($imageHelper->validateImage($params['post'], $vars['can_upload'], $errors))
+			elseif ($imageHelper->validateImage($params['pv'], $vars['can_upload'], $errors))
 			{
 				if ($vars['can_upload'])
 				{
@@ -1662,7 +1662,7 @@ class _DesignController extends EscherAdminController
 		
 		$themeID = $this->getSelectedTheme($params);
 
-		if (!$imageID = @$params['post']['selected_image_id'])
+		if (!$imageID = @$params['pv']['selected_image_id'])
 		{
 			$imageID = @$params[0];
 		}
@@ -1721,17 +1721,17 @@ class _DesignController extends EscherAdminController
 			$vars['can_upload'] = $curUser->allowed($perm);
 		}
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			require($this->config->get('core_dir') . '/admin/lib/image_helper.php');
 			$imageHelper = $this->factory->manufacture('ImageHelper');
 
-			$params['post']['image_name'] = $image->slug;
+			$params['pv']['image_name'] = $image->slug;
 
 			// build image object from form data
 			
 			$oldSlug = $image->slug;
-			$imageHelper->buildImage($params['post'], $image);
+			$imageHelper->buildImage($params['pv'], $image);
 
 			if (!$vars['can_save'])
 			{
@@ -1741,7 +1741,7 @@ class _DesignController extends EscherAdminController
 			{
 				$errors['image_slug'] = 'An image with this name already exists.';
 			}
-			elseif ($imageHelper->validateImage($params['post'], $vars['can_upload'], $errors))
+			elseif ($imageHelper->validateImage($params['pv'], $vars['can_upload'], $errors))
 			{
 				$image = clone $image;			// clone the image so we don't remove cached content
 				$image->content = NULL;			// only update image data if we load a new image
@@ -1794,7 +1794,7 @@ class _DesignController extends EscherAdminController
 
 	protected function images_delete($params)
 	{
-		if (!$imageID = @$params['post']['image_id'])
+		if (!$imageID = @$params['pv']['image_id'])
 		{
 			if (!$imageID = @$params[0])
 			{
@@ -1817,7 +1817,7 @@ class _DesignController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'images', 'delete', $image);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -2112,7 +2112,7 @@ class _DesignController extends EscherAdminController
 
 	protected function getSelectedTheme($params)
 	{
-		if (($themeID = @$params['post']['selected_theme_id']) !== NULL)
+		if (($themeID = @$params['pv']['selected_theme_id']) !== NULL)
 		{
 			$this->session->set('selected_theme_id', intval($themeID));
 		}

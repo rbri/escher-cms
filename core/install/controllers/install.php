@@ -105,7 +105,7 @@ class _InstallController extends SparkController
 			$vars['problems'] = array();
 			$this->checkForPreInstallProblems($vars['problems']);
 
-			if (empty($vars['problems']) && isset($params['post']['continue']))
+			if (empty($vars['problems']) && isset($params['pv']['continue']))
 			{
 				$this->redirect('/install/step1');
 			}
@@ -133,7 +133,7 @@ class _InstallController extends SparkController
 				$this->redirect('/install/step3');
 			}
 		}
-		elseif (isset($params['post']['back']))
+		elseif (isset($params['pv']['back']))
 		{
 			$this->redirect('/install');
 		}
@@ -150,13 +150,13 @@ class _InstallController extends SparkController
 			$vars['site_url'] = $this->session->get('site_url', $siteURL);
 			$vars['site_name'] = $this->session->get('site_name', 'My Site');
 
-			if (isset($params['post']['continue']))
+			if (isset($params['pv']['continue']))
 			{
-				if ($this->validateStep1($params['post'], $errors))
+				if ($this->validateStep1($params['pv'], $errors))
 				{
 					foreach ($fields as $field)
 					{
-						$vars[$field] = $this->session->set($field, $params['post'][$field]);
+						$vars[$field] = $this->session->set($field, $params['pv'][$field]);
 					}
 					$this->redirect('/install/step2');
 				}
@@ -166,7 +166,7 @@ class _InstallController extends SparkController
 
 					foreach ($fields as $field)
 					{
-						$vars[$field] = $params['post'][$field];
+						$vars[$field] = $params['pv'][$field];
 					}
 				}
 			}
@@ -203,7 +203,7 @@ class _InstallController extends SparkController
 				$this->redirect('/install/step3');
 			}
 		}
-		elseif (isset($params['post']['back']))
+		elseif (isset($params['pv']['back']))
 		{
 			$this->redirect('/install/step1');
 		}
@@ -228,18 +228,18 @@ class _InstallController extends SparkController
 			
 			$plugIn->setConnectionDefaults($vars);
 
-			if (isset($params['post']['continue']))
+			if (isset($params['pv']['continue']))
 			{
-				if ($this->validateStep2($params['post'], $errors, $vars, $plugIn))
+				if ($this->validateStep2($params['pv'], $errors, $vars, $plugIn))
 				{
 					try
 					{
 						$config['label'] = 'default';
-						$config['adapter'] = $params['post']['selected_driver'];
+						$config['adapter'] = $params['pv']['selected_driver'];
 						$config['charset'] = 'utf8';
 						$config['persistent'] = false;
 						$config['table_prefix'] = '';
-						$config = array_merge($config, $this->_db_plugs[$config['adapter']][1]->buildConnectionParams($params['post']));
+						$config = array_merge($config, $this->_db_plugs[$config['adapter']][1]->buildConnectionParams($params['pv']));
 
 						$dbConfig = $config;
 						$config['db_config'] = $dbConfig;
@@ -265,7 +265,7 @@ class _InstallController extends SparkController
 
 				$vars['errors'] = $errors;
 
-				foreach ($params['post'] as $key => $val)
+				foreach ($params['pv'] as $key => $val)
 				{
 					$vars[$key] = $val;
 				}
@@ -291,7 +291,7 @@ class _InstallController extends SparkController
 		{
 			$vars['content'] = 'installed';
 		}
-		elseif (isset($params['post']['back']))
+		elseif (isset($params['pv']['back']))
 		{
 			$this->redirect('/install/step2');
 		}
@@ -307,9 +307,9 @@ class _InstallController extends SparkController
 			$vars['account_password'] = '';
 			$vars['account_password_again'] = '';
 
-			if (isset($params['post']['continue']))
+			if (isset($params['pv']['continue']))
 			{
-				if ($this->validateStep3($params['post'], $errors))
+				if ($this->validateStep3($params['pv'], $errors))
 				{
 					try
 					{
@@ -322,10 +322,10 @@ class _InstallController extends SparkController
 							(
 								'User', array
 								(
-									'name'=>$params['post']['account_name'],
-									'email'=>$params['post']['account_email'],
-									'login'=>$params['post']['account_login'],
-									'password'=>$authModel->encryptPassword($params['post']['account_password']),
+									'name'=>$params['pv']['account_name'],
+									'email'=>$params['pv']['account_email'],
+									'login'=>$params['pv']['account_login'],
+									'password'=>$authModel->encryptPassword($params['pv']['account_password']),
 									'roles'=>array($this->factory->manufacture('Role', array('id'=>1))),
 								)
 							)
@@ -344,7 +344,7 @@ class _InstallController extends SparkController
 
 				foreach ($fields as $field)
 				{
-					$vars[$field] = $params['post'][$field];
+					$vars[$field] = $params['pv'][$field];
 				}
 			}
 		}
@@ -374,13 +374,13 @@ class _InstallController extends SparkController
 			
 			$vars['content_option'] = 2;
 			
-			if (isset($params['post']['continue']))
+			if (isset($params['pv']['continue']))
 			{
-				if ($this->validateStep4($params['post'], $errors))
+				if ($this->validateStep4($params['pv'], $errors))
 				{
 					try
 					{
-						switch ($params['post']['content_option'])
+						switch ($params['pv']['content_option'])
 						{
 							case 1:
 								break;
@@ -407,7 +407,7 @@ class _InstallController extends SparkController
 				}
 				
 				$vars['errors'] = $errors;
-				$vars['content_option'] = $params['post']['content_option'];
+				$vars['content_option'] = $params['pv']['content_option'];
 			}
 		}
 		

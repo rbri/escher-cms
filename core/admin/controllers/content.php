@@ -360,12 +360,12 @@ class _ContentController extends EscherAdminController
 		$this->getContentPerms($vars, 'models', 'add');
 		$this->getContentModelsPerms($vars, 'add');
 
-		if (isset($params['post']['save']) || isset($params['post']['continue']))
+		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
 		{
 			// build page object from form data
 			
-			$this->buildPage($params['post'], $templates, $pageModel, $vars, true);
-			$pageModel->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$this->buildPage($params['pv'], $templates, $pageModel, $vars, true);
+			$pageModel->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 		
 			if (!$vars['can_save'])
 			{
@@ -375,7 +375,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['model_name'] = 'A model with this name already exists.';
 			}
-			elseif ($this->validatePage($params['post'], $templates, $statuses, $callbacks, $vars, true, $errors))
+			elseif ($this->validatePage($params['pv'], $templates, $statuses, $callbacks, $vars, true, $errors))
 			{
 				// add model object
 	
@@ -384,7 +384,7 @@ class _ContentController extends EscherAdminController
 					$this->models_save($model, $pageModel, $vars);
 					$this->session->flashSet('notice', 'Page Model added successfully.');
 	
-					if (isset($params['post']['continue']))
+					if (isset($params['pv']['continue']))
 					{
 						$this->redirect('/content/models/edit/'.$pageModel->id);
 					}
@@ -433,7 +433,7 @@ class _ContentController extends EscherAdminController
 
 	protected function models_edit($params)
 	{
-		if (!$modelID = @$params['post']['model_id'])
+		if (!$modelID = @$params['pv']['model_id'])
 		{
 			if (!$modelID = @$params[0])
 			{
@@ -470,13 +470,13 @@ class _ContentController extends EscherAdminController
 		$this->getContentPerms($vars, 'models', 'edit');
 		$this->getContentModelsPerms($vars, 'edit', $pageModel);
 
-		if (isset($params['post']['save']) || isset($params['post']['continue']))
+		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
 		{
 			// build page model object from form data
 			
 			$oldName = $pageModel->name;
-			$this->buildPage($params['post'], $templates, $pageModel, $vars, true);
-			$pageModel->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$this->buildPage($params['pv'], $templates, $pageModel, $vars, true);
+			$pageModel->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 		
 			if (!$vars['can_save'])
 			{
@@ -486,7 +486,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['model_name'] = 'A model with this name already exists.';
 			}
-			elseif ($this->validatePage($params['post'], $templates, $statuses, $callbacks, $vars, true, $errors))
+			elseif ($this->validatePage($params['pv'], $templates, $statuses, $callbacks, $vars, true, $errors))
 			{
 				// update page model object
 	
@@ -494,7 +494,7 @@ class _ContentController extends EscherAdminController
 				{
 					$this->models_save($model, $pageModel, $vars);
 	
-					if (isset($params['post']['save']))
+					if (isset($params['pv']['save']))
 					{
 						$this->session->flashSet('notice', 'Model saved successfully.');
 						$this->redirect('/content/models');
@@ -554,7 +554,7 @@ class _ContentController extends EscherAdminController
 
 	protected function models_delete($params)
 	{
-		if (!$modelID = @$params['post']['model_id'])
+		if (!$modelID = @$params['pv']['model_id'])
 		{
 			if (!$modelID = @$params[0])
 			{
@@ -577,7 +577,7 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'models', 'delete');
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -704,7 +704,7 @@ class _ContentController extends EscherAdminController
 
 	protected function pages_add($params)
 	{
-		if (!$parentID = @$params['post']['parent_id'])
+		if (!$parentID = @$params['pv']['parent_id'])
 		{
 			if (!$parentID = @$params[0])
 			{
@@ -712,7 +712,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 		
-		if (!$pageModelID = @$params['post']['model_id'])
+		if (!$pageModelID = @$params['pv']['model_id'])
 		{
 			if (!$pageModelID = @$params[1])
 			{
@@ -754,7 +754,7 @@ class _ContentController extends EscherAdminController
 		if (!$usingModel)
 		{
 			$curUser = $this->app->get_user();
-			$pageType = isset($params['post']['page_type']) && isset($this->_pageTypes[$params['post']['page_type']]) ? $params['post']['page_type'] : 'Page';
+			$pageType = isset($params['pv']['page_type']) && isset($this->_pageTypes[$params['pv']['page_type']]) ? $params['pv']['page_type'] : 'Page';
 			$page = $this->factory->manufacture($pageType, array('parent_id'=>$parentID, 'author_id'=>$curUser->id));
 			$usingModel = false;
 		}
@@ -795,12 +795,12 @@ class _ContentController extends EscherAdminController
 			throw new SparkHTTPException_Forbidden(NULL, $vars);
 		}
 
-		if (isset($params['post']['save']) || isset($params['post']['continue']))
+		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
 		{
 			// build page object from form data
 			
-			$this->buildPage($params['post'], $templates, $page, $vars, false);
-			$page->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$this->buildPage($params['pv'], $templates, $page, $vars, false);
+			$page->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 			$page->level = 0;
 			$page->position = 0;
 			$page->published = '';
@@ -813,7 +813,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['meta_slug'] = 'This slug already in use by a sibling of this page.';
 			}
-			elseif ($this->validatePage($params['post'], $templates, $statuses, $callbacks, $vars, false, $errors))
+			elseif ($this->validatePage($params['pv'], $templates, $statuses, $callbacks, $vars, false, $errors))
 			{
 				// add page object
 	
@@ -832,7 +832,7 @@ class _ContentController extends EscherAdminController
 				{
 					$this->pages_save($model, $page, $vars);
 					$this->session->flashSet('notice', 'Page added successfully.');
-					if (isset($params['post']['continue']))
+					if (isset($params['pv']['continue']))
 					{
 						$this->redirect('/content/pages/edit/'.$page->id);
 					}
@@ -891,7 +891,7 @@ class _ContentController extends EscherAdminController
 
 	protected function pages_edit($params)
 	{
-		if (!$pageID = @$params['post']['page_id'])
+		if (!$pageID = @$params['pv']['page_id'])
 		{
 			if (!$pageID = @$params[0])
 			{
@@ -906,7 +906,7 @@ class _ContentController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'page not found'));
 		}
 
-		$pageType = isset($params['post']['page_type']) && isset($this->_pageTypes[$params['post']['page_type']]) ? $params['post']['page_type'] : $page->type;
+		$pageType = isset($params['pv']['page_type']) && isset($this->_pageTypes[$params['pv']['page_type']]) ? $params['pv']['page_type'] : $page->type;
 		
 		if ($pageType != $page->type)
 		{
@@ -944,13 +944,13 @@ class _ContentController extends EscherAdminController
 			throw new SparkHTTPException_Forbidden(NULL, $vars);
 		}
 
-		if (isset($params['post']['save']) || isset($params['post']['continue']))
+		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
 		{
 			// build page object from form data
 			
 			$oldSlug = $page->slug;
-			$this->buildPage($params['post'], $templates, $page, $vars, false);
-			$page->categories = $categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$this->buildPage($params['pv'], $templates, $page, $vars, false);
+			$page->categories = $categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 		
 			if (!$vars['can_save'])
 			{
@@ -960,7 +960,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['meta_slug'] = 'This slug already in use by a sibling of this page.';
 			}
-			elseif ($this->validatePage($params['post'], $templates, $statuses, $callbacks, $vars, false, $errors))
+			elseif ($this->validatePage($params['pv'], $templates, $statuses, $callbacks, $vars, false, $errors))
 			{
 				// update page object
 	
@@ -972,7 +972,7 @@ class _ContentController extends EscherAdminController
 				try
 				{
 					$this->pages_save($model, $page, $vars);
-					if (isset($params['post']['save']))
+					if (isset($params['pv']['save']))
 					{
 						$this->session->flashSet('notice', 'Page saved successfully.');
 						$this->redirect('/content/pages');
@@ -1038,7 +1038,7 @@ class _ContentController extends EscherAdminController
 
 	protected function pages_delete($params)
 	{
-		if (!$pageID = @$params['post']['page_id'])
+		if (!$pageID = @$params['pv']['page_id'])
 		{
 			if (!$pageID = @$params[0])
 			{
@@ -1061,7 +1061,7 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'pages', 'delete', $rootPage);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -1118,7 +1118,7 @@ class _ContentController extends EscherAdminController
 		$vars['root_page'] = $rootPage;
 		$vars['model_names'] = $model->fetchAllModelNames();
 		$vars['notice'] = $this->session->flashGet('notice');
-		$vars['tree_state'] = isset($params['cookie']['escherpagelist']) ? json_decode($params['cookie']['escherpagelist'], true) : NULL;
+		$vars['tree_state'] = isset($params['cv']['escherpagelist']) ? json_decode($params['cv']['escherpagelist'], true) : NULL;
 
 		$this->observer->notify('escher:render:before:content:page:list', $rootPage);
 		$this->render('main', $vars);
@@ -1518,12 +1518,12 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'blocks', 'add');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build block object from form data
 			
-			$this->buildBlock($params['post'], $block);
-			$block->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$this->buildBlock($params['pv'], $block);
+			$block->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 
 			if (!$vars['can_save'])
 			{
@@ -1533,7 +1533,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['block_name'] = 'A block with this name already exists.';
 			}
-			elseif ($this->validateBlock($params['post'], $errors))
+			elseif ($this->validateBlock($params['pv'], $errors))
 			{
 				try
 				{
@@ -1580,7 +1580,7 @@ class _ContentController extends EscherAdminController
 
 		$blockNames = $model->fetchBlockNames();
 
-		if (!$blockID = @$params['post']['selected_block_id'])
+		if (!$blockID = @$params['pv']['selected_block_id'])
 		{
 			if (!$blockID = @$params[0])
 			{
@@ -1610,15 +1610,15 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'blocks', 'edit', $block);
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
-			$params['post']['block_name'] = $block->name;
+			$params['pv']['block_name'] = $block->name;
 
 			// build block object from form data
 			
 			$oldName = $block->name;
-			$this->buildBlock($params['post'], $block);
-			$block->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$this->buildBlock($params['pv'], $block);
+			$block->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 			
 			if (!$vars['can_save'])
 			{
@@ -1628,7 +1628,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['block_name'] = 'A block with this name already exists.';
 			}
-			elseif ($this->validateBlock($params['post'], $errors))
+			elseif ($this->validateBlock($params['pv'], $errors))
 			{
 				try
 				{
@@ -1675,7 +1675,7 @@ class _ContentController extends EscherAdminController
 
 	protected function blocks_delete($params)
 	{
-		if (!$blockID = @$params['post']['block_id'])
+		if (!$blockID = @$params['pv']['block_id'])
 		{
 			if (!$blockID = @$params[0])
 			{
@@ -1693,7 +1693,7 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'blocks', 'delete', $block);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -1762,15 +1762,15 @@ class _ContentController extends EscherAdminController
 		$this->getContentPerms($vars, 'images', 'add');
 		$vars['can_upload'] = $curUser->allowed('content:images:add:upload');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			require($this->config->get('core_dir') . '/admin/lib/image_helper.php');
 			$imageHelper = $this->factory->manufacture('ImageHelper');
 
 			// build image object from form data
 			
-			$imageHelper->buildImage($params['post'], $image);
-			$image->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$imageHelper->buildImage($params['pv'], $image);
+			$image->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 
 			if (!$vars['can_save'])
 			{
@@ -1780,7 +1780,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['image_name'] = 'A content image with this name already exists.';
 			}
-			elseif ($imageHelper->validateImage($params['post'], $vars['can_upload'], $errors))
+			elseif ($imageHelper->validateImage($params['pv'], $vars['can_upload'], $errors))
 			{
 				if ($vars['can_upload'])
 				{
@@ -1828,7 +1828,7 @@ class _ContentController extends EscherAdminController
 	{
 		$image = NULL;
 		
-		if (!$imageID = @$params['post']['selected_image_id'])
+		if (!$imageID = @$params['pv']['selected_image_id'])
 		{
 			$imageID = @$params[0];
 		}
@@ -1874,18 +1874,18 @@ class _ContentController extends EscherAdminController
 			$vars['can_upload'] = $curUser->allowed($perm);
 		}
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			require($this->config->get('core_dir') . '/admin/lib/image_helper.php');
 			$imageHelper = $this->factory->manufacture('ImageHelper');
 
-			$params['post']['image_name'] = $image->slug;
+			$params['pv']['image_name'] = $image->slug;
 
 			// build image object from form data
 			
 			$oldSlug = $image->slug;
-			$imageHelper->buildImage($params['post'], $image);
-			$image->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$imageHelper->buildImage($params['pv'], $image);
+			$image->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 
 			if (!$vars['can_save'])
 			{
@@ -1895,7 +1895,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['image_name'] = 'A content image with this name already exists.';
 			}
-			elseif ($imageHelper->validateImage($params['post'],  $vars['can_upload'], $errors))
+			elseif ($imageHelper->validateImage($params['pv'],  $vars['can_upload'], $errors))
 			{
 				$image = clone $image;			// clone the image so we don't remove cached content
 				$image->content = NULL;			// only update image data if we load a new image
@@ -1951,7 +1951,7 @@ class _ContentController extends EscherAdminController
 
 	protected function images_delete($params)
 	{
-		if (!$imageID = @$params['post']['image_id'])
+		if (!$imageID = @$params['pv']['image_id'])
 		{
 			if (!$imageID = @$params[0])
 			{
@@ -1974,7 +1974,7 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'images', 'delete', $image);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -2037,15 +2037,15 @@ class _ContentController extends EscherAdminController
 		$this->getContentPerms($vars, 'files', 'add');
 		$vars['can_upload'] = $curUser->allowed('content:files:add:upload');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			require($this->config->get('core_dir') . '/admin/lib/file_helper.php');
 			$fileHelper = $this->factory->manufacture('FileHelper');
 
 			// build file object from form data
 			
-			$fileHelper->buildFile($params['post'], $file);
-			$file->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$fileHelper->buildFile($params['pv'], $file);
+			$file->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 
 			if (!$vars['can_save'])
 			{
@@ -2055,7 +2055,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['file_name'] = 'A file with this name already exists.';
 			}
-			elseif ($fileHelper->validateFile($params['post'],  $vars['can_upload'], $errors))
+			elseif ($fileHelper->validateFile($params['pv'],  $vars['can_upload'], $errors))
 			{
 				if ($vars['can_upload'])
 				{
@@ -2103,7 +2103,7 @@ class _ContentController extends EscherAdminController
 	{
 		$file = NULL;
 		
-		if (!$fileID = @$params['post']['selected_file_id'])
+		if (!$fileID = @$params['pv']['selected_file_id'])
 		{
 			$fileID = @$params[0];
 		}
@@ -2154,18 +2154,18 @@ class _ContentController extends EscherAdminController
 			$vars['can_upload'] = $curUser->allowed($perm);
 		}
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			require($this->config->get('core_dir') . '/admin/lib/file_helper.php');
 			$fileHelper = $this->factory->manufacture('FileHelper');
 
-			$params['post']['file_name'] = $file->slug;
+			$params['pv']['file_name'] = $file->slug;
 
 			// build file object from form data
 			
 			$oldSlug = $file->slug;
-			$fileHelper->buildFile($params['post'], $file);
-			$file->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$fileHelper->buildFile($params['pv'], $file);
+			$file->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 
 			if (!$vars['can_save'])
 			{
@@ -2175,7 +2175,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['file_name'] = 'A file with this name already exists.';
 			}
-			elseif ($fileHelper->validateFile($params['post'],  $vars['can_upload'], $errors))
+			elseif ($fileHelper->validateFile($params['pv'],  $vars['can_upload'], $errors))
 			{
 				$file = clone $file;				// clone the file so we don't remove cached content
 				$file->content = NULL;			// only update file data if we load a new file
@@ -2227,7 +2227,7 @@ class _ContentController extends EscherAdminController
 
 	protected function files_delete($params)
 	{
-		if (!$fileID = @$params['post']['file_id'])
+		if (!$fileID = @$params['pv']['file_id'])
 		{
 			if (!$fileID = @$params[0])
 			{
@@ -2245,7 +2245,7 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'files', 'delete', $file);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -2280,12 +2280,12 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'links', 'add');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build link object from form data
 			
-			$this->buildLink($params['post'], $link);
-			$link->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$this->buildLink($params['pv'], $link);
+			$link->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 
 			if (!$vars['can_save'])
 			{
@@ -2295,7 +2295,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['link_name'] = 'A link with this name already exists.';
 			}
-			elseif ($this->validateLink($params['post'], $errors))
+			elseif ($this->validateLink($params['pv'], $errors))
 			{
 				try
 				{
@@ -2339,7 +2339,7 @@ class _ContentController extends EscherAdminController
 
 		$linkNames = $model->fetchLinkNames();
 
-		if (!$linkID = @$params['post']['selected_link_id'])
+		if (!$linkID = @$params['pv']['selected_link_id'])
 		{
 			if (!$linkID = @$params[0])
 			{
@@ -2369,15 +2369,15 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'links', 'edit', $link);
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
-			$params['post']['link_name'] = $link->name;
+			$params['pv']['link_name'] = $link->name;
 
 			// build link object from form data
 			
 			$oldName = $link->name;
-			$this->buildLink($params['post'], $link);
-			$link->categories = isset($params['post']['add_categories']) ? $model->fetchCategoriesByID($params['post']['add_categories'], true) : array();
+			$this->buildLink($params['pv'], $link);
+			$link->categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 			
 			if (!$vars['can_save'])
 			{
@@ -2387,7 +2387,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['link_name'] = 'A link with this name already exists.';
 			}
-			elseif ($this->validateLink($params['post'], $errors))
+			elseif ($this->validateLink($params['pv'], $errors))
 			{
 				try
 				{
@@ -2431,7 +2431,7 @@ class _ContentController extends EscherAdminController
 
 	protected function links_delete($params)
 	{
-		if (!$linkID = @$params['post']['link_id'])
+		if (!$linkID = @$params['pv']['link_id'])
 		{
 			if (!$linkID = @$params[0])
 			{
@@ -2449,7 +2449,7 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'links', 'delete', $link);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -2510,7 +2510,7 @@ class _ContentController extends EscherAdminController
 
 	protected function categories_add($params)
 	{
-		if (!$parentID = @$params['post']['parent_id'])
+		if (!$parentID = @$params['pv']['parent_id'])
 		{
 			if (!$parentID = @$params[0])
 			{
@@ -2525,11 +2525,11 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'categories', 'add');
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build category object from form data
 			
-			$this->buildCategory($params['post'], $category);
+			$this->buildCategory($params['pv'], $category);
 
 			if (!$vars['can_save'])
 			{
@@ -2539,7 +2539,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['category_slug'] = 'This slug already in use by a sibling of this category.';
 			}
-			elseif ($this->validateCategory($params['post'], $errors))
+			elseif ($this->validateCategory($params['pv'], $errors))
 			{
 				// add category object
 	
@@ -2590,7 +2590,7 @@ class _ContentController extends EscherAdminController
 
 	protected function categories_edit($params)
 	{
-		if (!$categoryID = @$params['post']['category_id'])
+		if (!$categoryID = @$params['pv']['category_id'])
 		{
 			if (!$categoryID = @$params[0])
 			{
@@ -2608,12 +2608,12 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'categories', 'edit');
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			// build category object from form data
 			
 			$oldSlug = $category->slug;
-			$this->buildCategory($params['post'], $category);
+			$this->buildCategory($params['pv'], $category);
 			
 			if (!$vars['can_save'])
 			{
@@ -2623,7 +2623,7 @@ class _ContentController extends EscherAdminController
 			{
 				$errors['category_slug'] = 'This slug already in use by a sibling of this category.';
 			}
-			elseif ($this->validateCategory($params['post'], $errors))
+			elseif ($this->validateCategory($params['pv'], $errors))
 			{
 				$category->makeSlug();
 
@@ -2662,7 +2662,7 @@ class _ContentController extends EscherAdminController
 
 	protected function categories_delete($params)
 	{
-		if (!$categoryID = @$params['post']['category_id'])
+		if (!$categoryID = @$params['pv']['category_id'])
 		{
 			if (!$categoryID = @$params[0])
 			{
@@ -2680,7 +2680,7 @@ class _ContentController extends EscherAdminController
 		$this->getCommonVars($vars);
 		$this->getContentPerms($vars, 'categories', 'delete');
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -2722,7 +2722,7 @@ class _ContentController extends EscherAdminController
 		$vars['action'] = 'list';
 		$vars['categories'] = $categories;
 		$vars['notice'] = $this->session->flashGet('notice');
-		$vars['tree_state'] = isset($params['cookie']['eschercatlist']) ? json_decode($params['cookie']['eschercatlist'], true) : NULL;
+		$vars['tree_state'] = isset($params['cv']['eschercatlist']) ? json_decode($params['cv']['eschercatlist'], true) : NULL;
 
 		$this->observer->notify('escher:render:before:content:category:list', $categories);
 		$this->render('main', $vars);

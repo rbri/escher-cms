@@ -66,7 +66,7 @@ class Parser extends SparkPlug
 		$this->_content_stack = array();
 
 		$this->cacher = $cacher;
-		$this->input = $this->factory->manufacture('Input', (array)$params['get'], (array)$params['post'], (array)$params['cookie']);
+		$this->input = $this->factory->manufacture('Input', (array)$params['qv'], (array)$params['pv'], (array)$params['cv']);
 		$this->output = $this->factory->manufacture('Output');
 		
 		self::$lang->load('parse');

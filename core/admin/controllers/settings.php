@@ -162,11 +162,11 @@ class _SettingsController extends EscherAdminController
 			$prefstabs[$group_name] = $group_name;
 		}
 		
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
 			$savePrefs = $groupPrefs;		// make a copy so we can tell which prefs were actually changed
 			
-			if ($this->validatePrefs($callbacks, $params['post'], $groupPrefs, $errors))
+			if ($this->validatePrefs($callbacks, $params['pv'], $groupPrefs, $errors))
 			{
 				// determine which prefs need to be saved
 				
@@ -317,7 +317,7 @@ class _SettingsController extends EscherAdminController
 			$vars['content'] = 'settings/upgrade_not_needed';
 		}
 		
-		elseif (isset($params['post']['upgrade']))
+		elseif (isset($params['pv']['upgrade']))
 		{
 			try
 			{
@@ -444,11 +444,11 @@ class _SettingsController extends EscherAdminController
 		$vars['can_add'] = $curUser->allowed('settings:roles:add');
 		$vars['can_save'] = $vars['can_add'];
 
-		if (isset($params['post']['save']) || isset($params['post']['continue']))
+		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
 		{
 			// build role object from form data
 			
-			$this->buildRole($params['post'], $role);
+			$this->buildRole($params['pv'], $role);
 
 			if (!$vars['can_add'])
 			{
@@ -458,7 +458,7 @@ class _SettingsController extends EscherAdminController
 			{
 				$errors['role_name'] = 'A role with this name already exists.';
 			}
-			elseif ($this->validateRole($params['post'], $errors))
+			elseif ($this->validateRole($params['pv'], $errors))
 			{
 				// add role object
 	
@@ -467,7 +467,7 @@ class _SettingsController extends EscherAdminController
 					$model->addRole($role);
 					$this->observer->notify('escher:db_change:settings:role:add', $role);
 					$this->session->flashSet('notice', 'Role added successfully.');
-					if (isset($params['post']['continue']))
+					if (isset($params['pv']['continue']))
 					{
 						$this->redirect('/settings/roles/edit/'.$role->id);
 					}
@@ -525,7 +525,7 @@ class _SettingsController extends EscherAdminController
 
 	protected function roles_edit($params)
 	{
-		if (!$roleID = @$params['post']['role_id'])
+		if (!$roleID = @$params['pv']['role_id'])
 		{
 			if (!$roleID = @$params[0])
 			{
@@ -553,12 +553,12 @@ class _SettingsController extends EscherAdminController
 		$vars['can_delete'] = $curUser->allowed('settings:roles:delete');
 		$vars['can_save'] = $vars['can_edit'];
 
-		if (isset($params['post']['save']) || isset($params['post']['continue']))
+		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
 		{
 			// build role object from form data
 			
 			$oldName = $role->name;
-			$this->buildRole($params['post'], $role);
+			$this->buildRole($params['pv'], $role);
 			
 			if (!$vars['can_edit'])
 			{
@@ -568,7 +568,7 @@ class _SettingsController extends EscherAdminController
 			{
 				$errors['role_name'] = 'A role with this name already exists.';
 			}
-			elseif ($this->validateRole($params['post'], $errors))
+			elseif ($this->validateRole($params['pv'], $errors))
 			{
 				// update role object
 	
@@ -576,7 +576,7 @@ class _SettingsController extends EscherAdminController
 				{
 					$model->updateRole($role);
 					$this->observer->notify('escher:db_change:settings:role:edit', $role);
-					if (isset($params['post']['save']))
+					if (isset($params['pv']['save']))
 					{
 						$this->session->flashSet('notice', 'Role saved successfully.');
 						$this->redirect('/settings/roles');
@@ -636,7 +636,7 @@ class _SettingsController extends EscherAdminController
 
 	protected function roles_delete($params)
 	{
-		if (!$roleID = @$params['post']['role_id'])
+		if (!$roleID = @$params['pv']['role_id'])
 		{
 			if (!$roleID = @$params[0])
 			{
@@ -662,7 +662,7 @@ class _SettingsController extends EscherAdminController
 		$vars['can_edit'] = $curUser->allowed('settings:roles:edit');
 		$vars['can_delete'] = $curUser->allowed('settings:roles:delete');
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{
@@ -767,13 +767,13 @@ class _SettingsController extends EscherAdminController
 		$vars['can_save'] = $vars['can_add'];
 		$vars['show_mail_password'] = true;
 
-		if (isset($params['post']['save']) || isset($params['post']['continue']))
+		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
 		{
 			// build user object from form data
 			
-			$this->buildUser($params['post'], $roles, $user);
+			$this->buildUser($params['pv'], $roles, $user);
 
-			if (!empty($params['post']['mail_password']))
+			if (!empty($params['pv']['mail_password']))
 			{
 				$vars['mail_password'] = true;
 			}
@@ -790,7 +790,7 @@ class _SettingsController extends EscherAdminController
 			{
 				$errors['user_email'] = 'A user with this email address already exists.';
 			}
-			elseif ($this->validateUser($params['post'], true, $errors))
+			elseif ($this->validateUser($params['pv'], true, $errors))
 			{
 				// update user object
 	
@@ -806,7 +806,7 @@ class _SettingsController extends EscherAdminController
 	
 					$message = 'User added successfully.';
 	
-					if (isset($params['post']['mail_password']))
+					if (isset($params['pv']['mail_password']))
 					{
 						try
 						{
@@ -825,7 +825,7 @@ class _SettingsController extends EscherAdminController
 						$this->session->flashSet('warning', $warning);
 					}
 	
-					if (isset($params['post']['continue']))
+					if (isset($params['pv']['continue']))
 					{
 						$this->redirect('/settings/users/edit/'.$user->id);
 					}
@@ -859,7 +859,7 @@ class _SettingsController extends EscherAdminController
 
 	protected function users_edit($params)
 	{
-		if (!$userID = @$params['post']['user_id'])
+		if (!$userID = @$params['pv']['user_id'])
 		{
 			if (!$userID = @$params[0])
 			{
@@ -894,15 +894,15 @@ class _SettingsController extends EscherAdminController
 		$vars['can_save'] = $vars['can_edit'];
 		$vars['show_mail_password'] = ($userID != $curUser->id);
 
-		if (isset($params['post']['save']) || isset($params['post']['continue']))
+		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
 		{
 			// build user object from form data
 			
 			$oldLogin = $user->login;
 			$oldEmail = $user->email;
-			$this->buildUser($params['post'], $roles, $user);
+			$this->buildUser($params['pv'], $roles, $user);
 
-			if (!empty($params['post']['mail_password']))
+			if (!empty($params['pv']['mail_password']))
 			{
 				$vars['mail_password'] = true;
 			}
@@ -919,7 +919,7 @@ class _SettingsController extends EscherAdminController
 			{
 				$errors['user_email'] = 'A user with this email address already exists.';
 			}
-			elseif ($this->validateUser($params['post'], false, $errors))
+			elseif ($this->validateUser($params['pv'], false, $errors))
 			{
 				// update user object
 	
@@ -937,7 +937,7 @@ class _SettingsController extends EscherAdminController
 					
 					$message = 'User saved successfully.';
 					
-					if (isset($params['post']['mail_password']))
+					if (isset($params['pv']['mail_password']))
 					{
 						try
 						{
@@ -950,7 +950,7 @@ class _SettingsController extends EscherAdminController
 						}
 					}
 	
-					if (isset($params['post']['save']))
+					if (isset($params['pv']['save']))
 					{
 						$this->session->flashSet('notice', $message);
 						if (!empty($warning))
@@ -997,7 +997,7 @@ class _SettingsController extends EscherAdminController
 
 	protected function users_delete($params)
 	{
-		if (!$userID = @$params['post']['user_id'])
+		if (!$userID = @$params['pv']['user_id'])
 		{
 			if (!$userID = @$params[0])
 			{
@@ -1023,7 +1023,7 @@ class _SettingsController extends EscherAdminController
 		$vars['can_edit'] = $curUser->allowed('settings:users:edit');
 		$vars['can_delete'] = $curUser->allowed('settings:users:delete');
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{

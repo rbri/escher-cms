@@ -2632,6 +2632,18 @@ class _PublishContentModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 
+	protected function filterOrder($order)
+	{
+		switch ($order)
+		{
+			case 'ASC':
+			case 'DESC':
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	protected function buildOrderBy($sort, $order, $filter)
 	{
 		$order = trim(strtoupper($order));
@@ -2641,20 +2653,10 @@ class _PublishContentModel extends SparkModel
 			return $order;
 		}
 		
-		$orderBy = preg_replace('/,+/', ',', implode(',', array_map(array($this, $filter), explode(',', strtolower(str_replace(' ', '', $sort))))));
-		
-		if (!empty($orderBy))
-		{
-			switch ($order = strtoupper($order))
-			{
-				case 'ASC':
-				case 'DESC':
-					$orderBy .= " {$order}";
-					break;
-			}
-		}
-		
-		return $orderBy;
+		$sort = array_filter(array_map(array($this, $filter), explode(',', strtolower(str_replace(' ', '', $sort)))));
+		$order = array_filter(explode(',', str_replace(' ', '', $order)), array($this, 'filterOrder'));
+
+		return implode(', ', array_multiplex($sort, array_stretch($order, count($sort)), ' '));
 	}
 
 	//---------------------------------------------------------------------------

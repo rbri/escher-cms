@@ -90,7 +90,7 @@ class EventLogSettingsController extends SettingsController
 		$vars['selected_subtab'] = 'event-log';
 		$vars['action'] = 'install';
 
-		if (isset($params['post']['install']))
+		if (isset($params['pv']['install']))
 		{
 			try
 			{
@@ -161,7 +161,7 @@ class EventLogSettingsController extends SettingsController
 		$vars['selected_subtab'] = 'event-log';
 		$vars['action'] = 'clear';
 
-		if (isset($params['post']['clear']))
+		if (isset($params['pv']['clear']))
 		{
 			try
 			{

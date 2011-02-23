@@ -110,7 +110,7 @@ class CommentContentController extends ContentController
 		$vars['selected_subtab'] = 'comments';
 		$vars['action'] = 'install';
 
-		if (isset($params['post']['install']))
+		if (isset($params['pv']['install']))
 		{
 			try
 			{
@@ -175,7 +175,7 @@ class CommentContentController extends ContentController
 
 	private function comments_moderate($params)
 	{
-		if (!$commentID = @$params['post']['comment_id'])
+		if (!$commentID = @$params['pv']['comment_id'])
 		{
 			if (!$commentID = @$params[0])
 			{
@@ -191,16 +191,16 @@ class CommentContentController extends ContentController
 		$this->getCommonVars($vars);
 		$this->getCommentPerms($vars);
 
-		if (isset($params['post']['save']))
+		if (isset($params['pv']['save']))
 		{
-			$comment->message = $params['post']['comment_message'];
-			$comment->approved = ($params['post']['comment_approved'] == 1);
+			$comment->message = $params['pv']['comment_message'];
+			$comment->approved = ($params['pv']['comment_approved'] == 1);
 			
 			if (!$vars['can_save'])
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif ($this->validateComment($params['post'], $errors))
+			elseif ($this->validateComment($params['pv'], $errors))
 			{
 				try
 				{
@@ -240,7 +240,7 @@ class CommentContentController extends ContentController
 
 	private function comments_delete($params)
 	{
-		if (!$commentID = @$params['post']['comment_id'])
+		if (!$commentID = @$params['pv']['comment_id'])
 		{
 			if (!$commentID = @$params[0])
 			{
@@ -256,7 +256,7 @@ class CommentContentController extends ContentController
 		$this->getCommonVars($vars);
 		$this->getCommentPerms($vars);
 
-		if (isset($params['post']['delete']))
+		if (isset($params['pv']['delete']))
 		{
 			if (!$vars['can_delete'])
 			{

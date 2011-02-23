@@ -82,7 +82,7 @@ class ContentObject extends EscherObject
 
 	public static function slugRegex()
 	{
-		static $slugRegex = '/^([0-9A-Za-z\-\_\.])*$/';
+		static $slugRegex = '/^([\w\-\.\,\;])*$/';
 		return $slugRegex;
 	}
 	

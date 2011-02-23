@@ -68,7 +68,7 @@ class MarkitupContentController extends ContentController
 	{
 		// should do a referrer check here!
 		
-		if ($data = @$params['post']['data'])
+		if ($data = @$params['pv']['data'])
 		{
 			if ($parser = @$params[0])
 			{

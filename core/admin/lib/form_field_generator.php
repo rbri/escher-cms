@@ -47,7 +47,7 @@ class _FormFieldGenerator extends SparkPlug
 	{
 		$extra = isset($atts['att']) ? (' ' . $atts['att']) : '';
 		$disabled = isset($atts['disabled']);
-		$atts = array('size'=>30, 'maxlength'=>255, 'name'=>$atts['name'], 'value'=>$atts['val'], 'id'=>$atts['name']);
+		$atts = array('size'=>(isset($atts['size']) ? $atts['size'] : 30), 'maxlength'=>(isset($atts['maxlength']) ? $atts['maxlength'] : 255), 'name'=>$atts['name'], 'value'=>$atts['val'], 'id'=>$atts['name']);
 		if ($disabled)
 		{
 			$atts['disabled'] = 'disabled';
@@ -72,7 +72,7 @@ class _FormFieldGenerator extends SparkPlug
 	public function password($atts)
 	{
 		$disabled = isset($atts['disabled']);
-		$atts = array('size'=>30, 'maxlength'=>255, 'name'=>$atts['name'], 'value'=>$atts['val'], 'id'=>$atts['name']);
+		$atts = array('size'=>(isset($atts['size']) ? $atts['size'] : 30), 'maxlength'=>(isset($atts['maxlength']) ? $atts['maxlength'] : 255), 'name'=>$atts['name'], 'value'=>$atts['val'], 'id'=>$atts['name']);
 		if ($disabled)
 		{
 			$atts['disabled'] = 'disabled';
@@ -488,7 +488,7 @@ class _FormFieldGenerator extends SparkPlug
 
 		foreach ($atts as $key=>$val)
 		{
-			if ($val != '')
+			if ($val !== '')
 			{
 				$matts .= ' ' . $key . '="' . SparkView::escape_html($val) . '"';
 			}

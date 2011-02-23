@@ -53,4 +53,51 @@ function check($condition, $error)
 
 //------------------------------------------------------------------------------
 
+function array_stretch($array, $length, $fill = NULL)
+{
+	$result = $array;
+
+	if (($diff = $length - count($result)) > 0)
+	{
+		if ($fill === NULL)
+		{
+			$fill = end($result);
+		}
+		while ($diff--)
+		{
+			$result[] = $fill;
+		}
+	}
+	
+	return $result;
+}
+
+//------------------------------------------------------------------------------
+
+function array_multiplex($array1, $array2, $join = '')
+{
+	$result = $array1;
+	$next = reset($array2);
+
+	foreach ($result as &$val)
+	{
+		if ($next === false)
+		{
+			break;
+		}
+		$val .= ($join . $next);
+		$next = next($array2);
+	}
+	
+	while ($next !== false)
+	{
+		$result[] = $next;
+		$next = next($array2);
+	}
+	
+	return $result;
+}
+
+//------------------------------------------------------------------------------
+
 }
