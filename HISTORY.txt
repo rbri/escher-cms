@@ -2,6 +2,7 @@ Escher CMS Change History
 =========================
 
 Changes Since Last Release
+	miscellaneous bug fixes
 	added "private" attribute to <et:core:scope> tag
 	synced to changes in Spark/Plug's authentication model (using SparkHasher)
 	synced to changes in Spark/Plug's exception handling model

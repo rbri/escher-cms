@@ -112,6 +112,12 @@ class _AdminContentModel extends _PublishContentModel
 			}
 			$categoryIDs[] = $categoryID;
 
+			/*
+				Caution! The following code reuses the $categoryIDs parameter in subsequent invocations of buildFieldIn(),
+				despite the fact that its contents may be modified. This is safe here only because we are confident
+				that the $categoryIDs array cannot contain a NULL value (which, if present,  would be removed by the first invocation).
+			*/
+
 			$db->deleteRows('category', $db->buildFieldIn('category', 'id', $categoryIDs), $categoryIDs);
 			$db->deleteRows('page_category', $db->buildFieldIn('page_category', 'category_id', $categoryIDs), $categoryIDs);
 			$db->deleteRows('block_category', $db->buildFieldIn('block_category', 'category_id', $categoryIDs), $categoryIDs);
@@ -818,6 +824,12 @@ class _AdminContentModel extends _PublishContentModel
 			}
 			$pageIDs[] = $pageID;
 
+			/*
+				Caution! The following code reuses the $pageIDs parameter in subsequent invocations of buildFieldIn(),
+				despite the fact that its contents may be modified. This is safe here only because we are confident
+				that the $pageIDs array cannot contain a NULL value (which, if present,  would be removed by the first invocation).
+			*/
+			
 			$db->deleteRows('page_meta', $db->buildFieldIn('page_meta', 'page_id', $pageIDs), $pageIDs);
 			$db->deleteRows('page_part', $db->buildFieldIn('page_part', 'page_id', $pageIDs), $pageIDs);
 			$db->deleteRows('page_category', $db->buildFieldIn('page_category', 'page_id', $pageIDs), $pageIDs);
@@ -2151,6 +2163,12 @@ class _AdminContentModel extends _PublishContentModel
 			}
 			$themeIDs[] = $themeID;
 
+			/*
+				Caution! The following code reuses the $themeIDs parameter in subsequent invocations of buildFieldIn(),
+				despite the fact that its contents may be modified. This is safe here only because we are confident
+				that the $themeIDs array cannot contain a NULL value (which, if present,  would be removed by the first invocation).
+			*/
+			
 			$db->deleteRows('template', $db->buildFieldIn('template', 'theme_id', $themeIDs), $themeIDs);
 			$db->deleteRows('snippet', $db->buildFieldIn('snippet', 'theme_id', $themeIDs), $themeIDs);
 			$db->deleteRows('tag', $db->buildFieldIn('tag', 'theme_id', $themeIDs), $themeIDs);

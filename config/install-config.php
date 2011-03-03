@@ -45,6 +45,7 @@ $config = array
 	'config_dir' => $rootDir . '/config',
 	'cache_dir' => $rootDir . '/cache',
 	'core_dir' => $rootDir . '/core',
+	'db_dir' => $rootDir . '/db',
 	'app_dir' => $rootDir . '/core/install',
 	'lang_dir' => $rootDir . '/core/shared/languages',
 	'app_plug_dir' => $rootDir . '/plugins',

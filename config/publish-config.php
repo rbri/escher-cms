@@ -55,7 +55,7 @@ $config = array
 //	'admin_site' => 'https://admin.mysite.com',
 	'routes' => array
 	(
-		':any' => 'publish/index',
+		':all' => 'publish/index',
 	),
 );
 unset($rootDir);
