@@ -3229,7 +3229,7 @@ class _EscherParser extends CoreTagParser
 			'status' => 'published',
 			'limit' => '0',
 			'offset' => '0',
-			'sort' => 'published',
+			'sort' => 'created',
 			'order' => 'desc',
 		),$atts));
 

@@ -2654,6 +2654,12 @@ class _PublishContentModel extends SparkModel
 		}
 		
 		$sort = array_filter(array_map(array($this, $filter), explode(',', strtolower(str_replace(' ', '', $sort)))));
+
+		if (empty($sort))
+		{
+			return '';
+		}
+		
 		$order = array_filter(explode(',', str_replace(' ', '', $order)), array($this, 'filterOrder'));
 
 		return implode(', ', array_multiplex($sort, array_stretch($order, count($sort)), ' '));
