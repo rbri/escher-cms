@@ -42,6 +42,18 @@ class _ImageHelper extends SparkPlug
 		$image->alt = trim($params['image_alt']);
 		$image->title = trim($params['image_title']);
 		$image->theme_id = 0;
+
+		// build image metadata
+	
+		$meta = array();
+		foreach ($params as $key => $val)
+		{
+			if (preg_match('/meta_(.*)/', $key, $matches))
+			{
+				$meta[$matches[1]] = $val;
+			}
+		}
+		$image->meta = $meta;
 	}
 	
 	//---------------------------------------------------------------------------

@@ -17,6 +17,25 @@ user account.
 
 --
 
+The folllowing tags have been removed:
+
+	<et:ns:meta>
+	<et:meta:keywords>
+	<et:meta:description>
+	<et:meta:author>
+	<et:meta:distribution>
+	<et:meta:robots>
+	<et:meta:custom>
+	
+They have been replaced with the more general purpose tags:
+
+	<et:pages:meta>
+	<et:images:meta>
+	<et:files:meta>
+	<et:links:meta>
+	
+--
+
 There has been a minor adjustment to the default location of the main Spark/Plug
 directory. As a result, the "sparkplug_dir" config parameter has changed.
 

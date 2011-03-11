@@ -473,6 +473,15 @@ class _EscherSchemaModel extends SparkModel
 		$ct->foreignKey('category_id', 'category', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$db->query($ct->compile());
 
+		$db->query('DROP TABLE IF EXISTS {image_meta}');
+		$ct->table('image_meta');
+		$ct->field('image_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
+		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
+		$ct->field('data', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
+		$ct->primaryKey('image_id, name');
+		$ct->foreignKey('image_id', 'image', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
+		$db->query($ct->compile());
+		
 		$db->query('DROP TABLE IF EXISTS {image_category}');
 		$ct->table('image_category');
 		$ct->field('image_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
@@ -510,6 +519,15 @@ class _EscherSchemaModel extends SparkModel
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'priority', 'file_priority');
 		$db->query($ci->compile());
 
+		$db->query('DROP TABLE IF EXISTS {file_meta}');
+		$ct->table('file_meta');
+		$ct->field('file_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
+		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
+		$ct->field('data', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
+		$ct->primaryKey('file_id, name');
+		$ct->foreignKey('file_id', 'file', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
+		$db->query($ct->compile());
+		
 		$db->query('DROP TABLE IF EXISTS {file_category}');
 		$ct->table('file_category');
 		$ct->field('file_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
@@ -540,6 +558,15 @@ class _EscherSchemaModel extends SparkModel
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'priority', 'link_priority');
 		$db->query($ci->compile());
+		
+		$db->query('DROP TABLE IF EXISTS {link_meta}');
+		$ct->table('link_meta');
+		$ct->field('link_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
+		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
+		$ct->field('data', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
+		$ct->primaryKey('link_id, name');
+		$ct->foreignKey('link_id', 'link', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
+		$db->query($ct->compile());
 		
 		$db->query('DROP TABLE IF EXISTS {link_category}');
 		$ct->table('link_category');

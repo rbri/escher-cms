@@ -32,8 +32,8 @@ require('util.php');
 
 class EscherVersion
 {
-	const CoreVersion = '0.9.0';
-	const SchemaVersion = 1;
+	const CoreVersion = '0.9.1';
+	const SchemaVersion = 2;
 	
 	//---------------------------------------------------------------------------
 

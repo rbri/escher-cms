@@ -41,6 +41,18 @@ class _FileHelper extends SparkPlug
 		$file->description = trim($params['file_description']);
 		$file->status = trim($params['file_status']);
 		$file->download = $params['file_download'] ? true : false;
+
+		// build file metadata
+	
+		$meta = array();
+		foreach ($params as $key => $val)
+		{
+			if (preg_match('/meta_(.*)/', $key, $matches))
+			{
+				$meta[$matches[1]] = $val;
+			}
+		}
+		$file->meta = $meta;
 	}
 	
 	//---------------------------------------------------------------------------

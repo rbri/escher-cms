@@ -1,8 +1,9 @@
 Escher CMS Change History
 =========================
 
-Changes Since Last Release
+Version 0.9.1 [TBD]
 	miscellaneous bug fixes
+	can associate custom metadata with images, files and links
 	added "private" attribute to <et:core:scope> tag
 	synced to changes in Spark/Plug's authentication model (using SparkHasher)
 	synced to changes in Spark/Plug's exception handling model

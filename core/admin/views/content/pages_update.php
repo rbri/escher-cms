@@ -25,7 +25,12 @@
 			</div>
 		</div>
 
-<? $this->render('metadata_builder', array('collapsed'=>($mode === 'edit'), 'toolbar'=>true,'prefix'=>'meta', 'id'=>$page->id, 'metadata'=>$page->meta)); ?>
+<? if ($page->parent_id): ?>
+<?	$fixed_meta['slug'] = $page->slug; ?>
+<? endif; ?>
+<?	$fixed_meta['breadcrumb'] = $page->breadcrumb; ?>
+
+<? $this->render('metadata_builder', array('collapsed'=>($mode === 'edit'), 'toolbar'=>true, 'id'=>$page->id, 'metadata'=>array('page'=>$fixed_meta, 'meta'=>$page->meta), 'protected'=>array_keys($fixed_meta))); ?>
 <? $this->render('category_builder', array('categories'=>$page->categories)); ?>
 <? $this->render('part_builder', array('parts'=>$page->parts)); ?>
 		

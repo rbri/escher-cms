@@ -24,7 +24,7 @@
 		$("form#add-meta-form").submit(function(event) {
 			event.preventDefault();
 			$("#add-meta-popup").hide();
-			var meta_name = htmlspecialchars($("#meta_name_input").attr("value").trim());
+			var meta_name = htmlspecialchars($("#meta_name_input").attr("value").trim().toLowerCase().replace(/\s+/g, "_"));
 			$("#meta_name_input").attr("value", "");
 			if (meta_name == "")
 			{
@@ -50,14 +50,17 @@
 </script>
 <? endif; ?>
 <?
-if (!empty($collapsed))
+if (!empty($collapsed) && !empty($metadata))
 {
-	foreach($metadata as $name => $data)
+	foreach($metadata as $prefix => $fields)
 	{
-		if (isset($errors[$prefix.'_'.$name]))
+		foreach($fields as $name => $data)
 		{
-			$collapsed = false;
-			break;
+			if (isset($errors[$prefix.'_'.$name]))
+			{
+				$collapsed = false;
+				break 2;
+			}
 		}
 	}
 }
@@ -76,11 +79,12 @@ if (!empty($collapsed))
 			</p>
 <? endif; ?>
 <? if (!empty($metadata)): ?>
-<? foreach($metadata as $name => $data): ?>
+<? foreach($metadata as $prefix => $fields): ?>
+<? foreach($fields as $name => $data): ?>
 			<p>
 				<label<?= isset($errors[$prefix.'_'.$name]) ? ' class="error"' : '' ?> for="<?= $prefix.'_'.$name ?>"><?= isset($titles[$name]) ? $titles[$name] : $this->escape($name) ?></label>
 <? if (!empty($toolbar)): ?>
-<? if (!$can_delete_meta || ($name === 'slug') || ($name === 'breadcrumb')): ?>
+<? if (!$can_delete_meta || (isset($protected) && is_array($protected) && in_array($name, $protected))): ?>
 				<span class="spacer">&nbsp;</span>
 <? else: ?>
 				<a class="meta_delete_link" name="<?= $name ?>" href="" title="Delete Meta"><img alt="minus" src="<?= $image_root.'minus.png' ?>" /></a>
@@ -94,6 +98,7 @@ if (!empty($collapsed))
 				<input type="hidden" name="<?= $prefix.'_'.$name ?>" value="" />
 <? endif; ?>
 			</p>
+<? endforeach; ?>
 <? endforeach; ?>
 <? endif; ?>
 		</fieldset>

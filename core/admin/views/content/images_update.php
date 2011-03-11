@@ -32,7 +32,7 @@
 			</div>
 <? endif; ?>
 
-<? $this->render('metadata_builder', array('prefix'=>'image', 'id'=>$image->id, 'titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL', 'alt'=>'Alt Text'), 'metadata'=>array('content_type'=>$image->ctype,'url'=>$image->url,'title'=>$image->title,'width'=>$image->width,'height'=>$image->height,'alt'=>$image->alt,'title'=>$image->title))); ?>
+<? $this->render('metadata_builder', array('id'=>$image->id, 'toolbar'=>true, 'titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL', 'alt'=>'Alt Text'), 'metadata'=>array('image'=>$fixed_meta=array('content_type'=>$image->ctype,'url'=>$image->url,'title'=>$image->title,'width'=>$image->width,'height'=>$image->height,'alt'=>$image->alt,'title'=>$image->title), 'meta'=>$image->meta), 'protected'=>array_keys($fixed_meta))); ?>
 <? $this->render('category_builder', array('categories'=>$image->categories)); ?>
 
 <? if ($can_upload || ($mode === 'edit')): ?>
@@ -92,3 +92,18 @@
 </div>
 <? endif; ?>
 <div class="clear"></div>
+
+<div id="popups">
+	<div class="popup" id="add-meta-popup">
+		<h3>Add Meta Data</h3>
+		<div>
+			<form id="add-meta-form" action="">
+				<label for="meta_name">Meta Type: </label><input id="meta_name_input" name="meta_name_input" size="30" type="text" />
+				<input id="add-meta-button" type="submit" value="Add Meta" />
+			</form>
+		</div>
+		<div class="close-link">
+			<a class="meta_close_link" href="">Close</a>
+		</div>
+	</div>
+</div>

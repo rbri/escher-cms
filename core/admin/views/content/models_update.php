@@ -19,7 +19,7 @@
 			</div>
 		</div>
 
-<? $this->render('metadata_builder', array('collapsed'=>($mode === 'edit'), 'toolbar'=>true,'prefix'=>'meta', 'metadata'=>$model->meta)); ?>
+<? $this->render('metadata_builder', array('collapsed'=>($mode === 'edit'), 'toolbar'=>true, 'metadata'=>array('meta'=>$model->meta))); ?>
 <? $this->render('category_builder', array('categories'=>$model->categories)); ?>
 <? $this->render('part_builder', array('parts'=>$model->parts)); ?>
 		

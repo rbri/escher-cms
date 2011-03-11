@@ -1145,30 +1145,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchPageMeta($page)
 	{
-		if (!$page->meta)
-		{
-			if (($meta = @$this->_cache['meta'][$page->id]) !== NULL)
-			{
-				return $page->meta = $meta;
-			}
-	
-			$db = $this->loadDB();
-	
-			if ($rows = $db->selectRows('page_meta', 'name, data', 'page_id=?', $page->id))
-			{
-				foreach ($rows as $row)
-				{
-					$meta[$row['name']] = $row['data'];
-				}
-			}
-			else
-			{
-				$meta = false;
-			}
-	
-			$page->meta = $this->_cache['meta'][$page->id] = $meta;
-		}
-		return $page->meta;
+		return $this->fetchObjectMeta('page', $page);
 	}
 
 	//---------------------------------------------------------------------------
@@ -1711,6 +1688,13 @@ class _PublishContentModel extends SparkModel
 	
 	//---------------------------------------------------------------------------
 	
+	public function fetchFileMeta($file)
+	{
+		return $this->fetchObjectMeta('file', $file);
+	}
+
+	//---------------------------------------------------------------------------
+	
 	public function fileHasCategories($file, $categories = NULL)
 	{
 		$db = $this->loadDB();
@@ -1843,6 +1827,13 @@ class _PublishContentModel extends SparkModel
 		}
 	}
 	
+	//---------------------------------------------------------------------------
+	
+	public function fetchLinkMeta($link)
+	{
+		return $this->fetchObjectMeta('link', $link);
+	}
+
 	//---------------------------------------------------------------------------
 	
 	public function linkHasCategories($link, $categories = NULL)
@@ -2416,6 +2407,13 @@ class _PublishContentModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 	
+	public function fetchImageMeta($image)
+	{
+		return $this->fetchObjectMeta('image', $image);
+	}
+
+	//---------------------------------------------------------------------------
+	
 	public function createPageFromRow($row, $uri = NULL, $parent = NULL)
 	{
 		if (!$class = $row['type'])
@@ -2476,6 +2474,36 @@ class _PublishContentModel extends SparkModel
 			$object->{$user.'_name'} = $object->{$user}->name;
 		}
 		return $object->{$user};
+	}
+
+	//---------------------------------------------------------------------------
+	
+	protected function fetchObjectMeta($objType, $object)
+	{
+		if (!$object->meta)
+		{
+			if (($meta = @$this->_cache["{$objType}_meta"][$object->id]) !== NULL)
+			{
+				return $object->meta = $meta;
+			}
+	
+			$db = $this->loadDB();
+	
+			if ($rows = $db->selectRows("{$objType}_meta", 'name, data', "{$objType}_id=?", $object->id))
+			{
+				foreach ($rows as $row)
+				{
+					$meta[$row['name']] = $row['data'];
+				}
+			}
+			else
+			{
+				$meta = false;
+			}
+	
+			$object->meta = $this->_cache["{$objType}_meta"][$object->id] = $meta;
+		}
+		return $object->meta;
 	}
 
 	//---------------------------------------------------------------------------

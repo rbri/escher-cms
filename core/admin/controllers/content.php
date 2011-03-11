@@ -403,12 +403,15 @@ class _ContentController extends EscherAdminController
 		{
 			$pageModel->categories = array();
 			$pageModel->parts['body'] = $this->factory->manufacture('Part', array('name'=>'body', 'type'=>'textarea'));
-			$pageModel->meta['slug'] = '';
-			$pageModel->meta['breadcrumb'] = '';
 			$pageModel->meta['keywords'] = '';
 			$pageModel->meta['description'] = '';
 		}
 
+		if (!is_array($pageModel->meta))
+		{
+			$pageModel->meta = array();
+		}
+		
 		$vars['selected_subtab'] = 'models';
 		$vars['action'] = 'add';
 		$vars['model'] = $pageModel;
@@ -525,9 +528,10 @@ class _ContentController extends EscherAdminController
 
 		$model->fetchModelEditor($pageModel);
 
-		$extraMeta['slug'] = '';
-		$extraMeta['breadcrumb'] = '';
-		$pageModel->meta = empty($pageModel->meta) ? $extraMeta : array_merge($extraMeta, $pageModel->meta);
+		if (!is_array($pageModel->meta))
+		{
+			$pageModel->meta = array();
+		}
 
 		$vars['selected_subtab'] = 'models';
 		$vars['action'] = 'edit';
@@ -659,44 +663,9 @@ class _ContentController extends EscherAdminController
 	
 		unset($pageModel->meta['slug']);
 		unset($pageModel->meta['breadcrumb']);
-		if (!empty($pageModel->meta))
+		if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
 		{
-			if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
-			{
-				$existingMetaNames = $model->fetchAllModelMetaNames($pageModel);
-				$updateMeta = array();
-				
-				if ($vars['can_edit_meta'] || $vars['can_add_meta'])
-				{
-					foreach ($pageModel->meta as $name=>$meta)
-					{
-						$isNewMeta = !isset($existingMetaNames[$name]);
-						if (($vars['can_edit_meta'] && !$isNewMeta) || ($vars['can_add_meta'] && $isNewMeta))
-						{
-							$updateMeta[$name] = $meta;
-						}
-					}
-				}
-	
-				if (!empty($updateMeta))
-				{
-					$model->updateModelMeta($pageModel->id, $updateMeta);
-				}
-		
-				// delete metadata that were not submitted
-		
-				if ($vars['can_delete_meta'])
-				{
-					foreach ($pageModel->meta as $name=>$data)
-					{
-						unset($existingMetaNames[$name]);
-					}
-					if (!empty($existingMetaNames))
-					{
-						$model->deleteModelMeta($pageModel->id, $existingMetaNames);
-					}
-				}
-			}
+			$model->saveModelMeta($pageModel, $vars);
 		}
 	}
 	
@@ -811,7 +780,7 @@ class _ContentController extends EscherAdminController
 			}
 			elseif ($model->childPageExists($page->parent_id, $page->slug))
 			{
-				$errors['meta_slug'] = 'This slug already in use by a sibling of this page.';
+				$errors['page_slug'] = 'This slug already in use by a sibling of this page.';
 			}
 			elseif ($this->validatePage($params['pv'], $templates, $statuses, $callbacks, $vars, false, $errors))
 			{
@@ -858,13 +827,11 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		if ($page->parent_id)
+		if (!is_array($page->meta))
 		{
-			$extraMeta['slug'] = $page->slug;
+			$page->meta = array();
 		}
-		$extraMeta['breadcrumb'] = $page->breadcrumb;
-		$page->meta = empty($page->meta) ? $extraMeta : array_merge($extraMeta, $page->meta);
-
+		
 		$vars['selected_subtab'] = 'pages';
 		$vars['action'] = 'add';
 		$vars['parent_id'] = $parentID;
@@ -958,7 +925,7 @@ class _ContentController extends EscherAdminController
 			}
 			elseif (($page->slug !== $oldSlug) && $model->childPageExists($page->parent_id, $page->slug))
 			{
-				$errors['meta_slug'] = 'This slug already in use by a sibling of this page.';
+				$errors['page_slug'] = 'This slug already in use by a sibling of this page.';
 			}
 			elseif ($this->validatePage($params['pv'], $templates, $statuses, $callbacks, $vars, false, $errors))
 			{
@@ -1005,12 +972,10 @@ class _ContentController extends EscherAdminController
 
 		$model->fetchPageEditor($page);
 
-		if ($page->parent_id)
+		if (!is_array($page->meta))
 		{
-			$extraMeta['slug'] = $page->slug;
+			$page->meta = array();
 		}
-		$extraMeta['breadcrumb'] = $page->breadcrumb;
-		$page->meta = empty($page->meta) ? $extraMeta : array_merge($extraMeta, $page->meta);
 
 		$vars['selected_subtab'] = 'pages';
 		$vars['action'] = 'edit';
@@ -1128,19 +1093,6 @@ class _ContentController extends EscherAdminController
 
 	protected function pages_save($model, $page, $vars)
 	{
-		if (!empty($page->meta))
-		{
-			if (isset($page->meta['slug']))
-			{
-				unset($page->meta['slug']);
-			}
-			if (isset($page->meta['breadcrumb']))
-			{
-				$page->breadcrumb = $page->meta['breadcrumb'];
-				unset($page->meta['breadcrumb']);
-			}
-		}
-
 		// save page object
 	
 		if ($page->id)
@@ -1197,45 +1149,7 @@ class _ContentController extends EscherAdminController
 	
 		if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
 		{
-			$existingMetaNames = $model->fetchAllPageMetaNames($page);
-			$updateMeta = array();
-			
-			if ($vars['can_edit_meta'] || $vars['can_add_meta'])
-			{
-				foreach ($page->meta as $name=>$meta)
-				{
-					$isNewMeta = !isset($existingMetaNames[$name]);
-					if (($vars['can_edit_meta'] && !$isNewMeta) || ($vars['can_add_meta'] && $isNewMeta))
-					{
-						$updateMeta[$name] = $meta;
-					}
-				}
-			}
-
-			if (!empty($updateMeta))
-			{
-				$model->updatePageMeta($page->id, $updateMeta);
-				if (!empty($page->slug))
-				{
-					$page->meta['slug'] = $page->slug;
-				}
-				$page->meta['breadcrumb'] = $page->breadcrumb;
-			}
-	
-			// delete metadata that were not submitted
-	
-			if ($vars['can_delete_meta'])
-			{
-				foreach ($page->meta as $name=>$data)
-				{
-					unset($existingMetaNames[$name]);
-				}
-				if (!empty($existingMetaNames))
-				{
-					$model->deletePageMeta($page->id, $existingMetaNames);
-					$this->observer->notify('escher:site_change:content:meta:delete', $existingMetaNames, $page);
-				}
-			}
+			$model->savePageMeta($page, $vars);
 		}
 	}
 	
@@ -1248,17 +1162,17 @@ class _ContentController extends EscherAdminController
 		if ($isModel)
 		{
 			$page->name = $params['model_name'];
-			$page->slug = $params['meta_slug'];
+			$page->slug = '';
+			$page->breadcrumb = '';
 			$prefix = 'model';
 		}
 		else
 		{
 			$page->title = $params['page_title'];
-			$page->slug = $page->parent_id ? $params['meta_slug'] : '';
+			$page->slug = $page->parent_id ? $params['page_slug'] : '';
+			$page->breadcrumb = $params['page_breadcrumb'];
 			$prefix = 'page';
 		}
-
-		$page->breadcrumb = $params['meta_breadcrumb'];
 
 		if ($perms['can_edit_status'])
 		{
@@ -1374,9 +1288,9 @@ class _ContentController extends EscherAdminController
 			}
 		}
 		
-		if (!empty($params['meta_slug']) && !preg_match('/^[0-9A-Za-z\-\.]*$/', $params['meta_slug']))
+		if (!empty($params["{$prefix}_slug"]) && !preg_match('/^[0-9A-Za-z\-\.]*$/', $params["{$prefix}_slug"]))
 		{
-			$errors['meta_slug'] = 'Page slug may contain only alphanumeric characters, hyphens and periods.';
+			$errors["{$prefix}_slug"] = 'Page slug may contain only alphanumeric characters, hyphens and periods.';
 		}
 
 		if ($perms['can_edit_template'])
@@ -1793,6 +1707,10 @@ class _ContentController extends EscherAdminController
 					$this->updateObjectCreated($image);
 					$model->addImage($image);
 					$this->observer->notify('escher:site_change:content:image:add', $image);
+					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+					{
+						$model->saveImageMeta($image, $vars);
+					}
 					$this->session->flashSet('notice', 'Image added successfully.');
 					$this->redirect('/content/images/edit/'.$image->id);
 				}
@@ -1804,6 +1722,7 @@ class _ContentController extends EscherAdminController
 		}
 		else
 		{
+			$image->meta = array();
 			$image->categories = array();
 		}
 		
@@ -1908,18 +1827,28 @@ class _ContentController extends EscherAdminController
 					$this->updateObjectEdited($image);
 					$model->updateImage($image, ($vars['can_delete_categories'] || $vars['can_add_categories']));
 					$this->observer->notify('escher:site_change:content:image:edit', $image);
+					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+					{
+						$model->saveImageMeta($image, $vars);
+					}
 					$vars['notice'] = 'Image saved successfully.';
 				}
 				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
+
+				// must refresh image metadata from database so new field names get generated for newly added metadata
+
+				$image->meta = NULL;
+				$model->fetchImageMeta($image);
 			}
 		}
 		else
 		{
 			if ($image)
 			{
+				$model->fetchImageMeta($image);
 				$model->fetchImageCategories($image, true);
 			}
 			$vars['notice'] = $this->session->flashGet('notice');
@@ -1928,6 +1857,10 @@ class _ContentController extends EscherAdminController
 		if ($image)
 		{
 			$image->display_url = $this->urlTo('/content/images/display/' . $image->id);
+			if (!is_array($image->meta))
+			{
+				$image->meta = array();
+			}
 		}
 		
 		$vars['selected_subtab'] = 'images';
@@ -2067,6 +2000,10 @@ class _ContentController extends EscherAdminController
 					$this->updateObjectCreated($file);
 					$model->addFile($file);
 					$this->observer->notify('escher:site_change:content:file:add', $file);
+					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+					{
+						$model->saveFileMeta($file, $vars);
+					}
 					$this->session->flashSet('notice', 'File added successfully.');
 					$this->redirect('/content/files/edit/'.$file->id);
 				}
@@ -2078,6 +2015,7 @@ class _ContentController extends EscherAdminController
 		}
 		else
 		{
+			$file->meta = array();
 			$file->categories = array();
 		}
 		
@@ -2188,21 +2126,39 @@ class _ContentController extends EscherAdminController
 					$this->updateObjectEdited($file);
 					$model->updateFile($file, ($vars['can_delete_categories'] || $vars['can_add_categories']));
 					$this->observer->notify('escher:site_change:content:file:edit', $file);
+					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+					{
+						$model->saveFileMeta($file, $vars);
+					}
 					$vars['notice'] = 'File saved successfully.';
 				}
 				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
+
+				// must refresh file metadata from database so new field names get generated for newly added metadata
+
+				$file->meta = NULL;
+				$model->fetchFileMeta($file);
 			}
 		}
 		else
 		{
 			if ($file)
 			{
+				$model->fetchFileMeta($file);
 				$model->fetchFileCategories($file, true);
 			}
 			$vars['notice'] = $this->session->flashGet('notice');
+		}
+		
+		if ($file)
+		{
+			if (!is_array($file->meta))
+			{
+				$file->meta = array();
+			}
 		}
 		
 		$vars['selected_subtab'] = 'files';
@@ -2302,6 +2258,10 @@ class _ContentController extends EscherAdminController
 					$this->updateObjectCreated($link);
 					$model->addLink($link);
 					$this->observer->notify('escher:site_change:content:link:add', $link);
+					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+					{
+						$model->saveLinkMeta($link, $vars);
+					}
 					$this->session->flashSet('notice', 'Link added successfully.');
 					$this->redirect('/content/links/edit/'.$link->id);
 				}
@@ -2313,9 +2273,10 @@ class _ContentController extends EscherAdminController
 		}
 		else
 		{
+			$link->meta = array();
 			$link->categories = array();
 		}
-				
+		
 		$vars['selected_subtab'] = 'links';
 		$vars['action'] = 'add';
 		$vars['link'] = $link;
@@ -2394,23 +2355,41 @@ class _ContentController extends EscherAdminController
 					$this->updateObjectEdited($link);
 					$model->updateLink($link, ($vars['can_delete_categories'] || $vars['can_add_categories']));
 					$this->observer->notify('escher:site_change:content:link:edit', $link);
+					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+					{
+						$model->saveLinkMeta($link, $vars);
+					}
 					$vars['notice'] = 'Link saved successfully.';
 				}
 				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
+
+				// must refresh file metadata from database so new field names get generated for newly added metadata
+
+				$link->meta = NULL;
+				$model->fetchLinkMeta($link);
 			}
 		}
 		else
 		{
 			if ($link)
 			{
+				$model->fetchLinkMeta($link);
 				$model->fetchLinkCategories($link, true);
 			}
 			$vars['notice'] = $this->session->flashGet('notice');
 		}
 
+		if ($link)
+		{
+			if (!is_array($link->meta))
+			{
+				$link->meta = array();
+			}
+		}
+		
 		$vars['selected_subtab'] = 'links';
 		$vars['action'] = 'edit';
 		$vars['links'] = $linkNames;
@@ -2483,6 +2462,18 @@ class _ContentController extends EscherAdminController
 		$link->title = $params['link_title'];
 		$link->description = $params['link_description'];
 		$link->url = $params['link_url'];
+
+		// build link metadata
+	
+		$meta = array();
+		foreach ($params as $key => $val)
+		{
+			if (preg_match('/meta_(.*)/', $key, $matches))
+			{
+				$meta[$matches[1]] = $val;
+			}
+		}
+		$link->meta = $meta;
 	}
 	
 	//---------------------------------------------------------------------------

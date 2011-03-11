@@ -461,7 +461,7 @@ class _DesignController extends EscherAdminController
 		$vars['action'] = 'list';
 		$vars['themes'] = $themes;
 		$vars['notice'] = $this->session->flashGet('notice');
-		$vars['tree_state'] = isset($params[cv]['escherthemelist']) ? json_decode($params[cv]['escherthemelist'], true) : NULL;
+		$vars['tree_state'] = isset($params['cv']['escherthemelist']) ? json_decode($params['cv']['escherthemelist'], true) : NULL;
 
 		$this->observer->notify('escher:render:before:design:theme:list', $themes);
 		$this->render('main', $vars);
@@ -1622,12 +1622,16 @@ class _DesignController extends EscherAdminController
 				{
 					$imageHelper->loadImage($image);
 				}
-				$image->makeSlug();
 				try
 				{
+					$image->makeSlug();
 					$this->updateObjectCreated($image);
 					$model->addImage($image);
 					$this->observer->notify('escher:site_change:design:image:add', $image);
+					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+					{
+						$model->saveImageMeta($image, $vars);
+					}
 					$this->session->flashSet('notice', 'Image added successfully.');
 					$this->redirect('/design/images/edit/'.$image->id);
 				}
@@ -1636,6 +1640,10 @@ class _DesignController extends EscherAdminController
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
 			}
+		}
+		else
+		{
+			$image->meta = array();
 		}
 		
 		$vars['selected_subtab'] = 'images';
@@ -1754,22 +1762,39 @@ class _DesignController extends EscherAdminController
 					$this->updateObjectEdited($image);
 					$model->updateImage($image);
 					$this->observer->notify('escher:site_change:design:image:edit', $image);
+					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+					{
+						$model->saveImageMeta($image, $vars);
+					}
 					$vars['notice'] = 'Image saved successfully.';
 				}
 				catch (SparkDBException $e)
 				{
 					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 				}
+
+				// must refresh image metadata from database so new field names get generated for newly added metadata
+
+				$image->meta = NULL;
+				$model->fetchImageMeta($image);
 			}
 		}
 		else
 		{
+			if ($image)
+			{
+				$model->fetchImageMeta($image);
+			}
 			$vars['notice'] = $this->session->flashGet('notice');
 		}
 		
 		if ($image)
 		{
 			$image->display_url = $this->urlTo('/design/images/display/' . $image->id);
+			if (!is_array($image->meta))
+			{
+				$image->meta = array();
+			}
 		}
 		
 		$vars['selected_subtab'] = 'images';

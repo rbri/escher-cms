@@ -39,7 +39,7 @@
 					<?= isset($errors['link_url']) ? "<div class=\"error\">{$this->escape($errors['link_url'])}</div>" : '' ?>
 				</div>
 			</div>
-<? $this->render('metadata_builder', array('prefix'=>'link', 'id'=>$link->id, 'metadata'=>array('title'=>$link->title,'description'=>$link->description))); ?>
+<? $this->render('metadata_builder', array('id'=>$link->id, 'toolbar'=>true, 'metadata'=>array('link'=>$fixed_meta=array('title'=>$link->title,'description'=>$link->description), 'meta'=>$link->meta), 'protected'=>array_keys($fixed_meta))); ?>
 <? $this->render('category_builder', array('categories'=>$link->categories)); ?>
 		<? if ($mode === 'edit'): ?>
 			<p class="status">Last updated by <?= $link->editor_name ?> at <?= $link->edited('h:i A T') ?> on <?= $link->edited('F d, Y') ?></p>
@@ -74,3 +74,18 @@
 </div>
 <? endif; ?>
 <div class="clear"></div>
+
+<div id="popups">
+	<div class="popup" id="add-meta-popup">
+		<h3>Add Meta Data</h3>
+		<div>
+			<form id="add-meta-form" action="">
+				<label for="meta_name">Meta Type: </label><input id="meta_name_input" name="meta_name_input" size="30" type="text" />
+				<input id="add-meta-button" type="submit" value="Add Meta" />
+			</form>
+		</div>
+		<div class="close-link">
+			<a class="meta_close_link" href="">Close</a>
+		</div>
+	</div>
+</div>

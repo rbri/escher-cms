@@ -32,7 +32,7 @@
 			</div>
 <? endif; ?>
 
-<? $this->render('metadata_builder', array('prefix'=>'file', 'id'=>$file->id, 'titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL'), 'metadata'=>array('content_type'=>$file->ctype,'url'=>$file->url,'title'=>$file->title,'description'=>$file->description))); ?>
+<? $this->render('metadata_builder', array('id'=>$file->id, 'toolbar'=>true, 'titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL'), 'metadata'=>array('file'=>$fixed_meta=array('content_type'=>$file->ctype,'url'=>$file->url,'title'=>$file->title,'description'=>$file->description), 'meta'=>$file->meta), 'protected'=>array_keys($fixed_meta))); ?>
 <? $this->render('category_builder', array('categories'=>$file->categories)); ?>
 
 <? if ($can_upload): ?>
@@ -104,3 +104,18 @@
 </div>
 <? endif; ?>
 <div class="clear"></div>
+
+<div id="popups">
+	<div class="popup" id="add-meta-popup">
+		<h3>Add Meta Data</h3>
+		<div>
+			<form id="add-meta-form" action="">
+				<label for="meta_name">Meta Type: </label><input id="meta_name_input" name="meta_name_input" size="30" type="text" />
+				<input id="add-meta-button" type="submit" value="Add Meta" />
+			</form>
+		</div>
+		<div class="close-link">
+			<a class="meta_close_link" href="">Close</a>
+		</div>
+	</div>
+</div>

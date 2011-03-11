@@ -445,6 +445,48 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
+	public function addModelMeta($id, $meta)
+	{
+		$this->addObjectMeta('model', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function updateModelMeta($id, $meta)
+	{
+		$this->updateObjectMeta('model', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function deleteModelMeta($id, $names)
+	{
+		$this->deleteObjectMeta('model', $id, $names);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchModelMeta($pageModel)
+	{
+		$this->fetchObjectMeta('model', $pageModel);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchAllModelMetaNames($pageModel)
+	{
+		return $this->fetchAllObjectMetaNames('model', $pageModel);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	public function saveModelMeta($pageModel, $perms)
+	{
+		$this->saveObjectMeta('model', $pageModel, $perms);
+	}
+
+	//---------------------------------------------------------------------------
+	
 	public function updateModelCategories($pageModel)
 	{
 		$db = $this->loadDB();
@@ -514,73 +556,6 @@ class _AdminContentModel extends _PublishContentModel
 			$this->sortCategories($pageModel->categories);
 		}
 		return $pageModel->categories;
-	}
-
-	//---------------------------------------------------------------------------
-	
-	public function updateModelMeta($modelID, $meta)
-	{
-		$db = $this->loadDB();
-	
-		foreach ($meta as $key=>$val)
-		{
-			$val = trim($val);
-			$db->upsertRow('model_meta', array('model_id'=>$modelID, 'name'=>$key, 'data'=>$val), 'model_id=? AND name=?', array($modelID, $key));
-		}
-	}
-
-	//---------------------------------------------------------------------------
-	
-	public function deleteModelMeta($modelID, $names)
-	{
-		$db = $this->loadDB();
-
-		$bind = array_merge(array($modelID), $names);
-
-		$db->deleteRows('model_meta', 'model_id=? AND ' . $db->buildFieldIn('model_meta', 'name', $names), $bind);
-	}
-
-	//---------------------------------------------------------------------------
-	
-	public function fetchAllModelMetaNames($pageModel)
-	{
-		$db = $this->loadDB();
-
-		$metaNames = array();
-		
-		foreach ($db->selectRows('model_meta', 'name', 'model_id=?', $pageModel->id) as $row)
-		{
-			$metaNames[$row['name']] = $row['name'];
-		}
-		
-		asort($metaNames);
-
-		return $metaNames;
-	}
-	
-	//---------------------------------------------------------------------------
-	
-	public function fetchModelMeta($pageModel)
-	{
-		if (!$pageModel->meta)
-		{
-			$db = $this->loadDB();
-	
-			if ($rows = $db->selectRows('model_meta', 'name, data', 'model_id=?', $pageModel->id))
-			{
-				foreach ($rows as $row)
-				{
-					$meta[$row['name']] = $row['data'];
-				}
-			}
-			else
-			{
-				$meta = false;
-			}
-	
-			$pageModel->meta = $meta;
-		}
-		return $pageModel->meta;
 	}
 
 	//---------------------------------------------------------------------------
@@ -883,6 +858,41 @@ class _AdminContentModel extends _PublishContentModel
 	
 	//---------------------------------------------------------------------------
 	
+	public function addPageMeta($id, $meta)
+	{
+		$this->addObjectMeta('page', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function updatePageMeta($id, $meta)
+	{
+		$this->updateObjectMeta('page', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function deletePageMeta($id, $names)
+	{
+		$this->deleteObjectMeta('page', $id, $names);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchAllPageMetaNames($page)
+	{
+		return $this->fetchAllObjectMetaNames('page', $page);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	public function savePageMeta($page, $perms)
+	{
+		$this->saveObjectMeta('page', $page, $perms);
+	}
+
+	//---------------------------------------------------------------------------
+	
 	public function fetchAllPageCategoryIDs($page)
 	{
 		$db = $this->loadDB();
@@ -1068,63 +1078,6 @@ class _AdminContentModel extends _PublishContentModel
 		$db = $this->loadDB();
 		return ($db->countRows('page', 'parent_id=0') != 0);
 	}
-
-	//---------------------------------------------------------------------------
-	
-	public function addPageMeta($pageID, $meta)
-	{
-		$db = $this->loadDB();
-	
-		$rows = array();
-		foreach ($meta as $key=>$val)
-		{
-			$rows[] = array('page_id'=>$pageID, 'name'=>$key, 'data'=>$val);
-		}
-
-		$db->insertRows('page_meta', $rows);
-	}
-
-	//---------------------------------------------------------------------------
-	
-	public function updatePageMeta($pageID, $meta)
-	{
-		$db = $this->loadDB();
-	
-		foreach ($meta as $key=>$val)
-		{
-			$db->upsertRow('page_meta', array('page_id'=>$pageID, 'name'=>$key, 'data'=>trim($val)), 'page_id=? AND name=?', array($pageID, $key));
-		}
-	}
-
-	//---------------------------------------------------------------------------
-	
-	public function deletePageMeta($pageID, $names)
-	{
-		$db = $this->loadDB();
-
-		$bind = array_merge(array($pageID), $names);
-
-		$db->deleteRows('page_meta', 'page_id=? AND ' . $db->buildFieldIn('page_meta', 'name', $names), $bind);
-	}
-
-	//---------------------------------------------------------------------------
-	
-	public function fetchAllPageMetaNames($page)
-	{
-		$db = $this->loadDB();
-
-		$metaNames = array();
-		
-		foreach ($db->selectRows('page_meta', 'name', 'page_id=?', $page->id) as $row)
-		{
-			$metaNames[$row['name']] = $row['name'];
-		}
-		
-		asort($metaNames);
-
-		return $metaNames;
-	}
-	
 
 	//---------------------------------------------------------------------------
 	
@@ -1596,6 +1549,41 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
+	public function addImageMeta($id, $meta)
+	{
+		$this->addObjectMeta('image', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function updateImageMeta($id, $meta)
+	{
+		$this->updateObjectMeta('image', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function deleteImageMeta($id, $names)
+	{
+		$this->deleteObjectMeta('image', $id, $names);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchAllImageMetaNames($image)
+	{
+		return $this->fetchAllObjectMetaNames('image', $image);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	public function saveImageMeta($image, $perms)
+	{
+		$this->saveObjectMeta('image', $image, $perms);
+	}
+
+	//---------------------------------------------------------------------------
+	
 	public function fetchImageCategories($image, $sort = false)
 	{
 		if (!$image->categories)
@@ -1810,6 +1798,41 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
+	public function addFileMeta($id, $meta)
+	{
+		$this->addObjectMeta('file', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function updateFileMeta($id, $meta)
+	{
+		$this->updateObjectMeta('file', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function deleteFileMeta($id, $names)
+	{
+		$this->deleteObjectMeta('file', $id, $names);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchAllFileMetaNames($file)
+	{
+		return $this->fetchAllObjectMetaNames('file', $file);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	public function saveFileMeta($file, $perms)
+	{
+		$this->saveObjectMeta('file', $file, $perms);
+	}
+
+	//---------------------------------------------------------------------------
+	
 	public function fetchFileCategories($file, $sort = false)
 	{
 		if (!$file->categories)
@@ -2004,6 +2027,41 @@ class _AdminContentModel extends _PublishContentModel
 		asort($names);
 
 		return $names;
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function addLinkMeta($id, $meta)
+	{
+		$this->addObjectMeta('link', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function updateLinkMeta($id, $meta)
+	{
+		$this->updateObjectMeta('link', $id, $meta);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function deleteLinkMeta($id, $names)
+	{
+		$this->deleteObjectMeta('link', $id, $names);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchAllLinkMetaNames($link)
+	{
+		return $this->fetchAllObjectMetaNames('link', $link);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	public function saveLinkMeta($link, $perms)
+	{
+		$this->saveObjectMeta('link', $link, $perms);
 	}
 
 	//---------------------------------------------------------------------------
@@ -3164,6 +3222,107 @@ class _AdminContentModel extends _PublishContentModel
 		}
 
 		return $ids;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// Protected Methods
+	//
+	//---------------------------------------------------------------------------
+	
+	protected function addObjectMeta($objType, $id, $meta)
+	{
+		$db = $this->loadDB();
+	
+		$rows = array();
+		foreach ($meta as $key=>$val)
+		{
+			$key = strtolower(preg_replace('/\s+/', '_', trim($key)));
+			$rows[] = array("{$objType}_id"=>$id, 'name'=>$key, 'data'=>trim($val));
+		}
+
+		$db->insertRows("{$objType}_meta", $rows);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	protected function updateObjectMeta($objType, $id, $meta)
+	{
+		$db = $this->loadDB();
+	
+		foreach ($meta as $key=>$val)
+		{
+			$key = strtolower(preg_replace('/\s+/', '_', trim($key)));
+			$db->upsertRow("{$objType}_meta", array("{$objType}_id"=>$id, 'name'=>$key, 'data'=>trim($val)), "{$objType}_id=? AND name=?", array($id, $key));
+		}
+	}
+
+	//---------------------------------------------------------------------------
+	
+	protected function deleteObjectMeta($objType, $id, $names)
+	{
+		$db = $this->loadDB();
+
+		$bind = array_merge(array($id), $names);
+
+		$db->deleteRows("{$objType}_meta", "{$objType}_id=? AND " . $db->buildFieldIn("{$objType}_meta", 'name', $names), $bind);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	protected function fetchAllObjectMetaNames($objType, $obj)
+	{
+		$db = $this->loadDB();
+
+		$metaNames = array();
+		
+		foreach ($db->selectRows("{$objType}_meta", 'name', "{$objType}_id=?", $obj->id) as $row)
+		{
+			$metaNames[$row['name']] = $row['name'];
+		}
+		
+		asort($metaNames);
+
+		return $metaNames;
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function saveObjectMeta($objType, $obj, $perms)
+	{
+		$existingMetaNames = $this->fetchAllObjectMetaNames($objType, $obj);
+		$updateMeta = array();
+
+		if ($perms['can_edit_meta'] || $perms['can_add_meta'])
+		{
+			foreach ($obj->meta as $name=>$meta)
+			{
+				$isNewMeta = !isset($existingMetaNames[$name]);
+				if (($perms['can_edit_meta'] && !$isNewMeta) || ($perms['can_add_meta'] && $isNewMeta))
+				{
+					$updateMeta[$name] = $meta;
+				}
+			}
+		}
+
+		if (!empty($updateMeta))
+		{
+			$this->updateObjectMeta($objType, $obj->id, $updateMeta);
+		}
+
+		// delete metadata that were not submitted
+
+		if ($perms['can_delete_meta'])
+		{
+			foreach ($obj->meta as $name=>$data)
+			{
+				unset($existingMetaNames[$name]);
+			}
+			if (!empty($existingMetaNames))
+			{
+				$this->deleteObjectMeta($objType, $obj->id, $existingMetaNames);
+			}
+		}
 	}
 
 	//---------------------------------------------------------------------------

@@ -2853,6 +2853,26 @@ class _EscherParser extends CoreTagParser
 		
 	//---------------------------------------------------------------------------
 	
+	protected function _tag_images_meta($atts)
+	{
+		extract($this->gatts(array(
+			'name' => '',
+		),$atts));
+
+		$name !== '' || check($name !== '', $this->output->escape(self::$lang->get('attribute_required', 'name', 'images:meta')));
+
+		if (!$image = $this->currentImage())
+		{
+			return '';
+		}
+
+		$meta = $this->content->fetchImageMeta($image);
+
+		return isset($meta[$name]) ? $this->output->escape($meta[$name]) : '';
+	}
+	
+	//---------------------------------------------------------------------------
+	
 	protected function _tag_images_url($atts)
 	{
 		if (!$image = $this->currentImage())
@@ -3057,6 +3077,26 @@ class _EscherParser extends CoreTagParser
 		$this->popNamespace('files');
 	}
 		
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_files_meta($atts)
+	{
+		extract($this->gatts(array(
+			'name' => '',
+		),$atts));
+
+		$name !== '' || check($name !== '', $this->output->escape(self::$lang->get('attribute_required', 'name', 'files:meta')));
+
+		if (!$file = $this->currentfile())
+		{
+			return '';
+		}
+
+		$meta = $this->content->fetchfileMeta($file);
+
+		return isset($meta[$name]) ? $this->output->escape($meta[$name]) : '';
+	}
+	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_files_name($atts)
@@ -3319,6 +3359,26 @@ class _EscherParser extends CoreTagParser
 		$this->popNamespace('links');
 	}
 		
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_links_meta($atts)
+	{
+		extract($this->gatts(array(
+			'name' => '',
+		),$atts));
+
+		$name !== '' || check($name !== '', $this->output->escape(self::$lang->get('attribute_required', 'name', 'links:meta')));
+
+		if (!$link = $this->currentlink())
+		{
+			return '';
+		}
+
+		$meta = $this->content->fetchlinkMeta($link);
+
+		return isset($meta[$name]) ? $this->output->escape($meta[$name]) : '';
+	}
+	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_links_url($atts)

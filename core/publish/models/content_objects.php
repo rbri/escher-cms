@@ -228,6 +228,7 @@ class _Image extends ContentObject
 
 	// cache fields...
 
+	public $meta;
 	public $categories;
 
 	public function isParsable()
@@ -517,6 +518,7 @@ class _File extends ContentObject
 
 	// cache fields...
 
+	public $meta;
 	public $categories;
 
 	public function isParsable()
@@ -546,6 +548,7 @@ class _Link extends ContentObject
 
 	// cache fields...
 
+	public $meta;
 	public $categories;
 }
 
