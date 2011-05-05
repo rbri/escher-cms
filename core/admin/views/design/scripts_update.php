@@ -46,7 +46,7 @@
 				<?= isset($errors['script_name']) ? "<div class=\"error\">{$this->escape($errors['script_name'])}</div>" : '' ?>
 			</div>
 <? endif; ?>
-<? $this->render('metadata_builder', array('prefix'=>'script', 'titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL'), 'metadata'=>array('content_type'=>$script->ctype,'url'=>$script->url))); ?>
+<? $this->render('metadata_builder', array('titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL'), 'metadata'=>array('script'=>array('content_type'=>$script->ctype,'url'=>$script->url)))); ?>
 			<div class="field collapse">
 				<label class="title<?= isset($errors["script_content"]) ? ' error' : '' ?>" for="script_content"><a href="">Body</a></label>
 				<div class="collapsible">

@@ -97,6 +97,20 @@ class _Input extends SparkPlug
 
 	//---------------------------------------------------------------------------
 	
+	public function hasGetVars()
+	{
+		return !empty($this->_get);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function hasPostVars()
+	{
+		return !empty($this->_post);
+	}
+
+	//---------------------------------------------------------------------------
+	
 	public function hasCookies()
 	{
 		return !empty($this->_cookie);

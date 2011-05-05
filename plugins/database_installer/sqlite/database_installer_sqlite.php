@@ -66,11 +66,11 @@ class DatabaseInstallerSqlite extends DatabaseInstaller
 
 		$vars['show_ignore_db_path_error'] = false;
 
-		if (($dbpath = $data['db_path']) == '')
+		if (($dbpath = str_replace('\\', '/', $data['db_path'])) == '')
 		{
 			$errors['db_path'] = 'Database path is required.';
 		}
-		elseif (($dbpath[0] != '/') && ($dbpath[0] != '\\') && !preg_match('#^([a-z]:)#i', $dbpath))
+		elseif (($dbpath[0] != '/') && !preg_match('#^([a-z]:)#i', $dbpath))
 		{
 			$errors['db_path'] = 'Absolute path is required.';
 		}
@@ -82,7 +82,7 @@ class DatabaseInstallerSqlite extends DatabaseInstaller
 		{
 			$errors['db_path'] = $error;
 		}
-		elseif (empty($data['ignore_db_path_error']) && stripos($dbpath, SparkUtil::doc_root()) !== false)
+		elseif (empty($data['ignore_db_path_error']) && stripos($dbpath, str_replace('\\', '/', SparkUtil::doc_root())) !== false)
 		{
 			$vars['show_ignore_db_path_error'] = true;
 			$errors['db_path'] = 'You have specified a database location that is web-accessible. If possible, it is more secure to locate your database outside of your web server\'s document root.';

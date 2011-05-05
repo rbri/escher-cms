@@ -36,6 +36,18 @@ They have been replaced with the more general purpose tags:
 	
 --
 
+Note the following change to publish-config.php (be sure to update your copy):
+
+	The following route:
+	
+		':any' => 'publish/index',
+	
+	has changed to:
+	
+		':all' => 'publish/index',
+
+--
+
 There has been a minor adjustment to the default location of the main Spark/Plug
 directory. As a result, the "sparkplug_dir" config parameter has changed.
 

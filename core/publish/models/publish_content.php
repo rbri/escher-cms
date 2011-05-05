@@ -915,8 +915,11 @@ class _PublishContentModel extends SparkModel
 		{
 			$orderBy = '{page}.level, {page}.position DESC, {page}.created DESC';
 		}
-		$orderBy .= ', {page}.id';		// ensure consistency if dates are the same
-
+		if ($orderBy !== 'RAND')
+		{
+			$orderBy .= ', {page}.id';		// ensure consistency if dates are the same
+		}
+		
 		$joins = array();
 		
 		if (empty($parentPage))

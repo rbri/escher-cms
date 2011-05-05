@@ -3,11 +3,11 @@ Escher CMS Change History
 
 Version 0.9.1 [TBD]
 	miscellaneous bug fixes
-	can associate custom metadata with images, files and links
 	added "private" attribute to <et:core:scope> tag
 	synced to changes in Spark/Plug's authentication model (using SparkHasher)
 	synced to changes in Spark/Plug's exception handling model
-	eliminated "meta" namespace and tags; added tag: <et:pages:meta name="">
+	eliminated "meta" namespace and tags; added tags: <et:pages:meta>, <et:images:meta>, <et:files:meta>, <et:links:meta>
+	can associate custom metadata with images, files and links
 	form plugin: allow setting default values for multiple checkboxes ("default" attribute now accepts comma-delimited list)
 	added missing semicolons in some inline styles of sample site
 	eliminated one level of directory hierachy in sparkplug directory

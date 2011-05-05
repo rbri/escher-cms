@@ -61,7 +61,7 @@ class FormTags extends EscherParser
 
 	final protected function gfvar($name, $default = NULL)
 	{
-		return $this->fsub() ? $this->input->post($name, $default) : NULL;
+		return $this->input->post('esc_submitted') ? $this->input->post($name, $default) : NULL;
 	}
 
 	//---------------------------------------------------------------------------
@@ -536,13 +536,38 @@ class FormTags extends EscherParser
 			'options' => '',
 			'delim' => '|',
 			'kvdelim' => ';',
+			'gdelim' => ':',
 			'rule' => '',
 		),$atts));
 
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:select')));
 		$options || check($options, $this->output->escape(self::$lang->get('attribute_required', 'options', 'form:select')));
 		
-		$options = $this->kvlist($options, $delim, $kvdelim);
+		// check fopr OPTGROUP
+		
+		if (strpos($options, $gdelim) !== false)
+		{
+			$splits = array_map('trim', preg_split("/{$gdelim}(.+?){$gdelim}/", $options, -1, PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE));
+			$options = array();
+			$groups = array();
+			$getGroupLabel = true;
+			foreach ($splits as $group)
+			{
+				if ($getGroupLabel)
+				{
+					$groupLabel = $group;
+				}
+				else
+				{
+					$options = array_merge($options, $groups[$groupLabel] = $this->kvlist($group, $delim, $kvdelim));
+				}
+				$getGroupLabel = !$getGroupLabel;
+			}
+		}
+		else
+		{
+			 $options = $groups[''] = $this->kvlist($options, $delim, $kvdelim);
+		}
 		
 		$this->form_data[$this->tag_form_id]['options'][$name] = $options;	// save this for later lookups in <value_option> tag
 		
@@ -566,14 +591,29 @@ class FormTags extends EscherParser
 		}
 		
 		$values = '';
-		foreach ($options as $key => $val)
+		reset($options);
+		foreach ($groups as $group => $groupOpts)
 		{
-			$atts = 'value='.'"'.$key.'"';
-			if ((string)$key === $selected)
+			if ($group !== '')
 			{
-				$atts .= ' selected="selected"';
+				$values .= '<optgroup label="' . $group . '">';
 			}
-			$values .= $this->output->tag($val, 'option', '', '', $atts);
+			for ($i = count($groupOpts); $i > 0; --$i)
+			{
+				$option = each($options);
+				$key = $option[0];
+				$val = $option[1];
+				$atts = 'value='.'"'.$key.'"';
+				if ((string)$key === $selected)
+				{
+					$atts .= ' selected="selected"';
+				}
+				$values .= $this->output->tag($val, 'option', '', '', $atts);
+			}
+			if ($group !== '')
+			{
+				$values .= '</optgroup>';
+			}
 		}
 		
 		$atts = $this->matts(compact('name', 'multiple', 'style'), true);

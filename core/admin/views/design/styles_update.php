@@ -46,7 +46,7 @@
 				<?= isset($errors['style_name']) ? "<div class=\"error\">{$this->escape($errors['style_name'])}</div>" : '' ?>
 			</div>
 <? endif; ?>
-<? $this->render('metadata_builder', array('prefix'=>'style', 'titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL'), 'metadata'=>array('content_type'=>$style->ctype,'url'=>$style->url))); ?>
+<? $this->render('metadata_builder', array('titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL'), 'metadata'=>array('style'=>array('content_type'=>$style->ctype,'url'=>$style->url)))); ?>
 			<div class="field collapse">
 				<label class="title<?= isset($errors["style_content"]) ? ' error' : '' ?>" for="style_content"><a href="">Body</a></label>
 				<div class="collapsible">

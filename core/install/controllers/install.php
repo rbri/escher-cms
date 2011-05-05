@@ -437,6 +437,99 @@ class _InstallController extends SparkController
 	
 	//---------------------------------------------------------------------------
 
+	// Protected Methods
+	
+	//---------------------------------------------------------------------------
+
+	protected function validDir($path, &$error)
+	{
+		static $dirHelp = 'Please change this directory\'s permissions so that the web server has read/write/execute access.';
+
+		if (!$this->validPath($path, $parts))
+		{
+			$error = 'Invalid file path specified.';
+		}
+		elseif (!is_dir($path))
+		{
+			$error = 'You have specified a directory that does not exist.';
+		}
+		elseif (!is_readable($path))
+		{
+			$error = 'You have specified a directory that is not readable by the web server. '.$dirHelp;
+		}
+		elseif (!is_writable($path))
+		{
+			$error = 'You have specified a directory that is not writable by the web server. '.$dirHelp;
+		}
+		elseif (!@file_exists($path.'/.'))
+		{
+			$error = 'You have specified a directory that is not traversable by the web server. '.$dirHelp;
+		}
+		else
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function validPath($path, &$parts)
+	{
+		$info = pathinfo($path);
+		$parts[0] = $info['dirname'] . '/' . $info['basename'];
+		$parts[1] = $info['dirname'];
+		$parts[2] = $info['basename'];
+		return true;
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function validURL($url)
+	{
+		return SparkUtil::valid_url($url);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function validEmail($email)
+	{
+		return SparkUtil::valid_email($email);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function validName($name, &$error)
+	{
+		return true;
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function validLogin($login, &$error)
+	{
+		if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/i', $login))
+		{
+			$error = 'Login name must start with a letter and consist of letters, digits and underscores.';
+			return false;
+		}
+		return true;
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function validPassword($pw, &$error)
+	{
+		if (strlen($pw) < 8)
+		{
+			$error = 'Password must be at least 8 characters in length';
+			return false;
+		}
+		return true;
+	}
+	
+	//---------------------------------------------------------------------------
+
 	// Private Methods
 	
 	//---------------------------------------------------------------------------
@@ -663,95 +756,6 @@ class _InstallController extends SparkController
 				}
 			}
 		}
-	}
-	
-	//---------------------------------------------------------------------------
-
-	private function validDir($path, &$error)
-	{
-		static $dirHelp = 'Please change this directory\'s permissions so that the web server has read/write/execute access.';
-
-		if (!$this->validPath($path, $parts))
-		{
-			$error = 'Invalid file path specified.';
-		}
-		elseif (!is_dir($path))
-		{
-			$error = 'You have specified a directory that does not exist.';
-		}
-		elseif (!is_readable($path))
-		{
-			$error = 'You have specified a directory that is not readable by the web server. '.$dirHelp;
-		}
-		elseif (!is_writable($path))
-		{
-			$error = 'You have specified a directory that is not writable by the web server. '.$dirHelp;
-		}
-		elseif (!@file_exists($path.'/.'))
-		{
-			$error = 'You have specified a directory that is not traversable by the web server. '.$dirHelp;
-		}
-		else
-		{
-			return true;
-		}
-		return false;
-	}
-	
-	//---------------------------------------------------------------------------
-
-	private function validPath($path, &$parts)
-	{
-		$info = pathinfo($path);
-		$parts[0] = $info['dirname'] . '/' . $info['basename'];
-		$parts[1] = $info['dirname'];
-		$parts[2] = $info['basename'];
-		return true;
-	}
-	
-	//---------------------------------------------------------------------------
-
-	private function validURL($url)
-	{
-		return SparkUtil::valid_url($url);
-	}
-	
-	//---------------------------------------------------------------------------
-
-	private function validEmail($email)
-	{
-		return SparkUtil::valid_email($email);
-	}
-	
-	//---------------------------------------------------------------------------
-
-	private function validName($name, &$error)
-	{
-		return true;
-	}
-	
-	//---------------------------------------------------------------------------
-
-	private function validLogin($login, &$error)
-	{
-		if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/i', $login))
-		{
-			$error = 'Login name must start with a letter and consist of letters, digits and underscores.';
-			return false;
-		}
-		return true;
-	}
-	
-	//---------------------------------------------------------------------------
-
-	private function validPassword($pw, &$error)
-	{
-		if (strlen($pw) < 8)
-		{
-			$error = 'Password must be at least 8 characters in length';
-			return false;
-		}
-		return true;
 	}
 	
 	//---------------------------------------------------------------------------

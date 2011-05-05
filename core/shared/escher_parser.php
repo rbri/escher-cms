@@ -2875,12 +2875,7 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_images_url($atts)
 	{
-		if (!$image = $this->currentImage())
-		{
-			return '';
-		}
-		
-		return $this->output->escape($url);
+		return ($image = $this->currentImage()) ? $this->output->escape($image->url) : '';
 	}
 
 	//---------------------------------------------------------------------------

@@ -46,7 +46,7 @@
 				<?= isset($errors['template_name']) ? "<div class=\"error\">{$this->escape($errors['template_name'])}</div>" : '' ?>
 			</div>
 <? endif; ?>
-<? $this->render('metadata_builder', array('collapsed'=>true, 'prefix'=>'template', 'titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL'), 'metadata'=>array('content_type'=>$template->ctype))); ?>
+<? $this->render('metadata_builder', array('collapsed'=>true, 'titles'=>array('content_type'=>'Content-Type', 'url'=>'Override URL'), 'metadata'=>array('template'=>array('content_type'=>$template->ctype)))); ?>
 			<div class="field collapse">
 				<label class="title<?= isset($errors["template_content"]) ? ' error' : '' ?>" for="template_content"><a href="">Body</a></label>
 				<div class="collapsible">

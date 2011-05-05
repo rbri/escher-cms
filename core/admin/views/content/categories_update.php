@@ -20,7 +20,7 @@
 			</div>
 		</div>
 
-<? $this->render('metadata_builder', array('prefix'=>'category', 'metadata'=>array('slug'=>$category->slug))); ?>
+<? $this->render('metadata_builder', array('metadata'=>array('category'=>array('slug'=>$category->slug)))); ?>
 
 	</div>
 	<div class="buttons">
