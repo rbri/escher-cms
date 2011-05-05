@@ -49,19 +49,14 @@ class FormTags extends EscherParser
 
 	final protected function fsub()
 	{
-		$submitted = $this->input->post('esc_submitted');
-		if (!Isset($this->tag_form_id) || !$submitted || $this->tag_form_id != $submitted)
-		{
-			return false;
-		}
-		return true;
+		return ($submitted = $this->input->post('esc_submitted')) && ($submitted == $this->tag_form_id);
 	}
 
 	//---------------------------------------------------------------------------
 
 	final protected function gfvar($name, $default = NULL)
 	{
-		return $this->input->post('esc_submitted') ? $this->input->post($name, $default) : NULL;
+		return $this->fsub() ? $this->input->post($name, $default) : NULL;
 	}
 
 	//---------------------------------------------------------------------------
@@ -189,7 +184,7 @@ class FormTags extends EscherParser
 		$content = '';
 		$extra = '';
 
-		if ($submitted = ($this->gfvar('esc_submitted') == $id))
+		if ($submitted = $this->fsub())
 		{
 			$useNonce && $nonce = $nonceModel->getNonce($this->gfvar('esc_nonce'));
 
