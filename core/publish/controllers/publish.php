@@ -30,8 +30,8 @@ require(escher_core_dir.'/shared/escher_parser.php');
 
 class _PublishController extends SparkController
 {
-	private $_theme;
 	private $_content;
+	private $_theme;
 	
 	//---------------------------------------------------------------------------
 
@@ -44,14 +44,41 @@ class _PublishController extends SparkController
 		$params['env'] = array();
 
 		$prefsModel = $this->app->get_prefs_model();
-		$params['prefs'] =& $this->app->get_prefs();
-		$params['production_status'] = $this->app->get_production_status();
-		$params['category_trigger'] = @$params['prefs']['category_trigger'];
-		$this->_theme = intval(@$params['prefs']['theme']);
+		$prefs =& $this->app->get_prefs();
+
+		$params['prefs'] =& $prefs;
+		$params['category_trigger'] = @$prefs['category_trigger'];
 		
-		$prefs =& $params['prefs'];
+		switch ($params['production_status'] = $this->app->get_production_status())
+		{
+			case EscherProductionStatus::Development:
+				$params['debug_level'] = @$prefs['development_debug_level'];
+				$themeID = @$prefs['development_theme'];
+				break;
+			case EscherProductionStatus::Staging:
+				$params['debug_level'] = @$prefs['staging_debug_level'];
+				$themeID = @$prefs['staging_theme'];
+				break;
+			default:
+				$params['debug_level'] = @$prefs['debug_level'];
+				$themeID = @$prefs['theme'];
+				break;
+		}
+
+		$hostPrefix = $this->app->get_branch_prefix();
+		if (empty($hostPrefix))
+		{
+			$params['site_host'] = SparkUtil::extract_scheme_host_from_url($prefs['site_url']);
+			$params['secure_site_host'] = SparkUtil::extract_scheme_host_from_url($prefs['secure_site_url']);
+		}
+		else
+		{
+			$params['site_host'] = preg_replace('#^https?://#', '$0'.$hostPrefix.'.', SparkUtil::extract_scheme_host_from_url($prefs['site_url']));
+			$params['secure_site_host'] = preg_replace('#^https?://#', '$0'.$hostPrefix.'.', SparkUtil::extract_scheme_host_from_url($prefs['secure_site_url']));
+		}
 
 		$this->_content = $this->newModel('PublishContent', $params);
+		$this->_theme = $params['theme'] = !empty($themeID) ? $this->_content->fetchTheme(intval($themeID)) : NULL;
 
 		// if the schema needs to be updated or an administrator has placed the site into maintenance mode,
 		// display the maintenance page and exit (no plugins, user tags or caching available)
@@ -69,7 +96,7 @@ class _PublishController extends SparkController
 			return;
 		}
 
-		if ($prefs['debug_level'] > 1)
+		if ($params['debug_level'] > 1)
 		{
 			error_reporting(E_ALL|E_STRICT);
 			ini_set('display_errors', '1');
@@ -107,20 +134,35 @@ class _PublishController extends SparkController
 		{
 			$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, $uri);
 			$content = $parser->currentPageTemplateContent($contentType, $parsable, $cacheable, $secure, $lastModTime, $fileName, $fileSize);
-			if ($prefs['enforce_page_security'])
+
+			// sanity check host name in url
+			
+			$schemeHost = SparkUtil::scheme().SparkUtil::host();
+			$expectHost = NULL;
+			
+			if (!$secure)
 			{
-				$checkHost = $secure ? $prefs['secure_site_url'] : $prefs['site_url'];
-				if (SparkUtil::scheme().SparkUtil::host() !== $checkHost)
+				$checkFailed = ($schemeHost !== ($expectHost = $params['site_host']));
+			}
+			elseif ($prefs['enforce_page_security'])
+			{
+				$checkFailed = ($schemeHost !== ($expectHost = $params['secure_site_host']));
+			}
+			else
+			{
+				$checkFailed = ($schemeHost !== $params['site_host']) && ($schemeHost !== $params['secure_site_host']);
+			}
+			
+			if ($checkFailed)
+			{
+				if ($expectHost && $prefs['automatic_redirect'])
 				{
-					if ($prefs['automatic_redirect'])
-					{
-						header('Location: ' . $this->urlTo($uri, $checkHost, false));
-						exit;
-					}
-					else
-					{
-						throw new SparkHTTPException_NotFound(NULL, array('reason'=>'host scheme mismatch'));
-					}
+					header('Location: ' . $this->urlTo($uri, $expectHost, false));
+					exit;
+				}
+				else
+				{
+					throw new SparkHTTPException_NotFound(NULL, array('reason'=>'host scheme mismatch'));
 				}
 			}
 		}
@@ -166,8 +208,7 @@ class _PublishController extends SparkController
 
 	public function buildParserPlug(&$plug)
 	{
-		$theme = $this->_theme ? $this->_content->fetchTheme($this->_theme) : NULL;
-		$tagGroups = $this->_content->fetchTags($theme);
+		$tagGroups = $this->_content->fetchTags($this->_theme);
 		
 		$plugCode = '';
 		$baseClass = 'EscherParser';

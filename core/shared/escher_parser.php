@@ -58,8 +58,10 @@ class _EscherParser extends CoreTagParser
 	protected $siteHost;
 	protected $secureSiteHost;
 	protected $content;
-	protected $category_trigger;
 	protected $theme;
+	protected $branch;
+	protected $debug_level;
+	protected $category_trigger;
 	
 	//---------------------------------------------------------------------------
 
@@ -84,14 +86,16 @@ class _EscherParser extends CoreTagParser
 		$this->_link_stack = array();
 		$this->_category_stack = array();
 		
-		$this->_production_status = isset($params['production_status']) ? $params['production_status'] : EscherProductionStatus::Production;
+		$this->_production_status = $params['production_status'];
 
 		$this->prefs = $params['prefs'];
-		$this->siteHost = SparkUtil::extract_host_from_url($this->prefs['site_url']);
-		$this->secureSiteHost = SparkUtil::extract_host_from_url($this->prefs['secure_site_url']);
+		$this->siteHost = $params['site_host'];
+		$this->secureSiteHost = $params['secure_site_host'];
 		$this->content = $content;
+		$this->theme = $params['theme'];
+		$this->branch = $this->_production_status;
+		$this->debug_level = $params['debug_level'];
 		$this->category_trigger = $this->getPref('category_trigger', 'category');
-		$this->theme = !empty($this->prefs['theme']) ? $content->fetchTheme(intval($this->prefs['theme'])) : NULL;
 
 		if (!$this->_current_page = $this->content->fetchPageByURI($currentURI))
 		{
@@ -132,7 +136,7 @@ class _EscherParser extends CoreTagParser
 
 		$out = $template->content;
 		
-		if ($this->prefs['debug_level'] > 2)
+		if ($this->debug_level > 2)
 		{
 			if (empty($fileName) && ($contentType === 'text/html'))
 			{
@@ -164,14 +168,14 @@ class _EscherParser extends CoreTagParser
 		$this->pushPageContext($page);
 		$this->setStatus($status, $message);
 
-		if ($this->prefs['debug_level'] > 2)
+		if ($this->debug_level > 2)
 		{
 			$start = microtime();
 		}
 
 		$out = $this->parse($template->content);
 
-		if ($this->prefs['debug_level'] > 2)
+		if ($this->debug_level > 2)
 		{
 			$stop = microtime();
 			list($sm, $ss) = explode(' ', $start);
@@ -240,14 +244,14 @@ class _EscherParser extends CoreTagParser
 			return;
 		}
 		
-		if ($this->prefs['debug_level'] > 2)
+		if ($this->debug_level > 2)
 		{
 			$start = microtime();
 		}
 
 		$out = $this->parse($template);
 		
-		if ($this->prefs['debug_level'] > 2)
+		if ($this->debug_level > 2)
 		{
 			$stop = microtime();
 			list($sm, $ss) = explode(' ', $start);
@@ -263,7 +267,7 @@ class _EscherParser extends CoreTagParser
 	
 	protected final function parseSnippet($nameOrID)
 	{
-		if (($snippet = $this->content->fetchSnippetContent($nameOrID, $this->theme)) === false)
+		if (($snippet = $this->content->fetchSnippetContent($nameOrID, $this->theme, $this->branch)) === false)
 		{
 			$this->reportError(self::$lang->get('snippet_not_found', $nameOrID), E_USER_WARNING);
 			return;
@@ -277,14 +281,14 @@ class _EscherParser extends CoreTagParser
 
 		$this->_snippet_parse_stack[] = $nameOrID;
 
-		if ($this->prefs['debug_level'] > 2)
+		if ($this->debug_level > 2)
 		{
 			$start = microtime();
 		}
 
 		$out = $this->parse($snippet);
 		
-		if ($this->prefs['debug_level'] > 2)
+		if ($this->debug_level > 2)
 		{
 			$stop = microtime();
 			list($sm, $ss) = explode(' ', $start);
@@ -317,7 +321,7 @@ class _EscherParser extends CoreTagParser
 
 		$out = $this->parse($block->content_html);
 
-		if ($this->prefs['debug_level'] > 2)
+		if ($this->debug_level > 2)
 		{
 			$out = "\n<!-- BLOCK: {$block->name} -->\n" . $out . "\n<!-- /BLOCK: {$block->name} -->\n";
 		}
@@ -772,7 +776,7 @@ class _EscherParser extends CoreTagParser
 		if (($content = $this->cacher->get($id)) === false)
 		{
 			$content = $this->getContent();
-			if ($this->prefs['debug_level'] > 2)
+			if ($this->debug_level > 2)
 			{
 				$this->cacher->set($id, "<!-- begin served from cache -->" . $content . "<!-- end served from cache -->", $timeout);
 			}
@@ -1293,7 +1297,7 @@ class _EscherParser extends CoreTagParser
 			'level'  => '1',
 		),$atts));
 		
-		return ($this->prefs['debug_level'] >= $level);
+		return ($this->debug_level >= $level);
 	}
 
 	//---------------------------------------------------------------------------

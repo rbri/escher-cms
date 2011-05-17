@@ -33,6 +33,7 @@ require('escher_base.php');
 class EscherAdminController extends SparkController
 {
 	private $_vars;
+	private $_active_branch;
 	
 	//---------------------------------------------------------------------------
 
@@ -86,6 +87,11 @@ class EscherAdminController extends SparkController
 
 		$this->_vars['logged_in'] = true;
 		
+		if (!EscherVersion::validateSparkPlugVersion($message))
+		{
+			exit($message);
+		}
+
 		if (!EscherVersion::validateSchemaVersion($this->app->get_pref('schema')))
 		{
 			if ((!$this instanceof SettingsController) || ($method !== 'action_upgrade'))
@@ -129,6 +135,8 @@ class EscherAdminController extends SparkController
 				throw new SparkHTTPException_Forbidden(NULL, $this->_vars);
 			}
 		}
+		
+		$this->_active_branch = $this->app->get_pref('active_branch', 0);
 
 		return true;
 	}
@@ -151,6 +159,13 @@ class EscherAdminController extends SparkController
 		$vars = $this->_vars;
 	}
 
+	//---------------------------------------------------------------------------
+
+	protected function getActiveBranch()
+	{
+		return $this->_active_branch;
+	}
+	
 	//---------------------------------------------------------------------------
 
 	protected function updateObjectCreated($object)
@@ -183,6 +198,17 @@ class EscherAdminController extends SparkController
 		return $msg;
 	}
 	
+	//---------------------------------------------------------------------------
+
+	protected function newAdminContentModel($params = NULL)
+	{
+		if (!isset($params['category_trigger']))
+		{
+			$params['category_trigger'] = $this->app->get_pref('category_trigger');
+		}
+		return $this->newModel('AdminContent', $params);
+	}
+
 	//---------------------------------------------------------------------------
 	
 }

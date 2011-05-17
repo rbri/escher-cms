@@ -41,6 +41,18 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
+	public function fetchBranchNames()
+	{
+		return array
+		(
+			EscherProductionStatus::Production => 'Production',
+			EscherProductionStatus::Staging => 'Staging',
+			EscherProductionStatus::Development => 'Development',
+		);
+	}
+
+	//---------------------------------------------------------------------------
+	
 	public function addCategory($category)
 	{
 		$db = $this->loadDB();
@@ -1529,22 +1541,9 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchImageNames($themeID = NULL)
+	public function fetchImageNames($themeID, $branch)
 	{
-		$db = $this->loadDB();
-
-		$where = 'theme_id=?';
-		$bind = $themeID ? $themeID : 0;
-		
-		$names = array();
-		foreach ($db->selectRows('image', 'id,slug', $where, $bind) as $row)
-		{
-			$names[$row['id']] = $row['slug'];
-		}
-
-		asort($names);
-
-		return $names;
+		return $this->fetchAssetNames('image', 'slug', $themeID, $branch);
 	}
 
 	//---------------------------------------------------------------------------
@@ -2722,9 +2721,10 @@ class _AdminContentModel extends _PublishContentModel
 	{
 		$db = $this->loadDB();
 
-		if ($themeID && $searchAll)		// search ancestor themes
+		if ($themeID && $searchAll && ($theme = $this->fetchTheme(intval($themeID))))
 		{
-			$theme = $this->fetchTheme(intval($themeID));
+			// search ancestor themes
+			
 			$lineage = $theme->lineage . ',' . $themeID;
 			$where = "theme_id IN ({$lineage})";
 			$bind = NULL;
@@ -2775,7 +2775,7 @@ class _AdminContentModel extends _PublishContentModel
 	{
 		$db = $this->loadDB();
 		$now = self::now();
-	
+		
 		$row = array
 		(
 			'name' => $snippet->name,
@@ -2785,6 +2785,8 @@ class _AdminContentModel extends _PublishContentModel
 			'author_id' => $snippet->author_id,
 			'editor_id' => $snippet->editor_id ? $snippet->editor_id : $snippet->author_id,
 			'theme_id' => $snippet->theme_id,
+			'branch' => $snippet->branch,
+			'branch_status' => ContentObject::branch_status_added,
 		);
 
 		$db->insertRow('snippet', $row);
@@ -2820,22 +2822,85 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchSnippetNames($themeID = NULL)
+	public function markSnippetDeletedByID($snippetID)
 	{
 		$db = $this->loadDB();
+	
+		$row = array
+		(
+			'content' => '',
+			'branch_status' => ContentObject::branch_status_deleted,
+		);
 
-		$where = 'theme_id=?';
-		$bind = $themeID ? $themeID : 0;
+		$db->updateRows('snippet', $row, 'id=?', $snippetID);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function undeleteSnippet($snippet)
+	{
+		$db = $this->loadDB();
+		$now = self::now();
+	
+		$row = array
+		(
+			'content' => $snippet->content,
+			'created' => isset($snippet->created) ? $snippet->created : $now,
+			'edited' => $now,
+			'author_id' => $snippet->author_id,
+			'editor_id' => $snippet->editor_id ? $snippet->editor_id : $snippet->author_id,
+			'branch_status' => ContentObject::branch_status_added,
+		);
+
+		$db->updateRows('snippet', $row, 'id=?', $snippet->id);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function copySnippetToBranch($name, $themeID, $branch, $delete = false)
+	{
+		$db = $this->loadDB();
 		
-		$names = array();
-		foreach ($db->selectRows('snippet', 'id,name', $where, $bind) as $row)
+		$row = $db->query($db->buildSelect('snippet', '*', NULL, 'name=? AND theme_id=? AND branch<=?', 'branch DESC', 1), array($name, $themeID, $branch))->row();
+		if (empty($row))
 		{
-			$names[$row['id']] = $row['name'];
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'snippet not found'));
 		}
 		
-		asort($names);
+		if ($delete)
+		{
+			$row['content'] = '';
+			$row['branch_status'] = ContentObject::branch_status_deleted;
+		}
+		else
+		{
+			$row['branch_status'] = ContentObject::branch_status_edited;
+		}
+
+		// already exists?
 		
-		return $names;
+		if ($row['branch'] == $branch)
+		{
+			if ($delete)
+			{
+				$db->updateRows('snippet', $row, 'id=?', $row['id']);
+			}
+			return $row['id'];
+		}
+		
+		unset($row['id']);
+		$row['branch'] = $branch;
+		
+		$db->insertRow('snippet', $row);
+
+		return $db->lastInsertID();
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchSnippetNames($themeID, $branch)
+	{
+		return $this->fetchAssetNames('snippet', 'name', $themeID, $branch);
 	}
 
 	//---------------------------------------------------------------------------
@@ -2854,11 +2919,17 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
-	public function snippetExists($name, $theme_id)
+	public function snippetExists($name, $themeID, $branch, &$info)
 	{
 		$db = $this->loadDB();
-		$row = $db->selectRow('snippet', 'id', 'name=? AND theme_id=?', array($name, $theme_id));
-		return isset($row['id']) ? true : false;
+		$row = $db->query($db->buildSelect('snippet', 'id,branch,branch_status', NULL, 'name=? AND theme_id=? AND branch<=?', 'branch DESC', 1), array($name, $themeID, $branch))->row();
+		if (isset($row['id']))
+		{
+			$info['id'] = $row['id'];
+			$info['branch'] = $row['branch'];
+			$info['branch_status'] = $row['branch_status'];
+		}
+		return (isset($row['id']) && ($row['branch_status'] != ContentObject::branch_status_deleted));
 	}
 
 	//---------------------------------------------------------------------------
@@ -2968,22 +3039,9 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchTagNames($themeID = NULL)
+	public function fetchTagNames($themeID, $branch)
 	{
-		$db = $this->loadDB();
-
-		$where = 'theme_id=?';
-		$bind = $themeID ? $themeID : 0;
-		
-		$names = array();
-		foreach ($db->selectRows('tag', 'id,name', $where, $bind) as $row)
-		{
-			$names[$row['id']] = $row['name'];
-		}
-		
-		asort($names);
-		
-		return $names;
+		return $this->fetchAssetNames('tag', 'name', $themeID, $branch);
 	}
 
 	//---------------------------------------------------------------------------
@@ -3065,22 +3123,9 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchStyleNames($themeID = NULL)
+	public function fetchStyleNames($themeID, $branch)
 	{
-		$db = $this->loadDB();
-
-		$where = 'theme_id=?';
-		$bind = $themeID ? $themeID : 0;
-		
-		$names = array();
-		foreach ($db->selectRows('style', 'id,slug', $where, $bind) as $row)
-		{
-			$names[$row['id']] = $row['slug'];
-		}
-		
-		asort($names);
-		
-		return $names;
+		return $this->fetchAssetNames('style', 'slug', $themeID, $branch);
 	}
 
 	//---------------------------------------------------------------------------
@@ -3162,22 +3207,9 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchScriptNames($themeID = NULL)
+	public function fetchScriptNames($themeID, $branch)
 	{
-		$db = $this->loadDB();
-
-		$where = 'theme_id=?';
-		$bind = $themeID ? $themeID : 0;
-		
-		$names = array();
-		foreach ($db->selectRows('script', 'id,slug', $where, $bind) as $row)
-		{
-			$names[$row['id']] = $row['slug'];
-		}
-
-		asort($names);
-
-		return $names;
+		return $this->fetchAssetNames('script', 'slug', $themeID, $branch);
 	}
 
 	//---------------------------------------------------------------------------
@@ -3228,6 +3260,37 @@ class _AdminContentModel extends _PublishContentModel
 	//
 	// Protected Methods
 	//
+	//---------------------------------------------------------------------------
+	
+	public function fetchAssetNames($asset, $nameColumn, $themeID, $branch)
+	{
+		$db = $this->loadDB();
+
+		$where = 'theme_id=? AND branch<=?';
+		$bind[] = $themeID ? $themeID : 0;
+		$bind[] = $branch ? $branch : 0;
+		
+		$names = array(); $deleted = array();
+		foreach ($db->query($db->buildSelect($asset, "id,{$nameColumn},branch,branch_status", NULL, $where, "{$nameColumn}, branch DESC"), $bind)->rows() as $row)
+		{
+			$name = $row[$nameColumn];
+			$id = $row['id'];
+			$branch = $row['branch'];
+			
+			if ($row['branch_status'] == ContentObject::branch_status_deleted)
+			{
+				$deleted[$name] = true;
+			}
+			
+			if (!isset($names[$name]) && !isset($deleted[$name]))
+			{
+				$names[$name] = $id;
+			}
+		}
+
+		return array_flip($names);
+	}
+
 	//---------------------------------------------------------------------------
 	
 	protected function addObjectMeta($objType, $id, $meta)

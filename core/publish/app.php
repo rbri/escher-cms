@@ -52,6 +52,8 @@ class _EscherSite extends SparkApplication
 	private $_prefs;
 	private $_plugins;
 	private $_productionStatus;
+	private $_hostPrefix;
+	private $_branchPrefix;
 
 	//---------------------------------------------------------------------------
 
@@ -81,21 +83,46 @@ class _EscherSite extends SparkApplication
 
 			$this->showExceptionPage(new SparkHTTPException_InternalServerError('Problem accessing database.'));
 		}
-
-		// schema upgrades always throw us into maintenance mode
 		
-		if (!EscherVersion::validateSchemaVersion($this->_prefs['schema']))
+		$this->_hostPrefix = $this->_branchPrefix = NULL;
+
+		// Outdated Spark/Plug and schema upgrades always throw us into maintenance mode
+		
+		if 
+		(
+			!EscherVersion::validateSparkPlugVersion($ignore)
+			||
+			!EscherVersion::validateSchemaVersion($this->_prefs['schema'])
+		)
 		{
 			$this->_productionStatus = EscherProductionStatus::Maintenance;
 		}
 		else
 		{
-			// check if there is a hostname override prefix
-			// if not, use the preference setting
-	
 			$this->_productionStatus = $this->get_pref('production_status', EscherProductionStatus::Production);
+
+			// check if there is a hostname override prefix, which overrides production status preference
+
+			$devHostPrefix = $this->get_pref('development_branch_host_prefix', 'dev');
+			$stagingHostPrefix = $this->get_pref('staging_branch_host_prefix', 'staging');
+	
+			if (preg_match("#^({$devHostPrefix}|{$stagingHostPrefix})\.#", SparkUtil::host(), $matches))
+			{
+				$this->_hostPrefix = $matches[1];
+
+				if (($this->_hostPrefix === $devHostPrefix) && $this->get_pref('enable_development_branch_auto_routing'))
+				{
+					$this->_productionStatus = EscherProductionStatus::Development;
+					$this->_branchPrefix = $this->_hostPrefix;
+				}
+				elseif (($this->_hostPrefix === $stagingHostPrefix) && $this->get_pref('enable_staging_branch_auto_routing'))
+				{
+					$this->_productionStatus = EscherProductionStatus::Staging;
+					$this->_branchPrefix = $this->_hostPrefix;
+				}
+			}
 		}
-		
+
 		$this->setDefaultTTL($this->_prefs['page_cache_ttl']);
 
 		// Do we need to update the database schema? Are we in maintenance mode?
@@ -278,6 +305,20 @@ class _EscherSite extends SparkApplication
 	public function get_production_status()
 	{
 		return $this->_productionStatus;
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function get_host_prefix()
+	{
+		return $this->_hostPrefix;
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function get_branch_prefix()
+	{
+		return $this->_branchPrefix;
 	}
 
 	//---------------------------------------------------------------------------

@@ -32,8 +32,9 @@ require('util.php');
 
 class EscherVersion
 {
-	const CoreVersion = '0.9.1';
-	const SchemaVersion = 2;
+	const CoreVersion = '0.9.2';
+	const SchemaVersion = 3;
+	const RequiresSparkPlugVersion = '1.1.0';
 	
 	//---------------------------------------------------------------------------
 
@@ -44,7 +45,21 @@ class EscherVersion
 		{
 			exit('Database schema version is too new. Update your code to the latest version.');
 		}
+		
 		return ($dbVersion === self::SchemaVersion);
+	}
+
+	//---------------------------------------------------------------------------
+
+	public static function validateSparkPlugVersion(&$errorMsg)
+	{
+		if (version_compare(spark_plug_version, self::RequiresSparkPlugVersion) < 0)
+		{
+			$errorMsg = 'This version of Escher requires Spark/Plug version ' . EscherVersion::RequiresSparkPlugVersion . ' or later. Please upgrade Spark/Plug.';
+			return false;
+		}
+		$errorMsg = '';
+		return true;
 	}
 
 	//---------------------------------------------------------------------------
@@ -55,9 +70,9 @@ class EscherVersion
 class EscherProductionStatus
 {
 	const Maintenance = 0;
-	const Development = 1;
+	const Production = 1;
 	const Staging = 2;
-	const Production = 3;
+	const Development = 3;
 }
 
 //------------------------------------------------------------------------------

@@ -255,7 +255,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		$theme = $this->factory->manufacture('Theme', array('parent_id'=>$parentID));
 
@@ -284,7 +284,7 @@ class _DesignController extends EscherAdminController
 				{
 					if (!$parentTheme = $model->fetchTheme(intval($parentID)))
 					{
-						throw new SparkException('theme not found', SparkException::kThemeNotFound);
+						throw new SparkHTTPException_NotFound(NULL, array('reason'=>'theme not found'));
 					}
 					$theme->parent_id = $parentID;
 					$theme->lineage = $parentTheme->lineage . ',' . $parentTheme->id;
@@ -335,7 +335,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$theme = $model->fetchTheme(intval($themeID)))
 		{
@@ -409,7 +409,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$theme = $model->fetchTheme(intval($themeID)))
 		{
@@ -450,7 +450,7 @@ class _DesignController extends EscherAdminController
 
 	protected function themes_list($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$themes = $model->fetchAllThemes(true);
 		
@@ -479,7 +479,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$template = $this->factory->manufacture('Template', array('theme_id'=>$themeID));
 
@@ -545,7 +545,7 @@ class _DesignController extends EscherAdminController
 			$templateID = @$params[0];
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		// if a theme was specified, we only show templates for that theme
 		
@@ -654,7 +654,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$template = $model->fetchTemplate(intval($templateID)))
 		{
@@ -700,9 +700,11 @@ class _DesignController extends EscherAdminController
 			}
 		}
 		
-		$model = $this->newModel('AdminContent');
+		$branch = $this->getActiveBranch();
 		
-		$snippet = $this->factory->manufacture('Snippet', array('theme_id'=>$themeID));
+		$model = $this->newAdminContentModel();
+		
+		$snippet = $this->factory->manufacture('Snippet', array('theme_id'=>$themeID, 'branch'=>$branch));
 
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'snippets', 'add');
@@ -717,7 +719,7 @@ class _DesignController extends EscherAdminController
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif ($model->snippetExists($snippet->name, $snippet->theme_id))
+			elseif ($model->snippetExists($snippet->name, $snippet->theme_id, $branch, $info))
 			{
 				$errors['snippet_name'] = 'A snippet with this name already exists.';
 			}
@@ -726,7 +728,17 @@ class _DesignController extends EscherAdminController
 				try
 				{
 					$this->updateObjectCreated($snippet);
-					$model->addSnippet($snippet);
+					$snippet->created = NULL;
+					
+					if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+					{
+						$snippet->id = $info['id'];
+						$model->undeleteSnippet($snippet);
+					}
+					else
+					{
+						$model->addSnippet($snippet);
+					}
 					$this->observer->notify('escher:site_change:design:snippet:add', $snippet);
 					$this->session->flashSet('notice', 'Snippet added successfully.');
 					$this->redirect('/design/snippets/edit/'.$snippet->id);
@@ -743,6 +755,8 @@ class _DesignController extends EscherAdminController
 		$vars['snippet'] = $snippet;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
 		
 		if (!empty($errors))
 		{
@@ -766,13 +780,15 @@ class _DesignController extends EscherAdminController
 			$snippetID = @$params[0];
 		}
 
-		$model = $this->newModel('AdminContent');
+		$branch = $this->getActiveBranch();
+
+		$model = $this->newAdminContentModel();
 		
 		// if a theme was specified, we only show snippets for that theme
 		
 		if (isset($themeID))
 		{
-			$snippetNames = $model->fetchSnippetNames($themeID);
+			$snippetNames = $model->fetchSnippetNames($themeID, $branch);
 			if (!isset($snippetNames[$snippetID]))
 			{
 				$snippetID = 0;
@@ -784,7 +800,7 @@ class _DesignController extends EscherAdminController
 			{
 				$snippet = $model->fetchSnippet(intval($snippetID));
 			}
-			$snippetNames = $model->fetchSnippetNames($themeID = $snippet ? $snippet->theme_id : 0);
+			$snippetNames = $model->fetchSnippetNames($themeID = $snippet ? $snippet->theme_id : 0, $branch);
 		}
 		
 		if (!$snippet)
@@ -822,7 +838,7 @@ class _DesignController extends EscherAdminController
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif (($snippet->name !== $oldName) && $model->snippetExists($snippet->name, $snippet->theme_id))
+			elseif (($snippet->name !== $oldName) && $model->snippetExists($snippet->name, $snippet->theme_id, $branch, $info))
 			{
 				$errors['snippet_name'] = 'A snippet with this name already exists.';
 			}
@@ -831,7 +847,24 @@ class _DesignController extends EscherAdminController
 				try
 				{
 					$this->updateObjectEdited($snippet);
-					$model->updateSnippetContent($snippet);
+					
+					if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+					{
+						$snippet->id = $info['id'];
+						$model->undeleteSnippet($snippet);
+					}
+					else
+					{
+						// check the branch, as we may need to create it if it does not exist
+						
+						if ($snippet->branch != $branch)
+						{
+							$snippet->id = $model->copySnippetToBranch($snippet->name, $themeID, $branch);
+							$snippet->branch = $branch;
+						}
+	
+						$model->updateSnippetContent($snippet);
+					}
 					$this->observer->notify('escher:site_change:design:snippet:edit', $snippet);
 					$vars['notice'] = 'Snippet saved successfully.';
 				}
@@ -853,6 +886,8 @@ class _DesignController extends EscherAdminController
 		$vars['selected_snippet_id'] = $snippetID;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
 
 		if (!empty($errors))
 		{
@@ -875,12 +910,16 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$branch = $this->getActiveBranch();
+
+		$model = $this->newAdminContentModel();
 
 		if (!$snippet = $model->fetchSnippet(intval($snippetID)))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'snippet not found'));
 		}
+
+		$themeID = $snippet->theme_id;
 		
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'snippets', 'delete', $snippet);
@@ -893,7 +932,18 @@ class _DesignController extends EscherAdminController
 			}
 			else
 			{
-				$model->deleteSnippetByID($snippetID);
+				// check the branch, as we may need to create it if it does not exist
+				
+				if ($snippet->branch != $branch)
+				{
+					$snippet->id = $model->copySnippetToBranch($snippet->name, $themeID, $branch, true);
+					$snippet->branch = $branch;
+				}
+				else
+				{
+					$model->markSnippetDeletedByID($snippet->id);
+				}
+				
 				$this->observer->notify('escher:site_change:design:snippet:delete', $snippet);
 				$this->session->flashSet('notice', 'Snippet deleted successfully.');
 				$this->redirect('/design/snippets');
@@ -921,7 +971,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 		
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$tag = $this->factory->manufacture('Tag', array('theme_id'=>$themeID));
 
@@ -988,13 +1038,15 @@ class _DesignController extends EscherAdminController
 			$tagID = @$params[0];
 		}
 
-		$model = $this->newModel('AdminContent');
+		$branch = $this->getActiveBranch();
+
+		$model = $this->newAdminContentModel();
 		
 		// if a theme was specified, we only show tags for that theme
 		
 		if (isset($themeID))
 		{
-			$tagNames = $model->fetchTagNames($themeID);
+			$tagNames = $model->fetchTagNames($themeID, $branch);
 			if (!isset($tagNames[$tagID]))
 			{
 				$tagID = 0;
@@ -1006,7 +1058,7 @@ class _DesignController extends EscherAdminController
 			{
 				$tag = $model->fetchTag(intval($tagID));
 			}
-			$tagNames = $model->fetchTagNames($themeID = $tag ? $tag->theme_id : 0);
+			$tagNames = $model->fetchTagNames($themeID = $tag ? $tag->theme_id : 0, $branch);
 		}
 		
 		if (!$tag)
@@ -1098,7 +1150,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$tag = $model->fetchTag(intval($tagID)))
 		{
@@ -1145,7 +1197,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$style = $this->factory->manufacture('Style', array('theme_id'=>$themeID));
 
@@ -1212,13 +1264,15 @@ class _DesignController extends EscherAdminController
 			$styleID = @$params[0];
 		}
 
-		$model = $this->newModel('AdminContent');
+		$branch = $this->getActiveBranch();
+
+		$model = $this->newAdminContentModel();
 		
 		// if a theme was specified, we only show styles for that theme
 		
 		if (isset($themeID))
 		{
-			$styleNames = $model->fetchStyleNames($themeID);
+			$styleNames = $model->fetchStyleNames($themeID, $branch);
 			if (!isset($styleNames[$styleID]))
 			{
 				$styleID = 0;
@@ -1230,7 +1284,7 @@ class _DesignController extends EscherAdminController
 			{
 				$style = $model->fetchStyle(intval($styleID));
 			}
-			$styleNames = $model->fetchStyleNames($themeID = $style ? $style->theme_id : 0);
+			$styleNames = $model->fetchStyleNames($themeID = $style ? $style->theme_id : 0, $branch);
 		}
 		
 		if (!$style)
@@ -1321,7 +1375,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$style = $model->fetchStyle(intval($styleID)))
 		{
@@ -1367,7 +1421,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$script = $this->factory->manufacture('Script', array('theme_id'=>$themeID));
 
@@ -1434,13 +1488,15 @@ class _DesignController extends EscherAdminController
 			$scriptID = @$params[0];
 		}
 
-		$model = $this->newModel('AdminContent');
+		$branch = $this->getActiveBranch();
+
+		$model = $this->newAdminContentModel();
 		
 		// if a theme was specified, we only show scripts for that theme
 		
 		if (isset($themeID))
 		{
-			$scriptNames = $model->fetchScriptNames($themeID);
+			$scriptNames = $model->fetchScriptNames($themeID, $branch);
 			if (!isset($scriptNames[$scriptID]))
 			{
 				$scriptID = 0;
@@ -1452,7 +1508,7 @@ class _DesignController extends EscherAdminController
 			{
 				$script = $model->fetchScript(intval($scriptID));
 			}
-			$scriptNames = $model->fetchScriptNames($themeID = $script ? $script->theme_id : 0);
+			$scriptNames = $model->fetchScriptNames($themeID = $script ? $script->theme_id : 0, $branch);
 		}
 		
 		if (!$script)
@@ -1543,7 +1599,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$script = $model->fetchScript(intval($scriptID)))
 		{
@@ -1589,7 +1645,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$image = $this->factory->manufacture('Image', array('theme_id'=>$themeID));
 
@@ -1675,13 +1731,15 @@ class _DesignController extends EscherAdminController
 			$imageID = @$params[0];
 		}
 
-		$model = $this->newModel('AdminContent');
+		$branch = $this->getActiveBranch();
+
+		$model = $this->newAdminContentModel();
 		
 		// if a theme was specified, we only show images for that theme
 		
 		if (isset($themeID))
 		{
-			$imageNames = $model->fetchImageNames($themeID);
+			$imageNames = $model->fetchImageNames($themeID, $branch);
 			if (!isset($imageNames[$imageID]))
 			{
 				$imageID = 0;
@@ -1693,7 +1751,7 @@ class _DesignController extends EscherAdminController
 			{
 				$image = $model->fetchImage(intval($imageID), false);
 			}
-			$imageNames = $model->fetchImageNames($themeID = $image ? $image->theme_id : 0);
+			$imageNames = $model->fetchImageNames($themeID = $image ? $image->theme_id : 0, $branch);
 		}
 		
 		if (!$image)
@@ -1827,7 +1885,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$image = $model->fetchImage(intval($imageID), false))
 		{
@@ -1875,7 +1933,7 @@ class _DesignController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
 		}
 		
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		$image = $model->fetchImage($imageID, true);
 
 		if ($image)

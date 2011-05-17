@@ -24,6 +24,8 @@
 		<? $this->render('design/theme_selector'); ?>
 	<? endif; ?>
 	<input type="submit" name="go" value="Switch" />
+	in branch
+	<? $this->render('design/branch_selector'); ?>
 </div>
 <? endif; ?>
 </form>
@@ -43,6 +45,8 @@
 				<? if (isset($selected_theme_id)): ?>
 					for theme <? $this->render('design/theme_selector'); ?>
 				<? endif; ?>
+				in branch
+				<? $this->render('design/branch_selector'); ?>
 				<?= isset($errors['snippet_name']) ? "<div class=\"error\">{$this->escape($errors['snippet_name'])}</div>" : '' ?>
 			</div>
 <? endif; ?>

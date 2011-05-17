@@ -38,8 +38,9 @@ class _PublishContentModel extends SparkModel
 	const siblings_after = 2;
 	
 	private static $_firstLoad;
-	private $_cache;
-	private $_category_trigger;
+
+	protected $_cache;
+	protected $_category_trigger;
 	
 	//---------------------------------------------------------------------------
 
@@ -1955,9 +1956,9 @@ class _PublishContentModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchSnippet($nameOrID, $theme = NULL)
+	public function fetchSnippet($nameOrID, $theme = NULL, $branch = NULL)
 	{
-		$cacheKey = $nameOrID . ($theme ? '_'.$theme->slug : '');
+		$cacheKey = $nameOrID . ($theme ? '_'.$theme->slug : '') . ($branch ? '_'.$branch : '');
 
 		if (($snippet = @$this->_cache['snippets'][$cacheKey]) !== NULL)
 		{
@@ -1975,6 +1976,7 @@ class _PublishContentModel extends SparkModel
 		{
 			$field = 'id';
 			$theme = NULL;
+			$branch = NULL;
 		}
 		else
 		{
@@ -1984,18 +1986,35 @@ class _PublishContentModel extends SparkModel
 		if ($theme)
 		{
 			$lineage = $theme->lineage . ',' . $theme->id;
-			$sql = $db->buildSelect('snippet', '*', NULL, "name=? AND theme_id IN ({$lineage})", 'theme_id DESC', 1);
-			$result = $db->query($sql, $nameOrID);
+			$where = "name=? AND theme_id IN ({$lineage})";
+			$bind[] = $nameOrID;
+			if (isset($branch))
+			{
+				$where .= ' AND branch <= ?';
+				$bind[] = $branch;
+			}
+			$sql = $db->buildSelect('snippet', '*', NULL, $where, 'theme_id DESC, branch DESC', 1);
+			$result = $db->query($sql, $bind);
 			$row = $result->row();
+			if ($row['branch_status'] == ContentObject::branch_status_deleted)
+			{
+				$row = NULL;
+			}
 		}
 		else
 		{
 			$where = "{$field}=?";
+			$bind[] = $nameOrID;
 			if ($theme !== NULL)
 			{
-				$where .= ' AND theme_id = 0';
+				$where .= ' AND theme_id=0';
 			}
-			$row = $db->selectRow('snippet', '*', $where, $nameOrID);
+			if (isset($branch))
+			{
+				$where .= ' AND branch <= ?';
+				$bind[] = $branch;
+			}
+			$row = $db->selectRow('snippet', '*', $where, $bind);
 		}
 		
 		if ($row)
@@ -2012,9 +2031,9 @@ class _PublishContentModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 
-	public function fetchSnippetContent($nameOrID, $theme = NULL)
+	public function fetchSnippetContent($nameOrID, $theme = NULL, $branch = NULL)
 	{
-		if ($snippet = $this->fetchSnippet($nameOrID, $theme))
+		if ($snippet = $this->fetchSnippet($nameOrID, $theme, $branch))
 		{
 			return $snippet->content;
 		}

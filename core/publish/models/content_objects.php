@@ -35,6 +35,11 @@ define('escher_content_objects', 1);
 
 class ContentObject extends EscherObject
 {
+	const branch_status_none = 0;
+	const branch_status_added = 1;
+	const branch_status_edited = 2;
+	const branch_status_deleted = 3;
+
 	// database fields
 
 	public $created;
@@ -105,6 +110,8 @@ class _Theme extends ContentObject
 	public $script_url;
 	public $image_url;
 	public $parent_id;
+	public $branch;
+	public $deleted;
 
 	// cache fields...
 
@@ -131,6 +138,8 @@ class _Template extends ContentObject
 	public $ctype;
 	public $content;
 	public $theme_id;
+	public $branch;
+	public $deleted;
 
 	public function isParsable()
 	{
@@ -147,6 +156,8 @@ class _Snippet extends ContentObject
 	public $name;
 	public $content;
 	public $theme_id;
+	public $branch;
+	public $deleted;
 }
 
 //------------------------------------------------------------------------------
@@ -158,6 +169,8 @@ class _Tag extends ContentObject
 	public $name;
 	public $content;
 	public $theme_id;
+	public $branch;
+	public $deleted;
 }
 
 //------------------------------------------------------------------------------
@@ -172,6 +185,8 @@ class _Style extends ContentObject
 	public $rev;
 	public $content;
 	public $theme_id;
+	public $branch;
+	public $deleted;
 
 	public function isParsable()
 	{
@@ -196,6 +211,8 @@ class _Script extends ContentObject
 	public $rev;
 	public $content;
 	public $theme_id;
+	public $branch;
+	public $deleted;
 
 	public function isParsable()
 	{
@@ -224,6 +241,8 @@ class _Image extends ContentObject
 	public $rev;
 	public $content;
 	public $theme_id;
+	public $branch;
+	public $deleted;
 	public $priority;
 
 	// cache fields...

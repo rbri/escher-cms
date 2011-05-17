@@ -266,7 +266,7 @@ ul#subnav li a {
 #page-header ul {
 }
 
-#page-header ul li.category, #page-header ul li.model, #page-header ul li.page, #page-header ul li.theme, #page-header ul li.role, #page-header ul li.user {
+#page-header ul li.category, #page-header ul li.model, #page-header ul li.page, #page-header ul li.theme, #page-header ul li.role, #page-header ul li.user, #page-header ul li.branch {
 	float: left;
 	margin: 0;
 	text-align: left;
@@ -303,7 +303,15 @@ ul#subnav li a {
 	width: 125px;
 }
 
-#page-header ul li.roles {
+#page-header ul li.role {
+	width: 200px;
+}
+
+#page-header ul li.user {
+	width: 200px;
+}
+
+#page-header ul li.branch {
 	width: 200px;
 }
 

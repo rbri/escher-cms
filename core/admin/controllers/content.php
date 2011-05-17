@@ -314,7 +314,7 @@ class _ContentController extends EscherAdminController
 
 	protected function models_list($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$models = $model->fetchAllModels(true);
 		
@@ -334,7 +334,7 @@ class _ContentController extends EscherAdminController
 
 	protected function models_add($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$pageModel = $this->factory->manufacture('PageModel', array());
 
@@ -444,7 +444,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$pageModel = $model->fetchModelByID($modelID))
 		{
@@ -571,7 +571,7 @@ class _ContentController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'model not found'));
 		}
 		
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$pageModel = $model->fetchModelByID($modelID))
 		{
@@ -689,7 +689,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 		
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		// there can be only one!
 		
@@ -866,7 +866,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$page = $model->fetchPageByID($pageID))	// we want the entire page chain for displaying URI, so can't use fetchSimplePageByID()
 		{
@@ -1016,7 +1016,7 @@ class _ContentController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'page not found'));
 		}
 		
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$rootPage = $model->fetchSimplePageByID($pageID))
 		{
@@ -1068,7 +1068,7 @@ class _ContentController extends EscherAdminController
 	
 	protected function pages_list($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		if ($rootPage = $model->fetchPageByURI('/'))
 		{
@@ -1425,7 +1425,7 @@ class _ContentController extends EscherAdminController
 
 	protected function blocks_add($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$block = $this->factory->manufacture('Block', array());
 
@@ -1490,7 +1490,7 @@ class _ContentController extends EscherAdminController
 
 	protected function blocks_edit($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		$blockNames = $model->fetchBlockNames();
 
@@ -1597,7 +1597,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$block = $model->fetchBlock(intval($blockID)))
 		{
@@ -1667,7 +1667,7 @@ class _ContentController extends EscherAdminController
 
 	protected function images_add($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$image = $this->factory->manufacture('Image', array());
 
@@ -1752,13 +1752,13 @@ class _ContentController extends EscherAdminController
 			$imageID = @$params[0];
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		if ($imageID)
 		{
 			$image = $model->fetchImage(intval($imageID), false);
 		}
-		$imageNames = $model->fetchImageNames(-1);		// themeID -1 -> content image
+		$imageNames = $model->fetchImageNames(-1, 1);		// themeID -1 -> content image
 		
 		if (!$image)
 		{
@@ -1892,7 +1892,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$image = $model->fetchImage(intval($imageID), false))
 		{
@@ -1940,7 +1940,7 @@ class _ContentController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
 		}
 		
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		$image = $model->fetchImage($imageID, true);
 
 		if ($image)
@@ -1958,7 +1958,7 @@ class _ContentController extends EscherAdminController
 
 	protected function files_add($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$file = $this->factory->manufacture('File', array());
 
@@ -2046,7 +2046,7 @@ class _ContentController extends EscherAdminController
 			$fileID = @$params[0];
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		if ($fileID)
 		{
@@ -2191,7 +2191,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$file = $model->fetchFile(intval($fileID)))
 		{
@@ -2229,7 +2229,7 @@ class _ContentController extends EscherAdminController
 
 	protected function links_add($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$link = $this->factory->manufacture('Link', array());
 
@@ -2296,7 +2296,7 @@ class _ContentController extends EscherAdminController
 
 	protected function links_edit($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		$linkNames = $model->fetchLinkNames();
 
@@ -2418,7 +2418,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$link = $model->fetchLink(intval($linkID)))
 		{
@@ -2509,7 +2509,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		$category = $this->factory->manufacture('Category', array('parent_id'=>$parentID));
 
@@ -2589,7 +2589,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$category = $model->fetchCategory(intval($categoryID)))
 		{
@@ -2661,7 +2661,7 @@ class _ContentController extends EscherAdminController
 			}
 		}
 
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 
 		if (!$category = $model->fetchCategory(intval($categoryID)))
 		{
@@ -2702,7 +2702,7 @@ class _ContentController extends EscherAdminController
 
 	protected function categories_list($params)
 	{
-		$model = $this->newModel('AdminContent');
+		$model = $this->newAdminContentModel();
 		
 		$categories = $model->fetchAllCategories(true);
 		

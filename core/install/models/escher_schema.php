@@ -125,13 +125,17 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('parent_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
 //		$ct->field('parent_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
+		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$ct->foreignKey('editor_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 //		$ct->foreignKey('parent_id', 'theme', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionSetNULL, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$db->query($ct->compile());
 
 		$ci->table('theme');
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug', 'theme_slug');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, branch', 'theme_slug_branch');
+		$db->query($ci->compile());
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', 'theme_branch');
 		$db->query($ci->compile());
 
 		$db->query('DROP TABLE IF EXISTS {template}');
@@ -146,15 +150,19 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
 //		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
+		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$ct->foreignKey('editor_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 //		$ct->foreignKey('theme_id', 'theme', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$db->query($ct->compile());
 
 		$ci->table('template');
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'name, theme_id', 'template_name_theme');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'name, theme_id, branch', 'template_name_theme_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'template_theme');
+		$db->query($ci->compile());
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', 'template_branch');
 		$db->query($ci->compile());
 
 		$db->query('DROP TABLE IF EXISTS {snippet}');
@@ -168,15 +176,19 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
 //		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
+		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$ct->foreignKey('editor_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 //		$ct->foreignKey('theme_id', 'theme', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$db->query($ct->compile());
 
 		$ci->table('snippet');
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'name, theme_id', 'snippet_name_theme');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'name, theme_id, branch', 'snippet_name_theme_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'snippet_theme');
+		$db->query($ci->compile());
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', 'snippet_branch');
 		$db->query($ci->compile());
 		
 		$db->query('DROP TABLE IF EXISTS {tag}');
@@ -190,15 +202,19 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
 //		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
+		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$ct->foreignKey('editor_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 //		$ct->foreignKey('theme_id', 'theme', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$db->query($ct->compile());
 
 		$ci->table('tag');
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'name, theme_id', 'tag_name_theme');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'name, theme_id, branch', 'tag_name_theme_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'tag_theme');
+		$db->query($ci->compile());
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', 'tag_branch');
 		$db->query($ci->compile());
 		
 		$db->query('DROP TABLE IF EXISTS {style}');
@@ -215,17 +231,21 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
 //		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
+		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$ct->foreignKey('editor_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 //		$ct->foreignKey('theme_id', 'theme', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$db->query($ct->compile());
 
 		$ci->table('style');
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id', 'style_slug_theme');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', 'style_slug_theme_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url', 'style_url');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'style_theme');
+		$db->query($ci->compile());
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', 'style_branch');
 		$db->query($ci->compile());
 
 		$db->query('DROP TABLE IF EXISTS {script}');
@@ -242,17 +262,21 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
 //		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
+		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$ct->foreignKey('editor_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 //		$ct->foreignKey('theme_id', 'theme', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$db->query($ct->compile());
 
 		$ci->table('script');
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id', 'script_slug_theme');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', 'script_slug_theme_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url', 'script_url');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'script_theme');
+		$db->query($ci->compile());
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', 'script_branch');
 		$db->query($ci->compile());
 
 		$db->query('DROP TABLE IF EXISTS {image}');
@@ -273,6 +297,8 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
 //		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
+		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->field('priority', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
 		$ct->foreignKey('editor_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
@@ -280,13 +306,15 @@ class _EscherSchemaModel extends SparkModel
 		$db->query($ct->compile());
 
 		$ci->table('image');
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id', 'image_slug_theme');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', 'image_slug_theme_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url', 'image_url');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'priority', 'image_priority');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'image_theme');
+		$db->query($ci->compile());
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', 'image_branch');
 		$db->query($ci->compile());
 
 		$db->query('DROP TABLE IF EXISTS {category}');
@@ -852,6 +880,101 @@ class _EscherSchemaModel extends SparkModel
 				'type' => 'yesnoradio',
 				'validation' => '',
 				'val' => false,
+			),
+
+
+			array
+			(
+				'name' => 'active_branch',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 5,
+				'type' => 'select',
+				'data' => serialize(array(EscherProductionStatus::Development=>'Development', EscherProductionStatus::Staging=>'Staging', EscherProductionStatus::Production=>'Production')),
+				'validation' => '',
+				'val' => EscherProductionStatus::Production,
+			),
+			array
+			(
+				'name' => 'enable_development_branch_auto_routing',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 10,
+				'type' => 'yesnoradio',
+				'validation' => '',
+				'val' => false,
+			),
+			array
+			(
+				'name' => 'development_branch_host_prefix',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 20,
+				'type' => 'text',
+				'validation' => '',
+				'val' => 'dev',
+			),
+			array
+			(
+				'name' => 'development_debug_level',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 30,
+				'type' => 'select',
+				'data' => serialize(array(0=>'0', 1=>'1', 2=>'2', 3=>'3', 4=>'4', 5=>'5', 6=>'6', 7=>'7', 8=>'8', 9=>'9')),
+				'validation' => '',
+				'val' => 0,
+			),
+			array
+			(
+				'name' => 'development_theme',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 40,
+				'type' => 'theme',
+				'validation' => '',
+				'val' => '0',
+			),
+			array
+			(
+				'name' => 'enable_staging_branch_auto_routing',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 110,
+				'type' => 'yesnoradio',
+				'validation' => '',
+				'val' => false,
+			),
+			array
+			(
+				'name' => 'staging_branch_host_prefix',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 120,
+				'type' => 'text',
+				'validation' => '',
+				'val' => 'staging',
+			),
+			array
+			(
+				'name' => 'staging_debug_level',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 130,
+				'type' => 'select',
+				'data' => serialize(array(0=>'0', 1=>'1', 2=>'2', 3=>'3', 4=>'4', 5=>'5', 6=>'6', 7=>'7', 8=>'8', 9=>'9')),
+				'validation' => '',
+				'val' => 0,
+			),
+			array
+			(
+				'name' => 'staging_theme',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 140,
+				'type' => 'theme',
+				'validation' => '',
+				'val' => '0',
 			),
 
 
@@ -2118,17 +2241,17 @@ class _EscherSchemaModel extends SparkModel
 				array
 				(
 					'group_name' => 'settings',
-					'name' => 'settings:revisions',
+					'name' => 'settings:branches',
 				),
 					array
 					(
 						'group_name' => 'settings',
-						'name' => 'settings:revisions:add',
+						'name' => 'settings:branches:push',
 					),
 					array
 					(
 						'group_name' => 'settings',
-						'name' => 'settings:revisions:delete',
+						'name' => 'settings:branches:rollback',
 					),
 				array
 				(

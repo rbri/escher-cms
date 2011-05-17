@@ -262,9 +262,9 @@ $lang['perm'] = array
 			'settings_users_delete' => 'Delete Users',
 			'settings_users_edit' => 'Edit Users',
 
-		'settings_revisions' => 'Manage Revisions',
-			'settings_revisions_add' => 'Add Revisions',
-			'settings_revisions_delete' => 'Delete Revisions',
+		'settings_branches' => 'Manage Branches',
+			'settings_branches_push' => 'Push Branches',
+			'settings_branches_rollback' => 'Rollback Branches',
 
 		'settings_plugins' => 'Manage Plugins',
 			'settings_plugins_add' => 'Add Plugins',

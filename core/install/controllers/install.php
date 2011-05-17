@@ -568,6 +568,11 @@ class _InstallController extends SparkController
 			$problems[] = 'Escher requires PHP version 5.2.0 or later. Please upgrade PHP.';
 		}
 		
+		if (!EscherVersion::validateSparkPlugVersion($errorMsg))
+		{
+			$problems[] = $errorMsg;
+		}
+		
 		foreach (array('date', 'pdo', 'session') as $extension)
 		{
 			if (!extension_loaded($extension))

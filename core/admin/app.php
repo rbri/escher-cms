@@ -115,11 +115,13 @@ class _EscherAdmin extends SparkApplication
 			$this->showExceptionPage($e);
 		}
 		
-		// Do we need to update the database schema?
+		// Do we need to update SparkPlug or the database schema?
 		// If yes, do not load any plugins...
 		
 		if
 		(
+			!EscherVersion::validateSparkPlugVersion($ignore)
+			||
 			!EscherVersion::validateSchemaVersion($this->get_pref('schema'))
 		)
 		{

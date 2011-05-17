@@ -114,5 +114,226 @@ class _EscherSchemaUpgradeModel extends SparkModel
 		$db->commit();
 	}
 
+//------------------------------------------------------------------------------
+
+	private function upgrade_3($db)
+	{
+		$db->begin();
+
+		try
+		{
+			$at = $db->getFunction('alter_table');
+			$di = $db->getFunction('drop_index');
+			$ci = $db->getFunction('create_index');
+
+			$at->table('theme');
+			$at->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+			$db->query($at->compile());
+			$at->table('theme');
+			$at->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
+			$db->query($at->compile());
+			$di->table('theme');
+			@$di->drop('theme_slug');
+			try
+			{
+				@$db->query($di->compile());
+			}
+			catch(Exception $e)
+			{
+			}
+			$ci->table('theme');
+			$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, branch', 'theme_slug_branch');
+			$db->query($ci->compile());
+			$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', 'theme_branch');
+			$db->query($ci->compile());
+
+			foreach (array('template', 'snippet', 'tag') as $table)
+			{
+				$at->table($table);
+				$at->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+				$db->query($at->compile());
+				$at->table($table);
+				$at->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
+				$db->query($at->compile());
+				$di->table($table);
+				@$di->drop("{$table}_name_theme");
+				try
+				{
+					@$db->query($di->compile());
+				}
+				catch(Exception $e)
+				{
+				}
+				$ci->table($table);
+				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'name, theme_id, branch', "{$table}_name_theme_branch");
+				$db->query($ci->compile());
+				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', "{$table}_branch");
+				$db->query($ci->compile());
+			}
+
+			foreach (array('style', 'script', 'image') as $table)
+			{
+				$at->table($table);
+				$at->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
+				$db->query($at->compile());
+				$at->table($table);
+				$at->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
+				$db->query($at->compile());
+				$di->table($table);
+				@$di->drop("{$table}_slug_theme");
+				try
+				{
+					@$db->query($di->compile());
+				}
+				catch(Exception $e)
+				{
+				}
+				$ci->table($table);
+				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', "{$table}_slug_theme_branch");
+				$db->query($ci->compile());
+				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', "{$table}_branch");
+				$db->query($ci->compile());
+			}
+
+			$db->insertRows('pref', array
+				(
+					array
+					(
+						'name' => 'active_branch',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 5,
+						'type' => 'select',
+						'data' => serialize(array(EscherProductionStatus::Development=>'Development', EscherProductionStatus::Staging=>'Staging', EscherProductionStatus::Production=>'Production')),
+						'validation' => '',
+						'val' => EscherProductionStatus::Production,
+					),
+					array
+					(
+						'name' => 'enable_development_branch_auto_routing',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 10,
+						'type' => 'yesnoradio',
+						'validation' => '',
+						'val' => false,
+					),
+					array
+					(
+						'name' => 'development_branch_host_prefix',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 20,
+						'type' => 'text',
+						'validation' => '',
+						'val' => 'dev',
+					),
+					array
+					(
+						'name' => 'development_debug_level',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 30,
+						'type' => 'select',
+						'data' => serialize(array(0=>'0', 1=>'1', 2=>'2', 3=>'3', 4=>'4', 5=>'5', 6=>'6', 7=>'7', 8=>'8', 9=>'9')),
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'development_theme',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 40,
+						'type' => 'theme',
+						'validation' => '',
+						'val' => '0',
+					),
+					array
+					(
+						'name' => 'enable_staging_branch_auto_routing',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 110,
+						'type' => 'yesnoradio',
+						'validation' => '',
+						'val' => false,
+					),
+					array
+					(
+						'name' => 'staging_branch_host_prefix',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 120,
+						'type' => 'text',
+						'validation' => '',
+						'val' => 'staging',
+					),
+					array
+					(
+						'name' => 'staging_debug_level',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 130,
+						'type' => 'select',
+						'data' => serialize(array(0=>'0', 1=>'1', 2=>'2', 3=>'3', 4=>'4', 5=>'5', 6=>'6', 7=>'7', 8=>'8', 9=>'9')),
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'staging_theme',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 140,
+						'type' => 'theme',
+						'validation' => '',
+						'val' => '0',
+					),
+				)
+			);
+
+			$row = $db->selectRow('pref', '*', 'name="production_status"');
+			if (!empty($row))
+			{
+				if (($row['val']) != EscherProductionStatus::Maintenance)
+				{
+					$row['val'] = 4 - $row['val'];
+				}
+				$db->updateRows('pref', array('val'=>$row['val'], 'data'=>serialize(array(EscherProductionStatus::Maintenance=>'Maintenance', EscherProductionStatus::Development=>'Development', EscherProductionStatus::Staging=>'Staging', EscherProductionStatus::Production=>'Production'))), 'name="production_status"');
+			}
+			else
+			{
+				$db->insertRows('pref', array
+					(
+						array
+						(
+							'name' => 'production_status',
+							'group_name' => 'basic',
+							'section_name' => '0site_info',
+							'position' => 60,
+							'type' => 'select',
+							'data' => serialize(array(EscherProductionStatus::Maintenance=>'Maintenance', EscherProductionStatus::Development=>'Development', EscherProductionStatus::Staging=>'Staging', EscherProductionStatus::Production=>'Production')),
+							'validation' => '',
+							'val' => EscherProductionStatus::Development,
+						)
+					)
+				);
+			}
+
+			$db->updateRows('perm', array('name'=>'settings:branches'), 'name="settings:revisions"');
+			$db->updateRows('perm', array('name'=>'settings:branches:push'), 'name="settings:revisions:add"');
+			$db->updateRows('perm', array('name'=>'settings:branches:rollback'), 'name="settings:revisions:delete"');
+
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+	}
+
 	//---------------------------------------------------------------------------
 }
