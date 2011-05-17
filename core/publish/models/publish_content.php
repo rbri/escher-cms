@@ -1994,12 +1994,6 @@ class _PublishContentModel extends SparkModel
 				$bind[] = $branch;
 			}
 			$sql = $db->buildSelect('snippet', '*', NULL, $where, 'theme_id DESC, branch DESC', 1);
-			$result = $db->query($sql, $bind);
-			$row = $result->row();
-			if ($row['branch_status'] == ContentObject::branch_status_deleted)
-			{
-				$row = NULL;
-			}
 		}
 		else
 		{
@@ -2014,9 +2008,15 @@ class _PublishContentModel extends SparkModel
 				$where .= ' AND branch <= ?';
 				$bind[] = $branch;
 			}
-			$row = $db->selectRow('snippet', '*', $where, $bind);
+			$sql = $db->buildSelect('snippet', '*', NULL, $where, 'branch DESC', 1);
 		}
 		
+		$row = $db->query($sql, $bind)->row();
+		if ($row && ($row['branch_status'] == ContentObject::branch_status_deleted))
+		{
+			$row = NULL;
+		}
+
 		if ($row)
 		{
 			$snippet = $this->factory->manufacture('Snippet', $row);

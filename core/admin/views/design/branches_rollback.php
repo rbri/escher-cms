@@ -21,6 +21,6 @@
 			Rollback Branch &ldquo;<?= $branch_name ?>&rdquo;
 		</button>
 	</div>
-	or <a href="<?= $this->urlTo('/settings/branches') ?>">Cancel</a>
+	or <a href="<?= $this->urlTo('/design/branches') ?>">Cancel</a>
 </form>
 <div class="clear"></div>

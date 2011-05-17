@@ -39,7 +39,7 @@ class _DesignController extends EscherAdminController
 	public function __construct()
 	{
 		parent::__construct();
-		$this->app->build_tabs($this->_tabs, array('themes', 'templates', 'snippets', 'tags', 'styles', 'scripts', 'images'), 'design');
+		$this->app->build_tabs($this->_tabs, array('branches', 'themes', 'templates', 'snippets', 'tags', 'styles', 'scripts', 'images'), 'design');
 	}
 
 	//---------------------------------------------------------------------------
@@ -68,6 +68,28 @@ class _DesignController extends EscherAdminController
 			$this->getCommonVars($vars);
 			throw new SparkHTTPException_Forbidden(NULL, $vars);
 		}
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function action_branches($params)
+	{
+		switch (@$params[0])
+		{
+			case 'edit':
+				return $this->branches_edit($this->dropParam($params));
+			case 'push':
+				return $this->branches_push($this->dropParam($params));
+			case 'rollback':
+				return $this->branches_rollback($this->dropParam($params));
+			default:
+				if (!$params['count'])
+				{
+					return $this->branches_list($params);
+				}
+		}
+	
+		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
 	}
 
 	//---------------------------------------------------------------------------
@@ -241,7 +263,211 @@ class _DesignController extends EscherAdminController
 
 	//---------------------------------------------------------------------------
 
-	// Private Methods
+	protected function branches_list($params)
+	{
+		$model = $this->newModel('Branch');
+		
+		$branches = $model->fetchAllBranches();
+		
+		$curUser = $this->app->get_user();
+
+		$this->getCommonVars($vars);
+		$vars['can_manage'] = $curUser->allowed('design:branches');
+		$vars['can_push'] = $curUser->allowed('design:branches:push');
+		$vars['can_rollback'] = $curUser->allowed('design:branches:rollback');
+
+		$vars['selected_subtab'] = 'branches';
+		$vars['action'] = 'list';
+		$vars['branches'] = $branches;
+		$vars['notice'] = $this->session->flashGet('notice');
+
+		$this->observer->notify('escher:render:before:design:branch:list', $branches);
+		$this->render('main', $vars);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function branches_edit($params)
+	{
+		if (!$branchID = @$params['pv']['branch_id'])
+		{
+			if (!$branchID = @$params[0])
+			{
+				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+			}
+		}
+
+		if ($branchID <= 1)
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+
+		$model = $this->newModel('Branch');
+
+		if (!$branch = $model->fetchBranch($branchID))
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+		
+		$curUser = $this->app->get_user();
+
+		$this->getCommonVars($vars);
+		$vars['can_manage'] = $curUser->allowed('design:branches');
+		$vars['can_push'] = $curUser->allowed('design:branches:push');
+		$vars['can_rollback'] = $curUser->allowed('design:branches:rollback');
+
+		if (isset($params['pv']['push']))
+		{
+			if (!$vars['can_push'])
+			{
+				$vars['warning'] = 'Permission denied.';
+			}
+			else
+			{
+				$model->pushBranchByID($branchID);
+				$this->observer->notify('escher:db_change:design:branch:push', $branch);
+				$this->session->flashSet('notice', 'Branch pushed successfully.');
+				$this->redirect('/design/branches');
+			}
+		}
+
+		elseif (isset($params['pv']['rollback']))
+		{
+			if (!$vars['can_rollback'])
+			{
+				$vars['warning'] = 'Permission denied.';
+			}
+			else
+			{
+				$model->rollbackBranchByID($branchID);
+				$this->observer->notify('escher:db_change:design:branch:rollback', $branch);
+				$this->session->flashSet('notice', 'Branch rolled back successfully.');
+				$this->redirect('/design/branches');
+			}
+		}
+
+		$vars['action'] = 'edit';
+		$vars['selected_subtab'] = 'branches';
+		$vars['branch_id'] = $branchID;
+		$vars['branch_name'] = $branch->name;
+
+		$this->observer->notify('escher:render:before:design:branch:edit', $branch);
+		$this->render('main', $vars);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function branches_push($params)
+	{
+		if (!$branchID = @$params['pv']['branch_id'])
+		{
+			if (!$branchID = @$params[0])
+			{
+				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+			}
+		}
+
+		if ($branchID <= 1)
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+
+		$model = $this->newModel('Branch');
+
+		if (!$branch = $model->fetchBranch($branchID))
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+		
+		if (!$toBranch = $model->fetchBranch($branchID-1))
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+		
+		$curUser = $this->app->get_user();
+
+		$this->getCommonVars($vars);
+		$vars['can_manage'] = $curUser->allowed('design:branches');
+		$vars['can_push'] = $curUser->allowed('design:branches:push');
+
+		if (isset($params['pv']['push']))
+		{
+			if (!$vars['can_push'])
+			{
+				$vars['warning'] = 'Permission denied.';
+			}
+			else
+			{
+				$model->pushBranchByID($branchID);
+				$this->observer->notify('escher:db_change:design:branch:push', $branch);
+				$this->session->flashSet('notice', 'Branch pushed successfully.');
+				$this->redirect('/design/branches');
+			}
+		}
+
+		$vars['action'] = 'push';
+		$vars['selected_subtab'] = 'branches';
+		$vars['branch_id'] = $branchID;
+		$vars['branch_name'] = $branch->name;
+		$vars['to_branch_name'] = $toBranch->name;
+
+		$this->observer->notify('escher:render:before:design:branch:push', $branch);
+		$this->render('main', $vars);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected function branches_rollback($params)
+	{
+		if (!$branchID = @$params['pv']['branch_id'])
+		{
+			if (!$branchID = @$params[0])
+			{
+				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+			}
+		}
+
+		if ($branchID <= 1)
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+
+		$model = $this->newModel('Branch');
+
+		if (!$branch = $model->fetchBranch($branchID))
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+		
+		$curUser = $this->app->get_user();
+
+		$this->getCommonVars($vars);
+		$vars['can_manage'] = $curUser->allowed('design:branches');
+		$vars['can_rollback'] = $curUser->allowed('design:branches:rollback');
+
+		if (isset($params['pv']['rollback']))
+		{
+			if (!$vars['can_rollback'])
+			{
+				$vars['warning'] = 'Permission denied.';
+			}
+			else
+			{
+				$model->rollbackBranchByID($branchID);
+				$this->observer->notify('escher:db_change:design:branch:rollback', $branch);
+				$this->session->flashSet('notice', 'Branch rolled back successfully.');
+				$this->redirect('/design/branches');
+			}
+		}
+
+		$vars['action'] = 'rollback';
+		$vars['selected_subtab'] = 'branches';
+		$vars['branch_id'] = $branchID;
+		$vars['branch_name'] = $branch->name;
+
+		$this->observer->notify('escher:render:before:design:branch:rollback', $branch);
+		$this->render('main', $vars);
+	}
 	
 	//---------------------------------------------------------------------------
 
@@ -700,7 +926,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 		
-		$branch = $this->getActiveBranch();
+		$branch = $this->getWorkingBranch();
 		
 		$model = $this->newAdminContentModel();
 		
@@ -780,7 +1006,7 @@ class _DesignController extends EscherAdminController
 			$snippetID = @$params[0];
 		}
 
-		$branch = $this->getActiveBranch();
+		$branch = $this->getWorkingBranch();
 
 		$model = $this->newAdminContentModel();
 		
@@ -910,7 +1136,7 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
-		$branch = $this->getActiveBranch();
+		$branch = $this->getWorkingBranch();
 
 		$model = $this->newAdminContentModel();
 
@@ -1038,7 +1264,7 @@ class _DesignController extends EscherAdminController
 			$tagID = @$params[0];
 		}
 
-		$branch = $this->getActiveBranch();
+		$branch = $this->getWorkingBranch();
 
 		$model = $this->newAdminContentModel();
 		
@@ -1264,7 +1490,7 @@ class _DesignController extends EscherAdminController
 			$styleID = @$params[0];
 		}
 
-		$branch = $this->getActiveBranch();
+		$branch = $this->getWorkingBranch();
 
 		$model = $this->newAdminContentModel();
 		
@@ -1488,7 +1714,7 @@ class _DesignController extends EscherAdminController
 			$scriptID = @$params[0];
 		}
 
-		$branch = $this->getActiveBranch();
+		$branch = $this->getWorkingBranch();
 
 		$model = $this->newAdminContentModel();
 		
@@ -1731,7 +1957,7 @@ class _DesignController extends EscherAdminController
 			$imageID = @$params[0];
 		}
 
-		$branch = $this->getActiveBranch();
+		$branch = $this->getWorkingBranch();
 
 		$model = $this->newAdminContentModel();
 		

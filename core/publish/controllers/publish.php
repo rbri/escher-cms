@@ -96,7 +96,7 @@ class _PublishController extends SparkController
 			return;
 		}
 
-		if ($params['debug_level'] > 1)
+		if ($params['debug_level'] >= 9)
 		{
 			error_reporting(E_ALL|E_STRICT);
 			ini_set('display_errors', '1');

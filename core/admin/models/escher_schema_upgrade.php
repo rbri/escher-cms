@@ -70,6 +70,80 @@ class _EscherSchemaUpgradeModel extends SparkModel
 
 //------------------------------------------------------------------------------
 
+	private function delete_perms($db, $startID, $endID)
+	{
+		$db->begin();
+
+		try
+		{
+			for ($id = $startID; $id <= $endID; ++$id)
+			{
+				$ids[] = $id;
+			}
+			
+			$numIDs = count($ids);
+			$ids = implode(',', $ids);
+			
+			$db->deleteRows('perm', "id IN ({$ids})");
+			$db->deleteRows('role_perm', "perm_id IN ({$ids})");
+
+			$f = $db->getFunction('literal');
+			$f->literal("\"id\"-{$numIDs}");
+			$db->updateRows('perm', array('id'=>$f), 'id>?', $endID);
+
+			$f->literal("\"perm_id\"-{$numIDs}");
+			$db->updateRows('role_perm', array('perm_id'=>$f), 'perm_id>?', $endID);
+
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+	}
+	
+//------------------------------------------------------------------------------
+
+	private function insert_perms($db, $startingID, $perms)
+	{
+		$db->begin();
+
+		try
+		{
+			// perm IDs must be a single contiguous range
+			// also, note that we rely on foreign key constraints to keep the role_perm table consistent
+			
+			$numPerms = count($perms);
+			$offset = 1000;
+			$dec = $offset - $numPerms;
+		
+			$f = $db->getFunction('literal');
+			$f->literal('"id"+1000');
+			$db->updateRows('perm', array('id'=>$f), 'id>=?', $startingID);
+			$f->literal("\"id\"-{$dec}");
+			$db->updateRows('perm', array('id'=>$f), 'id>=?', $startingID + $offset);
+
+			$id = $startingID;
+			foreach (array_keys($perms) as $key)
+			{
+				$perms[$key]['id'] = $id++;
+			}
+			
+			$db->insertRows('perm', $perms);
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+	}
+	
+//------------------------------------------------------------------------------
+
 	private function upgrade_2($db)
 	{
 		$db->begin();
@@ -199,7 +273,7 @@ class _EscherSchemaUpgradeModel extends SparkModel
 				(
 					array
 					(
-						'name' => 'active_branch',
+						'name' => 'working_branch',
 						'group_name' => 'expert',
 						'section_name' => 'branches',
 						'position' => 5,
@@ -320,10 +394,62 @@ class _EscherSchemaUpgradeModel extends SparkModel
 					)
 				);
 			}
+			
+			$perms = array
+			(
+				array
+				(
+					'group_name' => 'design',
+					'name' => 'design:branches',
+				),
+					array
+					(
+						'group_name' => 'design',
+						'name' => 'design:branches:push',
+					),
+					array
+					(
+						'group_name' => 'design',
+						'name' => 'design:branches:rollback',
+					),
+			);
+			$this->delete_perms($db, 215, 217);
+			$this->insert_perms($db, 137, $perms);
 
-			$db->updateRows('perm', array('name'=>'settings:branches'), 'name="settings:revisions"');
-			$db->updateRows('perm', array('name'=>'settings:branches:push'), 'name="settings:revisions:add"');
-			$db->updateRows('perm', array('name'=>'settings:branches:rollback'), 'name="settings:revisions:delete"');
+			$db->insertRows('role_perm', array
+				(
+					array
+					(
+						'role_id' => 2,
+						'perm_id' => 137,
+					),
+					array
+					(
+						'role_id' => 2,
+						'perm_id' => 138,
+					),
+					array
+					(
+						'role_id' => 2,
+						'perm_id' => 139,
+					),
+					array
+					(
+						'role_id' => 4,
+						'perm_id' => 137,
+					),
+					array
+					(
+						'role_id' => 4,
+						'perm_id' => 138,
+					),
+					array
+					(
+						'role_id' => 4,
+						'perm_id' => 139,
+					),
+				)
+			);
 
 		}
 		catch (Exception $e)

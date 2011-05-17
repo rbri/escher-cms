@@ -53,7 +53,7 @@ $lang['prefs'] = array
 	'enable_parsing_in_blocks' => NULL,
 	'enable_parsing_in_parts' => NULL,
 	
-	'active_branch' => NULL,
+	'working_branch' => NULL,
 
 	'enable_development_branch_auto_routing' => NULL,
 	'development_branch_host_prefix' => NULL,
@@ -91,8 +91,8 @@ $lang['prefs'] = array
 	
 	'site_time_zone_help' => 'All dates will be displayed in the chosen time zone.',
 	'site_maintenance_page_help' => 'Optionally specify a static page not managed by Escher to be displayed when site is placed into Maintenance mode. Recommended.',
-	'production_status_help' => 'Live sites should operate in Production mode. While developing and debugging your site, use Development mode so that additional debug information will be added to the source of generated pages. Use Staging mode while testing for deployment. Maintenance mode takes the site offline.',
-	'debug_level_help' => 'Higher debug levels will result in progressively more information being added to the source of generated pages. Has no effect if site is in Production mode.',
+	'production_status_help' => 'Determine which branch of your site is displayed to vistors to your Site URL. Live sites should operate in Production mode. Maintenance mode takes the site offline.',
+	'debug_level_help' => 'Higher debug levels will result in progressively more information being added to the source of generated pages. Select 0 to disable all debug messages. Select 9 to display errors and warnings on pages.',
 	
 	'category_trigger_help' => 'Customize the word that invokes category pages when present in the URL.',
 	'permlink_titles_help' => 'Automatically append SEO-friendly page title to permlinks?',
@@ -110,16 +110,16 @@ $lang['prefs'] = array
 	'enable_parsing_in_blocks_help' => 'Allow use of Escher tags in block content?',
 	'enable_parsing_in_parts_help' => 'Allow use of Escher tags in page parts?',
 	
-	'active_branch_help' => 'The branch to which changes will apply when editing your site in the admin interface. This setting does not affect which branch of your site is displayed to the browser. That is determined by your Production Status setting.',
+	'working_branch_help' => 'The branch to which changes will apply when editing your site in the admin interface. This setting does not affect which branch of your site is displayed to the browser. That is determined by your Production Status setting.',
 
 	'enable_development_branch_auto_routing_help' => 'Automatically route requests to your development branch when development branch host prefix is detected in uri?',
 	'development_branch_host_prefix_help' => 'This prefix to your site url identifies the development branch of your site. You may wish to pick a prefix that is not easily guessable, in order to hide your development branch from public view.',
-	'development_debug_level_help' => 'Debug level for your development branch. Higher debug levels will result in progressively more information being added to the source of generated pages.',
+	'development_debug_level_help' => 'Debug level for your development branch. Higher debug levels will result in progressively more information being added to the source of generated pages. Select 0 to disable all debug messages. Select 9 to display errors and warnings on pages.',
 	'development_theme_help' => 'Active theme for your development branch.',
 	
 	'enable_staging_branch_auto_routing_help' => 'Automatically route requests to your staging branch when staging branch host prefix is detected in uri?',
 	'staging_branch_host_prefix_help' => 'This prefix to your site url identifies the staging branch of your site. You may wish to pick a prefix that is not easily guessable, in order to hide your staging branch from public view.',
-	'staging_debug_level_help' => 'Debug level for your staging branch. Higher debug levels will result in progressively more information being added to the source of generated pages.',
+	'staging_debug_level_help' => 'Debug level for your staging branch. Higher debug levels will result in progressively more information being added to the source of generated pages. Select 0 to disable all debug messages. Select 9 to display errors and warnings on pages.',
 	'staging_theme_help' => 'Active theme for your staging branch.',
 
 	'partial_cache_active_help' => 'Enables the <et:cache> tag. If disabled, all uses of <et:cache> tag are ignored.',

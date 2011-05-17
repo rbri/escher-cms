@@ -173,6 +173,10 @@ $lang['perm'] = array
 
 	'design' => 'Design',
 
+		'design_branches' => 'Manage Branches',
+			'design_branches_push' => 'Push Branches',
+			'design_branches_rollback' => 'Rollback Branches',
+
 		'design_themes' => 'Manage Themes',
 			'design_themes_add' => 'Add Themes',
 			'design_themes_delete' => 'Delete Themes',
@@ -261,10 +265,6 @@ $lang['perm'] = array
 			'settings_users_add' => 'Add Users',
 			'settings_users_delete' => 'Delete Users',
 			'settings_users_edit' => 'Edit Users',
-
-		'settings_branches' => 'Manage Branches',
-			'settings_branches_push' => 'Push Branches',
-			'settings_branches_rollback' => 'Rollback Branches',
 
 		'settings_plugins' => 'Manage Plugins',
 			'settings_plugins_add' => 'Add Plugins',

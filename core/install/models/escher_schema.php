@@ -740,7 +740,7 @@ class _EscherSchemaModel extends SparkModel
 				'type' => 'select',
 				'data' => serialize(array(EscherProductionStatus::Maintenance=>'Maintenance', EscherProductionStatus::Development=>'Development', EscherProductionStatus::Staging=>'Staging', EscherProductionStatus::Production=>'Production')),
 				'validation' => '',
-				'val' => EscherProductionStatus::Development,
+				'val' => EscherProductionStatus::Production,
 			),
 			array
 			(
@@ -885,7 +885,7 @@ class _EscherSchemaModel extends SparkModel
 
 			array
 			(
-				'name' => 'active_branch',
+				'name' => 'working_branch',
 				'group_name' => 'expert',
 				'section_name' => 'branches',
 				'position' => 5,
@@ -923,7 +923,7 @@ class _EscherSchemaModel extends SparkModel
 				'type' => 'select',
 				'data' => serialize(array(0=>'0', 1=>'1', 2=>'2', 3=>'3', 4=>'4', 5=>'5', 6=>'6', 7=>'7', 8=>'8', 9=>'9')),
 				'validation' => '',
-				'val' => 0,
+				'val' => 9,
 			),
 			array
 			(
@@ -1851,6 +1851,21 @@ class _EscherSchemaModel extends SparkModel
 				array
 				(
 					'group_name' => 'design',
+					'name' => 'design:branches',
+				),
+					array
+					(
+						'group_name' => 'design',
+						'name' => 'design:branches:push',
+					),
+					array
+					(
+						'group_name' => 'design',
+						'name' => 'design:branches:rollback',
+					),
+				array
+				(
+					'group_name' => 'design',
 					'name' => 'design:themes',
 				),
 					array
@@ -2241,21 +2256,6 @@ class _EscherSchemaModel extends SparkModel
 				array
 				(
 					'group_name' => 'settings',
-					'name' => 'settings:branches',
-				),
-					array
-					(
-						'group_name' => 'settings',
-						'name' => 'settings:branches:push',
-					),
-					array
-					(
-						'group_name' => 'settings',
-						'name' => 'settings:branches:rollback',
-					),
-				array
-				(
-					'group_name' => 'settings',
 					'name' => 'settings:plugins',
 				),
 					array
@@ -2284,7 +2284,7 @@ class _EscherSchemaModel extends SparkModel
 			array('id' => '5', 'name' => 'Contributor'),
 		));
 
-		foreach (array(array(2,1),array(2,2),array(2,3),array(2,4),array(2,5),array(2,6),array(2,7),array(2,8),array(2,9),array(2,10),array(2,11),array(2,12),array(2,13),array(2,14),array(2,15),array(2,16),array(2,17),array(2,18),array(2,19),array(2,20),array(2,21),array(2,22),array(2,23),array(2,24),array(2,25),array(2,26),array(2,27),array(2,28),array(2,29),array(2,30),array(2,31),array(2,32),array(2,33),array(2,34),array(2,35),array(2,36),array(2,37),array(2,38),array(2,39),array(2,40),array(2,41),array(2,42),array(2,43),array(2,44),array(2,45),array(2,46),array(2,47),array(2,48),array(2,49),array(2,50),array(2,51),array(2,52),array(2,53),array(2,54),array(2,55),array(2,56),array(2,57),array(2,58),array(2,59),array(2,60),array(2,61),array(2,62),array(2,63),array(2,64),array(2,65),array(2,66),array(2,67),array(2,68),array(2,69),array(2,70),array(2,71),array(2,72),array(2,73),array(2,74),array(2,75),array(2,76),array(2,77),array(2,78),array(2,79),array(2,80),array(2,81),array(2,82),array(2,83),array(2,84),array(2,85),array(2,86),array(2,87),array(2,88),array(2,89),array(2,90),array(2,91),array(2,92),array(2,93),array(2,94),array(2,95),array(2,96),array(2,97),array(2,98),array(2,99),array(2,100),array(2,101),array(2,102),array(2,103),array(2,104),array(2,105),array(2,106),array(2,107),array(2,108),array(2,109),array(2,110),array(2,111),array(2,112),array(2,113),array(2,114),array(2,115),array(2,116),array(2,117),array(2,118),array(2,119),array(2,120),array(2,121),array(2,122),array(2,123),array(2,124),array(2,125),array(2,126),array(2,127),array(2,128),array(2,129),array(2,130),array(2,131),array(2,132),array(2,133),array(2,134),array(2,135),array(2,136),array(2,137),array(2,138),array(2,139),array(2,140),array(2,141),array(2,142),array(2,143),array(2,144),array(2,145),array(2,146),array(2,147),array(2,148),array(2,149),array(2,150),array(2,151),array(2,152),array(2,153),array(2,154),array(2,155),array(2,156),array(2,157),array(2,158),array(2,159),array(2,160),array(2,161),array(2,162),array(2,163),array(2,164),array(2,165),array(2,166),array(2,167),array(2,168),array(2,169),array(2,170),array(2,171),array(2,172),array(2,173),array(2,174),array(2,175),array(2,176),array(2,177),array(2,178),array(2,179),array(2,180),array(2,181),array(2,182),array(2,183),array(2,184),array(2,185),array(2,186),array(2,187),array(2,188),array(2,189),array(2,190),array(2,191),array(2,192),array(2,193),array(2,194),array(2,195),array(2,196),array(2,197),array(2,198),array(2,199),array(2,200),array(2,201),array(2,202),array(2,203),array(2,204),array(2,215),array(2,216),array(2,217),array(3,1),array(3,2),array(3,3),array(3,4),array(3,5),array(3,6),array(3,7),array(3,8),array(3,9),array(3,10),array(3,11),array(3,12),array(3,13),array(3,14),array(3,15),array(3,16),array(3,17),array(3,18),array(3,19),array(3,20),array(3,21),array(3,22),array(3,23),array(3,24),array(3,25),array(3,26),array(3,27),array(3,28),array(3,29),array(3,30),array(3,31),array(3,32),array(3,33),array(3,34),array(3,35),array(3,36),array(3,37),array(3,38),array(3,39),array(3,40),array(3,41),array(3,42),array(3,43),array(3,44),array(3,45),array(3,46),array(3,47),array(3,48),array(3,49),array(3,50),array(3,51),array(3,52),array(3,53),array(3,54),array(3,55),array(3,56),array(3,57),array(3,58),array(3,59),array(3,60),array(3,61),array(3,62),array(3,63),array(3,64),array(3,65),array(3,66),array(3,67),array(3,68),array(3,69),array(3,70),array(3,71),array(3,72),array(3,73),array(3,74),array(3,75),array(3,76),array(3,77),array(3,78),array(3,79),array(3,80),array(3,81),array(3,82),array(3,83),array(3,84),array(3,85),array(3,86),array(3,87),array(3,88),array(3,89),array(3,90),array(3,91),array(3,92),array(3,93),array(3,94),array(3,95),array(3,96),array(3,97),array(3,98),array(3,99),array(3,100),array(3,101),array(3,102),array(3,103),array(3,104),array(3,105),array(3,106),array(3,107),array(3,108),array(3,109),array(3,110),array(3,111),array(3,112),array(3,113),array(3,114),array(3,115),array(3,116),array(3,117),array(3,118),array(3,119),array(3,120),array(3,121),array(3,122),array(3,123),array(3,124),array(3,125),array(3,126),array(3,127),array(3,128),array(3,129),array(3,130),array(3,131),array(3,132),array(3,133),array(3,134),array(3,135),array(3,136),array(3,137),array(3,145),array(3,153),array(3,161),array(3,169),array(3,177),array(3,185),array(3,196),array(3,197),array(3,198),array(4,1),array(4,27),array(4,28),array(4,29),array(4,31),array(4,32),array(4,34),array(4,35),array(4,36),array(4,37),array(4,38),array(4,39),array(4,40),array(4,41),array(4,42),array(4,43),array(4,44),array(4,45),array(4,46),array(4,47),array(4,48),array(4,49),array(4,50),array(4,51),array(4,52),array(4,71),array(4,72),array(4,73),array(4,74),array(4,76),array(4,77),array(4,78),array(4,79),array(4,80),array(4,85),array(4,86),array(4,87),array(4,88),array(4,89),array(4,91),array(4,92),array(4,93),array(4,94),array(4,95),array(4,96),array(4,102),array(4,103),array(4,104),array(4,122),array(4,123),array(4,124),array(4,125),array(4,127),array(4,128),array(4,129),array(4,130),array(4,131),array(4,136),array(4,137),array(4,138),array(4,139),array(4,140),array(4,142),array(4,143),array(4,145),array(4,146),array(4,147),array(4,148),array(4,150),array(4,151),array(4,153),array(4,154),array(4,155),array(4,156),array(4,158),array(4,159),array(4,161),array(4,162),array(4,163),array(4,164),array(4,166),array(4,167),array(4,169),array(4,170),array(4,171),array(4,172),array(4,174),array(4,175),array(4,177),array(4,178),array(4,179),array(4,180),array(4,182),array(4,183),array(4,185),array(4,186),array(4,187),array(4,188),array(4,189),array(4,191),array(4,192),array(4,193),array(4,196),array(4,197),array(4,198),array(5,1),array(5,2),array(5,3),array(5,27),array(5,28),array(5,29),array(5,31),array(5,32),array(5,34),array(5,35),array(5,36),array(5,37),array(5,38),array(5,39),array(5,40),array(5,41),array(5,42),array(5,43),array(5,44),array(5,45),array(5,46),array(5,47),array(5,48),array(5,49),array(5,50),array(5,51),array(5,52),array(5,71),array(5,72),array(5,73),array(5,74),array(5,76),array(5,77),array(5,78),array(5,79),array(5,80),array(5,85),array(5,86),array(5,87),array(5,88),array(5,89),array(5,91),array(5,92),array(5,93),array(5,94),array(5,95),array(5,96),array(5,102),array(5,103),array(5,104),array(5,105),array(5,106),array(5,107),array(5,108),array(5,109),array(5,111),array(5,112),array(5,113),array(5,114),array(5,115),array(5,116),array(5,122),array(5,123),array(5,124),array(5,125),array(5,127),array(5,128),array(5,129),array(5,130),array(5,131),) as $row)
+		foreach (array(array(2,1),array(2,2),array(2,3),array(2,4),array(2,5),array(2,6),array(2,7),array(2,8),array(2,9),array(2,10),array(2,11),array(2,12),array(2,13),array(2,14),array(2,15),array(2,16),array(2,17),array(2,18),array(2,19),array(2,20),array(2,21),array(2,22),array(2,23),array(2,24),array(2,25),array(2,26),array(2,27),array(2,28),array(2,29),array(2,30),array(2,31),array(2,32),array(2,33),array(2,34),array(2,35),array(2,36),array(2,37),array(2,38),array(2,39),array(2,40),array(2,41),array(2,42),array(2,43),array(2,44),array(2,45),array(2,46),array(2,47),array(2,48),array(2,49),array(2,50),array(2,51),array(2,52),array(2,53),array(2,54),array(2,55),array(2,56),array(2,57),array(2,58),array(2,59),array(2,60),array(2,61),array(2,62),array(2,63),array(2,64),array(2,65),array(2,66),array(2,67),array(2,68),array(2,69),array(2,70),array(2,71),array(2,72),array(2,73),array(2,74),array(2,75),array(2,76),array(2,77),array(2,78),array(2,79),array(2,80),array(2,81),array(2,82),array(2,83),array(2,84),array(2,85),array(2,86),array(2,87),array(2,88),array(2,89),array(2,90),array(2,91),array(2,92),array(2,93),array(2,94),array(2,95),array(2,96),array(2,97),array(2,98),array(2,99),array(2,100),array(2,101),array(2,102),array(2,103),array(2,104),array(2,105),array(2,106),array(2,107),array(2,108),array(2,109),array(2,110),array(2,111),array(2,112),array(2,113),array(2,114),array(2,115),array(2,116),array(2,117),array(2,118),array(2,119),array(2,120),array(2,121),array(2,122),array(2,123),array(2,124),array(2,125),array(2,126),array(2,127),array(2,128),array(2,129),array(2,130),array(2,131),array(2,132),array(2,133),array(2,134),array(2,135),array(2,136),array(2,137),array(2,138),array(2,139),array(2,140),array(2,141),array(2,142),array(2,143),array(2,144),array(2,145),array(2,146),array(2,147),array(2,148),array(2,149),array(2,150),array(2,151),array(2,152),array(2,153),array(2,154),array(2,155),array(2,156),array(2,157),array(2,158),array(2,159),array(2,160),array(2,161),array(2,162),array(2,163),array(2,164),array(2,165),array(2,166),array(2,167),array(2,168),array(2,169),array(2,170),array(2,171),array(2,172),array(2,173),array(2,174),array(2,175),array(2,176),array(2,177),array(2,178),array(2,179),array(2,180),array(2,181),array(2,182),array(2,183),array(2,184),array(2,185),array(2,186),array(2,187),array(2,188),array(2,189),array(2,190),array(2,191),array(2,192),array(2,193),array(2,194),array(2,195),array(2,196),array(2,197),array(2,198),array(2,199),array(2,200),array(2,201),array(2,202),array(2,203),array(2,204),array(2,205),array(2,206),array(2,207),array(2,219),array(2,220),array(2,221),array(3,1),array(3,2),array(3,3),array(3,4),array(3,5),array(3,6),array(3,7),array(3,8),array(3,9),array(3,10),array(3,11),array(3,12),array(3,13),array(3,14),array(3,15),array(3,16),array(3,17),array(3,18),array(3,19),array(3,20),array(3,21),array(3,22),array(3,23),array(3,24),array(3,25),array(3,26),array(3,27),array(3,28),array(3,29),array(3,30),array(3,31),array(3,32),array(3,33),array(3,34),array(3,35),array(3,36),array(3,37),array(3,38),array(3,39),array(3,40),array(3,41),array(3,42),array(3,43),array(3,44),array(3,45),array(3,46),array(3,47),array(3,48),array(3,49),array(3,50),array(3,51),array(3,52),array(3,53),array(3,54),array(3,55),array(3,56),array(3,57),array(3,58),array(3,59),array(3,60),array(3,61),array(3,62),array(3,63),array(3,64),array(3,65),array(3,66),array(3,67),array(3,68),array(3,69),array(3,70),array(3,71),array(3,72),array(3,73),array(3,74),array(3,75),array(3,76),array(3,77),array(3,78),array(3,79),array(3,80),array(3,81),array(3,82),array(3,83),array(3,84),array(3,85),array(3,86),array(3,87),array(3,88),array(3,89),array(3,90),array(3,91),array(3,92),array(3,93),array(3,94),array(3,95),array(3,96),array(3,97),array(3,98),array(3,99),array(3,100),array(3,101),array(3,102),array(3,103),array(3,104),array(3,105),array(3,106),array(3,107),array(3,108),array(3,109),array(3,110),array(3,111),array(3,112),array(3,113),array(3,114),array(3,115),array(3,116),array(3,117),array(3,118),array(3,119),array(3,120),array(3,121),array(3,122),array(3,123),array(3,124),array(3,125),array(3,126),array(3,127),array(3,128),array(3,129),array(3,130),array(3,131),array(3,132),array(3,133),array(3,134),array(3,135),array(3,136),array(3,140),array(3,148),array(3,156),array(3,164),array(3,172),array(3,180),array(3,188),array(3,199),array(3,200),array(3,201),array(3,219),array(3,220),array(3,221),array(4,1),array(4,27),array(4,28),array(4,29),array(4,31),array(4,32),array(4,34),array(4,35),array(4,36),array(4,37),array(4,38),array(4,39),array(4,40),array(4,41),array(4,42),array(4,43),array(4,44),array(4,45),array(4,46),array(4,47),array(4,48),array(4,49),array(4,50),array(4,51),array(4,52),array(4,71),array(4,72),array(4,73),array(4,74),array(4,76),array(4,77),array(4,78),array(4,79),array(4,80),array(4,85),array(4,86),array(4,87),array(4,88),array(4,89),array(4,91),array(4,92),array(4,93),array(4,94),array(4,95),array(4,96),array(4,102),array(4,103),array(4,104),array(4,122),array(4,123),array(4,124),array(4,125),array(4,127),array(4,128),array(4,129),array(4,130),array(4,131),array(4,136),array(4,137),array(4,138),array(4,139),array(4,140),array(4,141),array(4,142),array(4,143),array(4,145),array(4,146),array(4,148),array(4,149),array(4,150),array(4,151),array(4,153),array(4,154),array(4,156),array(4,157),array(4,158),array(4,159),array(4,161),array(4,162),array(4,164),array(4,165),array(4,166),array(4,167),array(4,169),array(4,170),array(4,172),array(4,173),array(4,174),array(4,175),array(4,177),array(4,178),array(4,180),array(4,181),array(4,182),array(4,183),array(4,185),array(4,186),array(4,188),array(4,189),array(4,190),array(4,191),array(4,192),array(4,194),array(4,195),array(4,196),array(4,199),array(4,200),array(4,201),array(5,1),array(5,2),array(5,3),array(5,27),array(5,28),array(5,29),array(5,31),array(5,32),array(5,34),array(5,35),array(5,36),array(5,37),array(5,38),array(5,39),array(5,40),array(5,41),array(5,42),array(5,43),array(5,44),array(5,45),array(5,46),array(5,47),array(5,48),array(5,49),array(5,50),array(5,51),array(5,52),array(5,71),array(5,72),array(5,73),array(5,74),array(5,76),array(5,77),array(5,78),array(5,79),array(5,80),array(5,85),array(5,86),array(5,87),array(5,88),array(5,89),array(5,91),array(5,92),array(5,93),array(5,94),array(5,95),array(5,96),array(5,102),array(5,103),array(5,104),array(5,105),array(5,106),array(5,107),array(5,108),array(5,109),array(5,111),array(5,112),array(5,113),array(5,114),array(5,115),array(5,116),array(5,122),array(5,123),array(5,124),array(5,125),array(5,127),array(5,128),array(5,129),array(5,130),array(5,131)) as $row)
 		{
 			$db->insertRow('role_perm', array('role_id'=>$row[0], 'perm_id'=>$row[1]));
 		}
@@ -2496,7 +2496,7 @@ EOD;
 
 		// add design elements (images, scripts, styles, snippets, templates)
 
-		$model->installTheme(1, "{$siteDir}/design", '', 0, false);
+		$model->installTheme(1, "{$siteDir}/design", 1, '', 0, false);
 
 		// add content elements (categories, images, blocks, pages)
 		

@@ -41,7 +41,7 @@ class _SettingsController extends EscherAdminController
 	public function __construct()
 	{
 		parent::__construct();
-		$this->app->build_tabs($this->_tabs, array('preferences', 'roles', 'users', 'branches', 'plugins'), 'settings');
+		$this->app->build_tabs($this->_tabs, array('preferences', 'roles', 'users', 'plugins'), 'settings');
 	}
 
 	//---------------------------------------------------------------------------
@@ -270,28 +270,6 @@ class _SettingsController extends EscherAdminController
 				if (!$params['count'])
 				{
 					return $this->users_list($params);
-				}
-		}
-	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function action_branches($params)
-	{
-		switch (@$params[0])
-		{
-			case 'edit':
-				return $this->branches_edit($this->dropParam($params));
-			case 'push':
-				return $this->branches_push($this->dropParam($params));
-			case 'rollback':
-				return $this->branches_rollback($this->dropParam($params));
-			default:
-				if (!$params['count'])
-				{
-					return $this->branches_list($params);
 				}
 		}
 	
@@ -1153,144 +1131,6 @@ class _SettingsController extends EscherAdminController
 		$mailer->subject('Your ' . $this->app->get_pref('site_name') . ' Administrator Account');
 		$mailer->body('Your password is: ' . $password . "\n\n" . 'Please log in and choose a new password as soon as possible.');
 		$mailer->send();
-	}
-	
-	//---------------------------------------------------------------------------
-
-	protected function branches_list($params)
-	{
-		$model = $this->newModel('Branch');
-		
-		$branches = $model->fetchAllBranches();
-		
-		$curUser = $this->app->get_user();
-
-		$this->getCommonVars($vars);
-		$vars['can_manage'] = $curUser->allowed('settings:branches');
-		$vars['can_push'] = $curUser->allowed('settings:branches:push');
-		$vars['can_rollback'] = $curUser->allowed('settings:branches:rollback');
-
-		$vars['selected_subtab'] = 'branches';
-		$vars['action'] = 'list';
-		$vars['branches'] = $branches;
-		$vars['notice'] = $this->session->flashGet('notice');
-
-		$this->observer->notify('escher:render:before:settings:branch:list', $branches);
-		$this->render('main', $vars);
-	}
-	
-	//---------------------------------------------------------------------------
-
-	protected function branches_push($params)
-	{
-		if (!$branchID = @$params['pv']['branch_id'])
-		{
-			if (!$branchID = @$params[0])
-			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
-			}
-		}
-
-		if ($branchID <= 1)
-		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
-		}
-
-		$model = $this->newModel('Branch');
-
-		if (!$branch = $model->fetchBranch($branchID))
-		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
-		}
-		
-		if (!$toBranch = $model->fetchBranch($branchID-1))
-		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
-		}
-		
-		$curUser = $this->app->get_user();
-
-		$this->getCommonVars($vars);
-		$vars['can_manage'] = $curUser->allowed('settings:branches');
-		$vars['can_push'] = $curUser->allowed('settings:branches:push');
-
-		if (isset($params['pv']['push']))
-		{
-			if (!$vars['can_push'])
-			{
-				$vars['warning'] = 'Permission denied.';
-			}
-			else
-			{
-				$model->pushBranchByID($branchID);
-				$this->observer->notify('escher:db_change:settings:branch:push', $branch);
-				$this->session->flashSet('notice', 'Branch pushed successfully.');
-				$this->redirect('/settings/branches');
-			}
-		}
-
-		$vars['action'] = 'push';
-		$vars['selected_subtab'] = 'branches';
-		$vars['branch_id'] = $branchID;
-		$vars['branch_name'] = $branch->name;
-		$vars['to_branch_name'] = $toBranch->name;
-
-		$this->observer->notify('escher:render:before:settings:branch:push', $branch);
-		$this->render('main', $vars);
-	}
-	
-	//---------------------------------------------------------------------------
-
-	protected function branches_rollback($params)
-	{
-		if (!$branchID = @$params['pv']['branch_id'])
-		{
-			if (!$branchID = @$params[0])
-			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
-			}
-		}
-
-		if ($branchID <= 1)
-		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
-		}
-
-		$model = $this->newModel('Branch');
-
-		if (!$branch = $model->fetchBranch($branchID))
-		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
-		}
-		
-		$curUser = $this->app->get_user();
-
-		$this->getCommonVars($vars);
-		$vars['can_manage'] = $curUser->allowed('settings:branches');
-		$vars['can_rollback'] = $curUser->allowed('settings:branches:rollback');
-
-		if (isset($params['pv']['rollback']))
-		{
-			if (!$vars['can_rollback'])
-			{
-				$vars['warning'] = 'Permission denied.';
-			}
-			else
-			{
-				$model->rollbackBranchByID($branchID);
-				$this->observer->notify('escher:db_change:settings:branch:rollback', $branch);
-				$this->session->flashSet('notice', 'Branch rolled back successfully.');
-				$this->redirect('/settings/branches');
-			}
-		}
-
-		$vars['action'] = 'rollback';
-		$vars['selected_subtab'] = 'branches';
-		$vars['branch_id'] = $branchID;
-		$vars['branch_name'] = $branch->name;
-
-		$this->observer->notify('escher:render:before:settings:branch:rollback', $branch);
-		$this->render('main', $vars);
 	}
 	
 	//---------------------------------------------------------------------------

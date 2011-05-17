@@ -33,7 +33,7 @@ require('escher_base.php');
 class EscherAdminController extends SparkController
 {
 	private $_vars;
-	private $_active_branch;
+	private $_working_branch;
 	
 	//---------------------------------------------------------------------------
 
@@ -136,7 +136,7 @@ class EscherAdminController extends SparkController
 			}
 		}
 		
-		$this->_active_branch = $this->app->get_pref('active_branch', 0);
+		$this->_working_branch = $this->app->get_pref('working_branch', 0);
 
 		return true;
 	}
@@ -161,9 +161,9 @@ class EscherAdminController extends SparkController
 
 	//---------------------------------------------------------------------------
 
-	protected function getActiveBranch()
+	protected function getWorkingBranch()
 	{
-		return $this->_active_branch;
+		return $this->_working_branch;
 	}
 	
 	//---------------------------------------------------------------------------

@@ -2247,7 +2247,7 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 
-	public function installTheme($authorID, $themePath, $themeBaseURL = '', $parentThemeID = 0, $createTheme = true)
+	public function installTheme($authorID, $themePath, $branch, $themeBaseURL = '', $parentThemeID = 0, $createTheme = true)
 	{
 		// install a theme located at the specified path
 
@@ -2279,6 +2279,7 @@ class _AdminContentModel extends _PublishContentModel
 					'title'=>$themeName,
 					'style_url'=>$themeStyleURL, 'script_url'=>$themeScriptURL, 'image_url'=>$themeImageURL,
 					'author_id'=>$authorID, 'parent_id'=>$parentThemeID,
+					'branch'=>$branch,
 				)
 			);
 			$theme->makeSlug();
@@ -2323,6 +2324,7 @@ class _AdminContentModel extends _PublishContentModel
 								'ctype'=>"text/{$extension}",
 								'author_id'=>$authorID,
 								'theme_id'=>$theme->id,
+								'branch'=>$branch,
 							)
 						)
 					);
@@ -2365,6 +2367,7 @@ class _AdminContentModel extends _PublishContentModel
 								'name'=>$name, 'content'=>$content,
 								'author_id'=>$authorID,
 								'theme_id'=>$theme->id,
+								'branch'=>$branch,
 							)
 						)
 					);
@@ -2407,6 +2410,7 @@ class _AdminContentModel extends _PublishContentModel
 								'name'=>$name, 'content'=>$content,
 								'author_id'=>$authorID,
 								'theme_id'=>$theme->id,
+								'branch'=>$branch,
 							)
 						)
 					);
@@ -2440,6 +2444,7 @@ class _AdminContentModel extends _PublishContentModel
 							'slug'=>$fileName, 'ctype'=>'text/css', 'content'=>$content,
 							'author_id'=>$authorID,
 							'theme_id'=>$theme->id,
+							'branch'=>$branch,
 						)
 					);
 					$style->makeSlug();
@@ -2474,6 +2479,7 @@ class _AdminContentModel extends _PublishContentModel
 							'slug'=>$fileName, 'ctype'=>'application/javascript', 'content'=>$content,
 							'author_id'=>$authorID,
 							'theme_id'=>$theme->id,
+							'branch'=>$branch,
 						)
 					);
 					$script->makeSlug();
@@ -2516,6 +2522,7 @@ class _AdminContentModel extends _PublishContentModel
 							'width'=>$width, 'height'=>$height, 'alt'=>'', 'title'=>'',
 							'author_id'=>$authorID,
 							'theme_id'=>$theme->id,
+							'branch'=>$branch,
 						)
 					);
 					$image->makeSlug();
