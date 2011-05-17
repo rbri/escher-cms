@@ -1105,6 +1105,14 @@ class _DesignController extends EscherAdminController
 			$vars['notice'] = $this->session->flashGet('notice');
 		}
 
+		// snippet ID changed on us (due to branch change), update data for view
+
+		if ($snippet && ($snippet->id != $snippetID))
+		{
+			$snippetID = $snippet->id;
+			$snippetNames = $model->fetchSnippetNames($snippet->theme_id, $branch);
+		}
+
 		$vars['selected_subtab'] = 'snippets';
 		$vars['action'] = 'edit';
 		$vars['snippets'] = $snippetNames;
