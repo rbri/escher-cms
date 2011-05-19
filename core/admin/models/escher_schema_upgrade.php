@@ -84,16 +84,12 @@ class _EscherSchemaUpgradeModel extends SparkModel
 			$numIDs = count($ids);
 			$ids = implode(',', $ids);
 			
-			$db->deleteRows('perm', "id IN ({$ids})");
-			$db->deleteRows('role_perm', "perm_id IN ({$ids})");
+			// note that we rely on foreign key constraints to keep the role_perm table consistent
 
+			$db->deleteRows('perm', "id IN ({$ids})");
 			$f = $db->getFunction('literal');
 			$f->literal("\"id\"-{$numIDs}");
 			$db->updateRows('perm', array('id'=>$f), 'id>?', $endID);
-
-			$f->literal("\"perm_id\"-{$numIDs}");
-			$db->updateRows('role_perm', array('perm_id'=>$f), 'perm_id>?', $endID);
-
 		}
 		catch (Exception $e)
 		{
@@ -415,8 +411,20 @@ class _EscherSchemaUpgradeModel extends SparkModel
 			);
 			$this->delete_perms($db, 215, 217);
 			$this->insert_perms($db, 137, $perms);
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+		
+		// we allow role updates to fail because user may have deleted roles...
 
-			$db->insertRows('role_perm', array
+		try
+		{
+			@$db->insertRows('role_perm', array
 				(
 					array
 					(
@@ -450,15 +458,10 @@ class _EscherSchemaUpgradeModel extends SparkModel
 					),
 				)
 			);
-
 		}
-		catch (Exception $e)
+		catch(Exception $e)
 		{
-			$db->rollback();
-			throw $e;
 		}
-		
-		$db->commit();
 	}
 
 	//---------------------------------------------------------------------------
