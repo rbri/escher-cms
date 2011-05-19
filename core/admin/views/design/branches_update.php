@@ -28,7 +28,7 @@ EOD;
 		{
 			$out .= <<< EOD
 				<li>
-					<strong>No Changes</strong>
+					<div style="text-align:center;"><strong><em>No Changes</em></strong></div>
 				</li>
 
 EOD;
@@ -107,7 +107,8 @@ EOD;
 
 <? if (isset($branch)): ?>
 
-<? if (!empty($confirm_push)): ?>
+<? if (empty($ticks)): ?>
+<? elseif (!empty($confirm_push)): ?>
 <div id="page-header">
 	<ul>
 		<li class="warning">
@@ -159,7 +160,7 @@ EOD;
 
 	</div>
 	<div class="buttons">
-<? if ($showButtons = ($can_push || $can_rollback)): ?>
+<? if ($showButtons = !empty($changes) && ($can_push || $can_rollback)): ?>
 		<button class="positive" type="submit" name="push">
 			<img src="<?= $image_root.'tick.png' ?>" alt="" />
 			Push Selected

@@ -337,7 +337,11 @@ class _DesignController extends EscherAdminController
 					{
 						$vars['warning'] = 'Permission denied.';
 					}
-					if (!isset($params['pv']['push_confirmed']))
+					elseif (empty($vars['ticks']))
+					{
+						$vars['warning'] = 'No assets selected. Push canceled.';
+					}
+					elseif (!isset($params['pv']['push_confirmed']))
 					{
 						$vars['confirm_push'] = true;
 					}
@@ -355,7 +359,11 @@ class _DesignController extends EscherAdminController
 					{
 						$vars['warning'] = 'Permission denied.';
 					}
-					if (!isset($params['pv']['rollback_confirmed']))
+					elseif (empty($vars['ticks']))
+					{
+						$vars['warning'] = 'No assets selected. Rollback canceled.';
+					}
+					elseif (!isset($params['pv']['rollback_confirmed']))
 					{
 						$vars['confirm_rollback'] = true;
 					}
