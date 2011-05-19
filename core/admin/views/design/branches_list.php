@@ -19,7 +19,7 @@
 		<li id="branch_<?= $id ?>">
 			<div class="entry">
 				<div class="column first no-children">
-					<?= ($branch->id != 1 && $can_manage) ? '<a href="' . $this->urlTo("/design/branches/edit/{$id}") . '" title="Branch">' : '' ?><img alt="branch-icon" class="icon" src="<?= $image_root.'branch.png' ?>" title="" /><span class="title"><?= $this->escape($branch->name) ?></span><?= ($branch->id != 1 && $can_manage) ? '</a>' : '' ?>
+					<?= ($branch->id != 1 && $can_edit) ? '<a href="' . $this->urlTo("/design/branches/edit/{$id}") . '" title="Branch">' : '' ?><img alt="branch-icon" class="icon" src="<?= $image_root.'branch.png' ?>" title="" /><span class="title"><?= $this->escape($branch->name) ?></span><?= ($branch->id != 1 && $can_edit) ? '</a>' : '' ?>
 				</div>
 				<div class="column action">
 <? if ($branch->id != 1 && $can_push): ?>

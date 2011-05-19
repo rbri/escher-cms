@@ -174,6 +174,7 @@ $lang['perm'] = array
 	'design' => 'Design',
 
 		'design_branches' => 'Manage Branches',
+			'design_branches_edit' => 'Edit Branches',
 			'design_branches_push' => 'Push Branches',
 			'design_branches_rollback' => 'Rollback Branches',
 

@@ -401,6 +401,11 @@ class _EscherSchemaUpgradeModel extends SparkModel
 					array
 					(
 						'group_name' => 'design',
+						'name' => 'design:branches:edit',
+					),
+					array
+					(
+						'group_name' => 'design',
 						'name' => 'design:branches:push',
 					),
 					array
@@ -443,6 +448,11 @@ class _EscherSchemaUpgradeModel extends SparkModel
 					),
 					array
 					(
+						'role_id' => 2,
+						'perm_id' => 140,
+					),
+					array
+					(
 						'role_id' => 4,
 						'perm_id' => 137,
 					),
@@ -455,6 +465,11 @@ class _EscherSchemaUpgradeModel extends SparkModel
 					(
 						'role_id' => 4,
 						'perm_id' => 139,
+					),
+					array
+					(
+						'role_id' => 4,
+						'perm_id' => 140,
 					),
 				)
 			);

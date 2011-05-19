@@ -1850,6 +1850,11 @@ class _EscherSchemaModel extends SparkModel
 					array
 					(
 						'group_name' => 'design',
+						'name' => 'design:branches:edit',
+					),
+					array
+					(
+						'group_name' => 'design',
 						'name' => 'design:branches:push',
 					),
 					array

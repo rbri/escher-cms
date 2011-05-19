@@ -273,6 +273,7 @@ class _DesignController extends EscherAdminController
 
 		$this->getCommonVars($vars);
 		$vars['can_manage'] = $curUser->allowed('design:branches');
+		$vars['can_edit'] = $curUser->allowed('design:branches:edit');
 		$vars['can_push'] = $curUser->allowed('design:branches:push');
 		$vars['can_rollback'] = $curUser->allowed('design:branches:rollback');
 
@@ -313,6 +314,7 @@ class _DesignController extends EscherAdminController
 
 		$this->getCommonVars($vars);
 		$vars['can_manage'] = $curUser->allowed('design:branches');
+		$vars['can_edit'] = $curUser->allowed('design:branches:edit');
 		$vars['can_push'] = $curUser->allowed('design:branches:push');
 		$vars['can_rollback'] = $curUser->allowed('design:branches:rollback');
 
@@ -1052,6 +1054,8 @@ class _DesignController extends EscherAdminController
 			$snippetID = @$params[0];
 		}
 
+		$targetSnippetID = $snippetID;
+
 		$branch = $this->getWorkingBranch();
 
 		$model = $this->newAdminContentModel();
@@ -1099,50 +1103,62 @@ class _DesignController extends EscherAdminController
 		
 		if (isset($params['pv']['save']))
 		{
-			$params['pv']['snippet_name'] = $snippet->name;
-
-			// build snippet object from form data
-			
-			$oldName = $snippet->name;
-			$this->buildSnippet($params['pv'], $snippet);
-
-			if (!$vars['can_save'])
+			if (!$snippet)
 			{
-				$vars['warning'] = 'Permission denied.';
+				$errors[] = $vars['warning'] = 'The snippet you attempted to edit no longer exists.';
 			}
-			elseif (($snippet->name !== $oldName) && $model->snippetExists($snippet->name, $snippet->theme_id, $branch, $info))
+			elseif ($targetSnippetID != $snippetID)
 			{
-				$errors['snippet_name'] = 'A snippet with this name already exists.';
+				$errors[] = $vars['warning'] = 'Your changes were not saved because you attempted to edit a stale or deleted snippet.';
 			}
-			elseif ($this->validateSnippet($params['pv'], $errors))
+			else
 			{
-				try
-				{
-					$this->updateObjectEdited($snippet);
-					
-					if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
-					{
-						$snippet->id = $info['id'];
-						$model->undeleteSnippet($snippet);
-					}
-					else
-					{
-						// check the branch, as we may need to create it if it does not exist
-						
-						if ($snippet->branch != $branch)
-						{
-							$snippet->id = $model->copySnippetToBranch($snippet->name, $themeID, $branch);
-							$snippet->branch = $branch;
-						}
+				$params['pv']['snippet_name'] = $snippet->name;
 	
-						$model->updateSnippetContent($snippet);
-					}
-					$this->observer->notify('escher:site_change:design:snippet:edit', $snippet);
-					$vars['notice'] = 'Snippet saved successfully.';
-				}
-				catch (SparkDBException $e)
+				// build snippet object from form data
+				
+				$oldName = $snippet->name;
+
+				$this->buildSnippet($params['pv'], $snippet);
+	
+				if (!$vars['can_save'])
 				{
-					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					$vars['warning'] = 'Permission denied.';
+				}
+				elseif (($snippet->name !== $oldName) && $model->snippetExists($snippet->name, $snippet->theme_id, $branch, $info))
+				{
+					$errors['snippet_name'] = 'A snippet with this name already exists.';
+				}
+				elseif ($this->validateSnippet($params['pv'], $errors))
+				{
+					try
+					{
+						$this->updateObjectEdited($snippet);
+						
+						if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+						{
+							$snippet->id = $info['id'];
+							$model->undeleteSnippet($snippet);
+						}
+						else
+						{
+							// check the branch, as we may need to create it if it does not exist
+							
+							if ($snippet->branch != $branch)
+							{
+								$snippet->id = $model->copySnippetToBranch($snippet->name, $themeID, $branch);
+								$snippet->branch = $branch;
+							}
+		
+							$model->updateSnippetContent($snippet);
+						}
+						$this->observer->notify('escher:site_change:design:snippet:edit', $snippet);
+						$vars['notice'] = 'Snippet saved successfully.';
+					}
+					catch (SparkDBException $e)
+					{
+						$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					}
 				}
 			}
 		}

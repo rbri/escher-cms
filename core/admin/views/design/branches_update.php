@@ -161,14 +161,18 @@ EOD;
 	</div>
 	<div class="buttons">
 <? if ($showButtons = !empty($changes) && ($can_push || $can_rollback)): ?>
+<? if ($can_push): ?>
 		<button class="positive" type="submit" name="push">
 			<img src="<?= $image_root.'tick.png' ?>" alt="" />
 			Push Selected
 		</button>
+<? endif; ?>
+<? if ($can_rollback): ?>
 		<button class="negative" type="submit" name="rollback">
 			<img src="<?= $image_root.'cross.png' ?>" alt="" />
 			Roll Back Selected
 		</button>
+<? endif; ?>
 <? endif; ?>
 	</div>
 	<?= $showButtons ? 'or' : '' ?> <a href="<?= $this->urlTo('/design/branches') ?>">Cancel</a>
