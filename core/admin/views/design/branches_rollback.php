@@ -8,7 +8,11 @@
 
 <div id="page-header">
 	<ul>
-		<li class="warning">Are you sure you want to permanently rollback branch &ldquo;<?= $branch_name ?>?&rdquo; This action will revert this branch to the current state of its parent branch. All modifications to this branch will be lost. This action cannot be undone.</li>
+		<li class="warning">
+			Are you sure you want to permanently rollback branch &ldquo;<?= $branch_name ?>?&rdquo;
+			This action will revert this branch to the current state of its parent branch.
+			All modifications to this branch will be lost. This action cannot be undone.
+		</li>
 	</ul>
 </div>
 

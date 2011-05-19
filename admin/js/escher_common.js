@@ -7,6 +7,8 @@ $(document).ready(function() {
 	$("#page-list a.collapse").click(toggleChildPageEvent);
 	$("#cat-list a.expand").click(toggleChildCatEvent);
 	$("#cat-list a.collapse").click(toggleChildCatEvent);
+	$("#change-list a.expand").click(toggleChildBranchEvent);
+	$("#change-list a.collapse").click(toggleChildBranchEvent);
 	$("#theme-list a.expand").click(toggleChildThemeEvent);
 	$("#theme-list a.collapse").click(toggleChildThemeEvent);
 	$("#permissions a.expand").click(toggleChildPermsEvent);
@@ -90,6 +92,12 @@ function toggleChildCatEvent(event)
 		var id = $(this).closest("li").attr("id").substr(9);
 		$.setSubCookie("eschercatlist", id, $(this).hasClass("expand") ? "1" : "0");
 	}
+}
+
+function toggleChildBranchEvent(event)
+{
+	event.preventDefault();
+	$(this).toggleClass("expand").toggleClass("collapse").parent().parent().next(".collapsible").slideToggle("medium");
 }
 
 function toggleChildThemeEvent(event)

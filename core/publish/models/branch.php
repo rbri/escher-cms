@@ -39,6 +39,16 @@ class Branch extends EscherObject
 
 class _BranchModel extends SparkModel
 {
+	private static $_assetBranchInfo = array
+		(
+			'theme' => 'slug',
+			'template' => 'name',
+			'snippet' => 'name',
+			'tag' => 'name',
+			'style' => 'slug',
+			'script' => 'slug',
+			'image' => 'slug',
+		);
 	
 	//---------------------------------------------------------------------------
 
@@ -124,23 +134,18 @@ class _BranchModel extends SparkModel
 
 		try
 		{
-			$themeChanges = $db->selectJoinRows
-			(
-				array('theme', 'src'),
-				'src.id as source_id, dst.id AS target_id',
-				array(array('type'=>'left', 'table'=>array('theme', 'dst'), 'conditions'=>array(array('leftField'=>'slug', 'rightField'=>'slug', 'joinOp'=>'='), array('leftField'=>'branch', 'rightField'=>'branch+1', 'joinOp'=>'=')))),
-				"src.branch={$id}"
-			);
-			$this->updateAsset($db, 'theme', 'slug', $toBranch, $themeChanges);
-			unset($themeChanges);
+			$this->pushAsset($db, 'theme', false, $id);
+			$this->pushAsset($db, 'template', true, $id);
+			$this->pushAsset($db, 'snippet', true, $id);
+			$this->pushAsset($db, 'tag', true, $id);
+			$this->pushAsset($db, 'style', true, $id);
+			$this->pushAsset($db, 'script', true, $id);
+			$this->pushAsset($db, 'image', true, $id);
 			
-			$this->pushThemedAsset($db, 'template', 'name', $id);
-			$this->pushThemedAsset($db, 'snippet', 'name', $id);
-			$this->pushThemedAsset($db, 'tag', 'name', $id);
-			$this->pushThemedAsset($db, 'style', 'slug', $id);
-			$this->pushThemedAsset($db, 'script', 'slug', $id);
-			$this->pushThemedAsset($db, 'image', 'slug', $id);
+			// after successfully pushing the branch, we can safely roll it back to a fresh starting state
 			
+			$this->rollbackBranchByID($id);
+
 			// permanently delete assets marked for deletion if pushing to production
 			
 			if ($toBranch === 1)
@@ -153,10 +158,6 @@ class _BranchModel extends SparkModel
 				$db->deleteRows('script', 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
 				$db->deleteRows('image', 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
 			}
-		
-			// after successfully pushing the branch, we can safely roll it back to a fresh starting state
-			
-			$this->rollbackBranchByID($id);
 		}
 		catch (Exception $e)
 		{
@@ -169,29 +170,169 @@ class _BranchModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 	
-	private function pushThemedAsset($db, $table, $nameCol, $fromBranch)
+	public function rollbackBranchPartialByID($id, $changes)
 	{
-		$changes = $this->fetchThemedAssetChanges($db, $table, $nameCol, $fromBranch);
-		$this->updateAsset($db, $table, $nameCol, $fromBranch-1, $changes);
+		if (!is_numeric($id) || (($id = intval($id)) <= 1))
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+		
+		if (!empty($changes))
+		{
+			$db = $this->loadDB();
+			
+			$db->begin();
+	
+			try
+			{
+				foreach ($changes as $table => $assetIDs)
+				{
+					$where = 'branch=? AND ' . $db->buildFieldIn($table, 'id', $assetIDs);
+					$bind = array_merge(array($id), $assetIDs);
+					$db->deleteRows($table, $where, $bind);
+				}
+			}
+			catch (Exception $e)
+			{
+				$db->rollback();
+				throw $e;
+			}
+			
+			$db->commit();
+		}
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function pushBranchPartialByID($id, $changes)
+	{
+		if (!is_numeric($id) || (($id = intval($id)) <= 1))
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+		
+		$toBranch = $id - 1;		// target branch id of push
+		
+		$db = $this->loadDB();
+		
+		$db->begin();
+
+		try
+		{
+			if (!empty($changes))
+			{
+				foreach ($changes as $table => $assetIDs)
+				{
+					$this->pushAsset($db, $table, ($table !== 'theme'), $id, $assetIDs);
+				}
+				$this->rollbackBranchPartialByID($id, $changes);
+				if ($toBranch === 1)
+				{
+					$db->deleteRows($table, 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
 	}
 	
 	//---------------------------------------------------------------------------
 	
-	private function fetchThemedAssetChanges($db, $table, $nameCol, $fromBranch)
+	public function getBranchChanges($id, $table)
 	{
+		if (!is_numeric($id) || (($id = intval($id)) <= 1))
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+		
+		$isTheme = ($table === 'theme');
+		$nameCol = self::$_assetBranchInfo[$table];
+		$table = array($table, 'asset');
+		
+		$db = $this->loadDB();
+		
+		$select = 'asset.id, asset.created, asset.edited, author.name AS author, editor.name AS editor, asset.branch_status AS status, ' . "asset.{$nameCol} AS name";
+		$joins = array
+			(
+				array('table'=>array('user', 'author'), 'conditions'=>array(array('leftField'=>'author_id', 'rightField'=>'id', 'joinOp'=>'='))),
+				array('leftTable'=>$table, 'table'=>array('user', 'editor'), 'conditions'=>array(array('leftField'=>'editor_id', 'rightField'=>'id', 'joinOp'=>'='))),
+			);
+		$where = 'asset.branch=?';
+		$orderBy = 'name';
+		$bind = $id;
+		
+		// special case for themes, which have no theme_id field
+		if (!$isTheme)
+		{
+			$select .= ', theme.slug AS theme'; 
+			$joins[] = array('type'=>'left', 'leftTable'=>$table, 'table'=>'theme', 'conditions'=>array(array('leftField'=>'theme_id', 'rightField'=>'id', 'joinOp'=>'=')));
+		}
+
+		$rows = $db->query($db->buildSelect($table, $select, $joins, $where, $orderBy, NULL, NULL, true), $bind)->rows();
+		foreach ($rows as &$row)
+		{
+			$row['status'] = ContentObject::branchStatusToText($row['status']);
+		}
+
+		return !empty($rows) ? $rows : false;
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	private function pushAsset($db, $table, $matchTheme, $fromBranch, $restrictTo = NULL)
+	{
+		$changes = $this->fetchAssetChanges($db, $table, $matchTheme, $fromBranch, $restrictTo);
+		$this->updateAsset($db, $table, $fromBranch-1, $changes);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	private function fetchAssetChanges($db, $table, $matchTheme, $fromBranch, $restrictTo = NULL)
+	{
+		$nameCol = self::$_assetBranchInfo[$table];
+
+		$where = 'src.branch=?';
+		$bind[] = $fromBranch;
+		
+		if (!empty($restrictTo))
+		{
+			$where .= ' AND ' . $db->buildFieldIn(array($table, 'src'), 'id', $restrictTo);
+			$bind = array_merge($bind, $restrictTo);
+		}
+		
+		$joins[0] = array
+		(
+			'type'=>'left',
+			'table'=>array($table, 'dst'),
+			'conditions'=>array(array('leftField'=>$nameCol, 'rightField'=>$nameCol, 'joinOp'=>'='), array('leftField'=>'branch', 'rightField'=>'branch+1', 'joinOp'=>'='))
+		);
+		
+		if ($matchTheme)
+		{
+			$joins[0]['conditions'][] = array('leftField'=>'theme_id', 'rightField'=>'theme_id', 'joinOp'=>'=');
+		}
+		
 		return $db->selectJoinRows
 		(
 			array($table, 'src'),
 			'src.id as source_id, dst.id AS target_id',
-			array(array('type'=>'left', 'table'=>array($table, 'dst'), 'conditions'=>array(array('leftField'=>$nameCol, 'rightField'=>$nameCol, 'joinOp'=>'='), array('leftField'=>'theme_id', 'rightField'=>'theme_id', 'joinOp'=>'='), array('leftField'=>'branch', 'rightField'=>'branch+1', 'joinOp'=>'=')))),
-			"src.branch={$fromBranch}"
+			$joins,
+			$where,
+			$bind
 		);
 	}
 	
 	//---------------------------------------------------------------------------
 	
-	private function updateAsset($db, $table, $nameCol, $toBranch, $changes)
+	private function updateAsset($db, $table, $toBranch, $changes)
 	{
+		$nameCol = self::$_assetBranchInfo[$table];
+
 		foreach ($changes as $change)
 		{
 			$row = $db->selectRow($table, '*', 'id=?', $change['source_id']);

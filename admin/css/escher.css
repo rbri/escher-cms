@@ -780,6 +780,41 @@ form div.login div.help_link {
 	text-align: right;
 }
 
+/* branch change list */
+
+
+ul#change-list {
+	width: 100%;
+	font-size: 80%;
+}
+
+ul#change-list li.header {
+	padding: 5px 2px 5px 20px;
+	font-weight: bold;
+	background-color: #EEAA22;
+}
+
+ul#change-list table.asset-changes {
+	width: 100%;
+	text-align: left;
+	white-space: nowrap;
+}
+
+ul#change-list table.asset-changes tr th, ul#change-list table.asset-changes tr td {
+	padding-left: 30px;
+}
+
+ul#change-list table.asset-changes tr.odd {
+	background-color: #EDD9B2;
+	border-top: 1px solid #EEAA22;
+	border-bottom: 1px solid #EEAA22;
+}
+
+ul#change-list li.spacer {
+	height: 10px;
+}
+
+
 /* preferences */
 
 

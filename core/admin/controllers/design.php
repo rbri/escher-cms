@@ -316,39 +316,77 @@ class _DesignController extends EscherAdminController
 		$vars['can_push'] = $curUser->allowed('design:branches:push');
 		$vars['can_rollback'] = $curUser->allowed('design:branches:rollback');
 
-		if (isset($params['pv']['push']))
+		if (isset($params['pv']['push']) || isset($params['pv']['rollback']))
 		{
-			if (!$vars['can_push'])
+			// grab/remember checkbox values
+			
+			foreach ($params['pv'] as $key => $val)
 			{
-				$vars['warning'] = 'Permission denied.';
+				if (preg_match('/(.*)-(\d+)$/', $key, $matches))
+				{
+					$vars['ticks'][$matches[0]] = true;
+					$changes[$matches[1]][] = $matches[2];
+				}
 			}
-			else
+
+			try
 			{
-				$model->pushBranchByID($branchID);
-				$this->observer->notify('escher:db_change:design:branch:push', $branch);
-				$this->session->flashSet('notice', 'Branch pushed successfully.');
-				$this->redirect('/design/branches');
+				if (isset($params['pv']['push']))
+				{
+					if (!$vars['can_push'])
+					{
+						$vars['warning'] = 'Permission denied.';
+					}
+					if (!isset($params['pv']['push_confirmed']))
+					{
+						$vars['confirm_push'] = true;
+					}
+					elseif (!empty($changes))
+					{
+						$model->pushBranchPartialByID($branchID, $changes);
+						$this->observer->notify('escher:db_change:design:branch:push', $branch);
+						$vars['notice'] = 'Selected changes were pushed successfully.';
+					}
+				}
+		
+				elseif (isset($params['pv']['rollback']))
+				{
+					if (!$vars['can_rollback'])
+					{
+						$vars['warning'] = 'Permission denied.';
+					}
+					if (!isset($params['pv']['rollback_confirmed']))
+					{
+						$vars['confirm_rollback'] = true;
+					}
+					elseif (!empty($changes))
+					{
+						$model->rollbackBranchPartialByID($branchID, $changes);
+						$this->observer->notify('escher:db_change:design:branch:rollback', $branch);
+						$vars['notice'] = 'Selected changes were rolled back successfully.';
+					}
+				}
+			}
+			catch (SparkDBException $e)
+			{
+				$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
 			}
 		}
-
-		elseif (isset($params['pv']['rollback']))
+		
+		$changes = array();
+		foreach (array('theme', 'template', 'snippet', 'tag', 'style', 'script', 'image') as $table)
 		{
-			if (!$vars['can_rollback'])
+			if ($changedAssets = $model->getBranchChanges($branchID, $table))
 			{
-				$vars['warning'] = 'Permission denied.';
-			}
-			else
-			{
-				$model->rollbackBranchByID($branchID);
-				$this->observer->notify('escher:db_change:design:branch:rollback', $branch);
-				$this->session->flashSet('notice', 'Branch rolled back successfully.');
-				$this->redirect('/design/branches');
+				$changes[$table] = $changedAssets;
 			}
 		}
 
 		$vars['action'] = 'edit';
 		$vars['selected_subtab'] = 'branches';
-		$vars['branch_id'] = $branchID;
+		$vars['branch'] = $branch;
+		$vars['changes'] = $changes;
+		$vars['lang'] = self::$lang;
 		$vars['branch_name'] = $branch->name;
 
 		$this->observer->notify('escher:render:before:design:branch:edit', $branch);

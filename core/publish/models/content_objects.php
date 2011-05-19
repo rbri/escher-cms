@@ -95,6 +95,21 @@ class ContentObject extends EscherObject
 	{
 		return strtolower(trim(preg_replace(array('/[^0-9A-Za-z\-\_\. ]/', '/[\s_-]+/'), array('', '-'),  $slug), '-'));
 	}
+
+	public static function branchStatusToText($status)
+	{
+		switch ($status)
+		{
+			case self::branch_status_none:
+				return 'none';
+			case self::branch_status_added:
+				return 'added';
+			case self::branch_status_edited:
+				return 'modified';
+			case self::branch_status_deleted:
+				return 'deleted';
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

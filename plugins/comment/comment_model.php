@@ -347,6 +347,7 @@ EOD;
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,
+					'branch'=>1,
 				)
 			)
 		);
@@ -373,6 +374,7 @@ EOD;
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,
+					'branch'=>1,
 				)
 			)
 		);
@@ -412,6 +414,7 @@ EOD;
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,
+					'branch'=>1,
 				)
 			)
 		);
@@ -435,6 +438,7 @@ EOD;
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,
+					'branch'=>1,
 				)
 			)
 		);

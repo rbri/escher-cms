@@ -149,7 +149,6 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('author_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
-//		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
 		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
 		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
@@ -175,7 +174,6 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('author_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
-//		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
 		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
 		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
@@ -201,7 +199,6 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('author_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
-//		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
 		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
 		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
@@ -230,7 +227,6 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('author_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
-//		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
 		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
 		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
@@ -261,7 +257,6 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('author_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
-//		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
 		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
 		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
@@ -296,7 +291,6 @@ class _EscherSchemaModel extends SparkModel
 		$ct->field('author_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
-//		$ct->field('theme_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
 		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
 		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->field('priority', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
