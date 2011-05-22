@@ -10,7 +10,7 @@
 <div class="form-area">
 	Editing block <select name="selected_block_id">
 	<? foreach($blocks as $id=>$name): ?>
-		<option value="<?= $id ?>" <?= ($id == $selected_block_id) ? 'selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
+		<option value="<?= $id ?>"<?= ($id == $selected_block_id) ? ' selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
 	<? endforeach; ?>
 	</select>
 	<input type="submit" name="go" value="Switch" />

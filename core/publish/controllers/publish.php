@@ -208,7 +208,7 @@ class _PublishController extends SparkController
 
 	public function buildParserPlug(&$plug)
 	{
-		$tagGroups = $this->_content->fetchTags($this->_theme);
+		$tagGroups = $this->_content->fetchTags($this->_theme, $this->app->get_production_status());
 		
 		$plugCode = '';
 		$baseClass = 'EscherParser';

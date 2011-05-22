@@ -10,7 +10,7 @@
 <div class="form-area">
 	Editing image <select name="selected_image_id">
 	<? foreach($images as $id=>$name): ?>
-		<option value="<?= $id ?>" <?= ($id == $selected_image_id) ? 'selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
+		<option value="<?= $id ?>"<?= ($id == $selected_image_id) ? ' selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
 	<? endforeach; ?>
 	</select>
 	<input type="submit" name="go" value="Switch" />

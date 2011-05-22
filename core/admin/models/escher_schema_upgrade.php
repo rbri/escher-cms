@@ -258,8 +258,18 @@ class _EscherSchemaUpgradeModel extends SparkModel
 				catch(Exception $e)
 				{
 				}
+				@$di->drop("{$table}_url");
+				try
+				{
+					@$db->query($di->compile());
+				}
+				catch(Exception $e)
+				{
+				}
 				$ci->table($table);
 				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', "{$table}_slug_theme_branch");
+				$db->query($ci->compile());
+				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, theme_id, branch', "{$table}_url_theme_branch");
 				$db->query($ci->compile());
 				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', "{$table}_branch");
 				$db->query($ci->compile());

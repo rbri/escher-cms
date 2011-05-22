@@ -76,7 +76,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function purgeCachePage($page)
 	{
-		$cache =& $this->_cache['pages'];
+		$cache =& $this->_cache['page'];
 		unset($cache[$page->id]);
 		unset($cache[$page->uri()]);
 	}
@@ -171,7 +171,7 @@ class _PublishContentModel extends SparkModel
 	{
 		$category = false;
 		
-		$cache =& $this->_cache['categories'];
+		$cache =& $this->_cache['category'];
 		$parent = NULL;
 
 		foreach ($this->fetchCategoryChain($categorySpec) as $row)
@@ -198,7 +198,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchCategoryURI($category)
 	{
-		$cache =& $this->_cache['categories'];
+		$cache =& $this->_cache['category'];
 
 		if ((($cat = @$cache[$category->id]) !== NULL) || (($cat = @$cache[$category->slug]) !== NULL))
 		{
@@ -220,7 +220,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchCategory($nameOrID)
 	{
-		$cache =& $this->_cache['categories'];
+		$cache =& $this->_cache['category'];
 
 		if (($category = @$cache[$nameOrID]) !== NULL)
 		{
@@ -279,7 +279,7 @@ class _PublishContentModel extends SparkModel
 
 	public function fetchCategories($parentNameOrID = NULL, $include = NULL, $exclude = NULL, $sort = NULL, $order = NULL, $for = NULL)
 	{
-		$cache =& $this->_cache['categories'];
+		$cache =& $this->_cache['category'];
 
 		$db = $this->loadDB();
 
@@ -603,7 +603,7 @@ class _PublishContentModel extends SparkModel
 
 	public function cachePageChain($pageSpec, $virtual = false, $fields = '*')
 	{
-		$cache =& $this->_cache['pages'];
+		$cache =& $this->_cache['page'];
 		
 		$page = false;
 		$parent = NULL;
@@ -646,7 +646,7 @@ class _PublishContentModel extends SparkModel
 
 		$db = $this->loadDB();
 
-		if (!$statement = @$this->_cache['page_queries'][$lastPageNum])
+		if (!$statement = @$this->_cache['page_query'][$lastPageNum])
 		{
 			$lastPage = 'page' . $lastPageNum;
 			
@@ -666,7 +666,7 @@ class _PublishContentModel extends SparkModel
 				return false;
 			}
 			
-			$this->_cache['page_queries'][$lastPageNum] = $statement;
+			$this->_cache['page_query'][$lastPageNum] = $statement;
 		}
 
 		if (!$result = $db->execute($statement, $slugs))
@@ -713,7 +713,7 @@ class _PublishContentModel extends SparkModel
 
 	public function fetchPage($pageSpec)
 	{
-		$cache =& $this->_cache['pages'];
+		$cache =& $this->_cache['page'];
 
 		if ($searchByID = isset($pageSpec['id']))
 		{
@@ -800,7 +800,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchPageByID($id)
 	{
-		$cache =& $this->_cache['pages'];
+		$cache =& $this->_cache['page'];
 
 		// if page has been cached already, return it
 
@@ -824,7 +824,7 @@ class _PublishContentModel extends SparkModel
 
 	public function fetchChildPage($parent, $slug, $virtual = false)
 	{
-		$cache =& $this->_cache['pages'];
+		$cache =& $this->_cache['page'];
 		
 		$uri = $parent->uri() . '/' . $slug;
 
@@ -1164,7 +1164,7 @@ class _PublishContentModel extends SparkModel
 	
 		foreach($names as $idx => $name)
 		{
-			if (($part = @$this->_cache['parts'][$page->id][$name]) !== NULL)
+			if (($part = @$this->_cache['part'][$page->id][$name]) !== NULL)
 			{
 				if ($part)
 				{
@@ -1190,7 +1190,7 @@ class _PublishContentModel extends SparkModel
 			foreach ($db->selectRows('page_part', '*', $where, $bind) as $row)
 			{
 				$part = $this->factory->manufacture('Part', $row);
-				$result[$part->name] = $this->_cache['parts'][$page->id][$part->name] = $part;
+				$result[$part->name] = $this->_cache['part'][$page->id][$part->name] = $part;
 				unset($names[$part->name]);
 			}
 			
@@ -1215,7 +1215,7 @@ class _PublishContentModel extends SparkModel
 				{
 					if (!isset($result[$name]))
 					{
-						$this->_cache['parts'][$page->id][$name] = false;
+						$this->_cache['part'][$page->id][$name] = false;
 					}
 				}
 			}
@@ -1287,7 +1287,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchBlock($nameOrID)
 	{
-		if (($block = @$this->_cache['blocks'][$nameOrID]) !== NULL)
+		if (($block = @$this->_cache['block'][$nameOrID]) !== NULL)
 		{
 			return $block;
 		}
@@ -1305,7 +1305,7 @@ class _PublishContentModel extends SparkModel
 			$block = false;
 		}
 
-		return $this->_cache['blocks'][$nameOrID] = $block;
+		return $this->_cache['block'][$nameOrID] = $block;
 	}
 
 	//---------------------------------------------------------------------------
@@ -1540,7 +1540,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchFile($nameOrID, $withContent = false, $status = NULL)
 	{
-		if (($file = @$this->_cache['files'][$nameOrID]) !== NULL)
+		if (($file = @$this->_cache['file'][$nameOrID]) !== NULL)
 		{
 			return $file;
 		}
@@ -1576,7 +1576,7 @@ class _PublishContentModel extends SparkModel
 			$file = false;
 		}
 
-		return $this->_cache['files'][$nameOrID] = $file;
+		return $this->_cache['file'][$nameOrID] = $file;
 	}
 
 	//---------------------------------------------------------------------------
@@ -1732,7 +1732,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchLink($nameOrID)
 	{
-		if (($link = @$this->_cache['links'][$nameOrID]) !== NULL)
+		if (($link = @$this->_cache['link'][$nameOrID]) !== NULL)
 		{
 			return $link;
 		}
@@ -1750,7 +1750,7 @@ class _PublishContentModel extends SparkModel
 			$link = false;
 		}
 
-		return $this->_cache['links'][$nameOrID] = $link;
+		return $this->_cache['link'][$nameOrID] = $link;
 	}
 
 	//---------------------------------------------------------------------------
@@ -1864,7 +1864,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchTheme($slugOrID)
 	{
-		if (($theme = @$this->_cache['themes'][$slugOrID]) !== NULL)
+		if (($theme = @$this->_cache['theme'][$slugOrID]) !== NULL)
 		{
 			return $theme;
 		}
@@ -1882,71 +1882,28 @@ class _PublishContentModel extends SparkModel
 			$theme = false;
 		}
 
-		return $this->_cache['themes'][$slugOrID] = $theme;
+		return $this->_cache['theme'][$slugOrID] = $theme;
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchTemplate($nameOrID, $theme = NULL)
+	public function fetchTemplate($nameOrID, $theme = NULL, $branch = NULL)
 	{
-		$cacheKey = $nameOrID . ($theme ? '_'.$theme->slug : '');
-
-		if (($template = @$this->_cache['templates'][$cacheKey]) !== NULL)
+		if (SparkUtil::valid_int($nameOrID))
 		{
-			return $template;
-		}
-
-		$db = $this->loadDB();
-
-		if (empty($theme))
-		{
-			$theme = 0;
-		}
-
-		if (is_integer($nameOrID))
-		{
-			$field = 'id';
-			$theme = NULL;
+			return $this->fetchDesignAssetByID('template', $nameOrID);
 		}
 		else
 		{
-			$field = 'name';
+			return $this->fetchDesignAssetByName('template', 'name', $nameOrID, $theme, $branch);
 		}
-		
-		if ($theme)
-		{
-			$lineage = $theme->lineage . ',' . $theme->id;
-			$sql = $db->buildSelect('template', '*', NULL, "name=? AND theme_id IN ({$lineage})", 'theme_id DESC', 1);
-			$result = $db->query($sql, $nameOrID);
-			$row = $result->row();
-		}
-		else
-		{
-			$where = "{$field}=?";
-			if ($theme !== NULL)
-			{
-				$where .= ' AND theme_id = 0';
-			}
-			$row = $db->selectRow('template', '*', $where, $nameOrID);
-		}
-		
-		if ($row)
-		{
-			$template = $this->factory->manufacture('Template', $row);
-		}
-		else
-		{
-			$template = false;
-		}
-
-		return $this->_cache['templates'][$cacheKey] = $template;
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchTemplateContent($nameOrID, $theme = NULL)
+	public function fetchTemplateContent($nameOrID, $theme = NULL, $branch = NULL)
 	{
-		if ($template = $this->fetchTemplate($nameOrID, $theme))
+		if ($template = $this->fetchTemplate($nameOrID, $theme, $branch))
 		{
 			return $template->content;
 		}
@@ -1958,75 +1915,14 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchSnippet($nameOrID, $theme = NULL, $branch = NULL)
 	{
-		$cacheKey = $nameOrID . ($theme ? '_'.$theme->slug : '') . ($branch ? '_'.$branch : '');
-
-		if (($snippet = @$this->_cache['snippets'][$cacheKey]) !== NULL)
+		if (SparkUtil::valid_int($nameOrID))
 		{
-			return $snippet;
-		}
-
-		$db = $this->loadDB();
-
-		if (empty($theme))
-		{
-			$theme = 0;
-		}
-
-		if (is_integer($nameOrID))
-		{
-			$field = 'id';
-			$theme = NULL;
-			$branch = NULL;
+			return $this->fetchDesignAssetByID('snippet', $nameOrID);
 		}
 		else
 		{
-			$field = 'name';
+			return $this->fetchDesignAssetByName('snippet', 'name', $nameOrID, $theme, $branch);
 		}
-		
-		if ($theme)
-		{
-			$lineage = $theme->lineage . ',' . $theme->id;
-			$where = "name=? AND theme_id IN ({$lineage})";
-			$bind[] = $nameOrID;
-			if (isset($branch))
-			{
-				$where .= ' AND branch <= ?';
-				$bind[] = $branch;
-			}
-			$sql = $db->buildSelect('snippet', '*', NULL, $where, 'theme_id DESC, branch DESC', 1);
-		}
-		else
-		{
-			$where = "{$field}=?";
-			$bind[] = $nameOrID;
-			if ($theme !== NULL)
-			{
-				$where .= ' AND theme_id=0';
-			}
-			if (isset($branch))
-			{
-				$where .= ' AND branch <= ?';
-				$bind[] = $branch;
-			}
-			$sql = $db->buildSelect('snippet', '*', NULL, $where, 'branch DESC', 1);
-		}
-		
-		$row = $db->query($sql, $bind)->row();
-		if ($row && ($row['branch_status'] == ContentObject::branch_status_deleted))
-		{
-			$row = NULL;
-		}
-
-		if ($row)
-		{
-			$snippet = $this->factory->manufacture('Snippet', $row);
-		}
-		else
-		{
-			$snippet = false;
-		}
-
-		return $this->_cache['snippets'][$cacheKey] = $snippet;
 	}
 
 	//---------------------------------------------------------------------------
@@ -2043,133 +1939,95 @@ class _PublishContentModel extends SparkModel
 	
 	//---------------------------------------------------------------------------
 	
-	public function fetchTags($theme = NULL)
+	public function fetchTag($nameOrID, $theme = NULL, $branch = NULL)
 	{
-		$db = $this->loadDB();
-
-		if ($theme)
+		if (SparkUtil::valid_int($nameOrID))
 		{
-			$lineage = $theme->lineage . ',' . $theme->id;
-			$sql = $db->buildSelect('tag', '*', NULL, "theme_id IN ({$lineage})", 'theme_id ASC');
-			$result = $db->query($sql);
-			$rows = $result->rows();
+			return $this->fetchDesignAssetByID('tag', $nameOrID);
 		}
 		else
 		{
-			$rows = $db->selectRows('tag', '*', 'theme_id = 0');
+			return $this->fetchDesignAssetByName('tag', 'name', $nameOrID, $theme, $branch);
 		}
-		
-		$tags = array();
-		foreach ($rows as $row)
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchTags($theme = NULL, $branch = NULL)
+	{
+		if ($theme)
 		{
-			$tags[$row['theme_id']][] = $this->factory->manufacture('Tag', $row);
+			$lineage = explode(',', $theme->lineage);
+			$lineage[] = $theme->id;
+		}
+		else
+		{
+			$lineage[] = 0;
+		}
+
+		$db = $this->loadDB();
+
+		$where = $this->buildThemeSearchWhere($db, 'tag', 'name',  NULL, $lineage, $branch, $bind);
+		$sql = $db->buildSelect('tag', '*', NULL, $where, 'theme_id ASC, branch DESC');
+		
+		$tags = array(); $deleted = array();
+		foreach ($db->query($sql, $bind)->rows() as $row)
+		{
+			$themeID = $row['theme_id'];
+			$name = $row['name'];
+			
+			if (!isset($tags[$themeID][$name]))
+			{
+				if ($row['branch_status'] == ContentObject::branch_status_deleted)
+				{
+					$deleted[$themeID][$name] = true;
+				}
+				elseif (!isset($deleted[$themeID][$name]))
+				{
+					$tags[$themeID][$name] = $this->factory->manufacture('Tag', $row);
+				}
+			}
 		}
 		return $tags;
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchStyleChain($styleSlug, $theme = NULL)
+	public function fetchStyleChain($styleSlug, $theme = NULL, $branch = NULL)
 	{
-		$db = $this->loadDB();
+		$rows = $this->fetchDesignAssetChain('style', 'slug', $styleSlug, $theme, $branch, '{style}.rev,{style}.url');
 
-		$styleInfo = array();
-		
-		if ($row = $db->selectRow('style', 'rev,url', 'slug=? AND theme_id=0', $styleSlug))
+		foreach ($rows as &$row)
 		{
-			$styleInfo[] = $row;
-		}
-
-		if ($theme)
-		{
-			$select = '{style}.rev,{style}.url,{theme}.slug AS theme,{theme}.style_url AS theme_style_url';
-			$lineage = $theme->lineage . ',' . $theme->id;
-			$joins[] = array('table'=>'theme', 'conditions'=>array(array('leftField'=>'theme_id', 'rightField'=>'id', 'joinOp'=>'=')));
-			$sql = $db->buildSelect('style', $select, $joins, "{style}.slug=? AND {style}.theme_id IN ({$lineage})", 'theme_id ASC');
-			$result = $db->query($sql, $styleSlug);
-
-			foreach ($result->rows() as $row)
+			if (empty($row['url']) && !empty($row['theme_style_url']))
 			{
-				if (empty($row['url']) && !empty($row['theme_style_url']))
-				{
-					$row['url'] = rtrim($row['theme_style_url'], '/') . '/' . $styleSlug;
-				}
-				unset($row['theme_style_url']);
-				$styleInfo[] = $row;
+				$row['url'] = rtrim($row['theme_style_url'], '/') . '/' . $styleSlug;
 			}
+			unset($row['theme_style_url']); unset($row['theme_script_url']); unset($row['theme_image_url']);
 		}
-		
-		return $styleInfo;
+
+		return $rows;
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchStyle($styleSlugOrID, $themeSlugOrID = NULL)
+	public function fetchStyle($styleSlugOrID, $themeSlugOrID = NULL, $branch = NULL)
 	{
-		$cacheKey = $styleSlugOrID . ($themeSlugOrID ? '_'.$themeSlugOrID : '');
-
-		if (($style = @$this->_cache['styles'][$cacheKey]) !== NULL)
+		if (SparkUtil::valid_int($styleSlugOrID))
 		{
-			return $style;
-		}
-
-		$db = $this->loadDB();
-
-		if (empty($themeSlugOrID))
-		{
-			$themeSlugOrID = 0;
-		}
-		
-		if (is_numeric($styleSlugOrID))
-		{
-			$styleSlugOrID = intval($styleSlugOrID);
-			$styleField = 'id';
-			$themeField = NULL;
+			return $this->fetchDesignAssetByID('style', $styleSlugOrID);
 		}
 		else
 		{
-			$styleField = 'slug';
-			$themeField = 'theme_id';
+			return $this->fetchFinalDesignAssetByName('style', 'slug', $styleSlugOrID, $themeSlugOrID, $branch);
 		}
-		
-		$joins = NULL;
-		$where = "{style}.{$styleField}=?";
-		$bind[] = $styleSlugOrID;
-		
-		if ($themeField)
-		{
-			if (is_numeric($themeSlugOrID))
-			{
-				$themeSlugOrID = intval($themeSlugOrID);
-				$where .= " AND {style}.{$themeField}=?";
-			}
-			else
-			{
-				$joins[] = array('table'=>'theme', 'conditions'=>array(array('leftField'=>'theme_id', 'rightField'=>'id', 'joinOp'=>'=')));
-				$where .= ' AND {theme}.slug=?';
-			}
-			$bind[] = $themeSlugOrID;
-		}
-
-		$row = $db->selectJoinRow('style', '{style}.*', $joins, $where, $bind);
-		
-		if ($row)
-		{
-			$style = $this->factory->manufacture('Style', $row);
-		}
-		else
-		{
-			$style = false;
-		}
-
-		return $this->_cache['styles'][$cacheKey] = $style;
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchStyleContent($styleSlugOrID, $themeSlugOrID = NULL)
+	public function fetchStyleContent($styleSlugOrID, $themeSlugOrID = NULL, $branch = NULL)
 	{
-		if ($style = $this->fetchStyle($styleSlugOrID, $themeSlugOrID))
+		if ($style = $this->fetchStyle($styleSlugOrID, $themeSlugOrID, $branch))
 		{
 			return $style->content;
 		}
@@ -2179,107 +2037,41 @@ class _PublishContentModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchScriptChain($scriptSlug, $theme = NULL)
+	public function fetchScriptChain($scriptSlug, $theme = NULL, $branch = NULL)
 	{
-		$db = $this->loadDB();
+		$rows = $this->fetchDesignAssetChain('script', 'slug', $scriptSlug, $theme, $branch, '{script}.rev,{script}.url');
 
-		$scriptInfo = array();
-
-		if ($row = $db->selectRow('script', 'rev,url', 'slug=? AND theme_id=0', $scriptSlug))
+		foreach ($rows as &$row)
 		{
-			$scriptInfo[] = $row;
-		}
-
-		if ($theme)
-		{
-			$select = '{script}.rev,{script}.url,{theme}.slug AS theme,{theme}.script_url AS theme_script_url';
-			$lineage = $theme->lineage . ',' . $theme->id;
-			$joins[] = array('table'=>'theme', 'conditions'=>array(array('leftField'=>'theme_id', 'rightField'=>'id', 'joinOp'=>'=')));
-			$sql = $db->buildSelect('script', $select, $joins, "{script}.slug=? AND {script}.theme_id IN ({$lineage})", 'theme_id ASC');
-			$result = $db->query($sql, $scriptSlug);
-
-			foreach ($result->rows() as $row)
+			if (empty($row['url']) && !empty($row['theme_script_url']))
 			{
-				if (empty($row['url']) && !empty($row['theme_script_url']))
-				{
-					$row['url'] = rtrim($row['theme_script_url'], '/') . '/' . $scriptSlug;
-				}
-				unset($row['theme_script_url']);
-				$scriptInfo[] = $row;
+				$row['url'] = rtrim($row['theme_script_url'], '/') . '/' . $scriptSlug;
 			}
+			unset($row['theme_style_url']); unset($row['theme_script_url']); unset($row['theme_image_url']);
 		}
-		
-		return $scriptInfo;
+
+		return $rows;
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchScript($scriptSlugOrID, $themeSlugOrID = NULL)
+	public function fetchScript($scriptSlugOrID, $themeSlugOrID = NULL, $branch = NULL)
 	{
-		$cacheKey = $scriptSlugOrID . ($themeSlugOrID ? '_'.$themeSlugOrID : '');
-
-		if (($script = @$this->_cache['scripts'][$cacheKey]) !== NULL)
+		if (SparkUtil::valid_int($scriptSlugOrID))
 		{
-			return $script;
-		}
-
-		$db = $this->loadDB();
-
-		if (empty($themeSlugOrID))
-		{
-			$themeSlugOrID = 0;
-		}
-		
-		if (is_numeric($scriptSlugOrID))
-		{
-			$scriptSlugOrID = intval($scriptSlugOrID);
-			$scriptField = 'id';
-			$themeField = NULL;
+			return $this->fetchDesignAssetByID('script', $scriptSlugOrID);
 		}
 		else
 		{
-			$scriptField = 'slug';
-			$themeField = 'theme_id';
+			return $this->fetchFinalDesignAssetByName('script', 'slug', $scriptSlugOrID, $themeSlugOrID, $branch);
 		}
-		
-		$joins = NULL;
-		$where = "{script}.{$scriptField}=?";
-		$bind[] = $scriptSlugOrID;
-		
-		if ($themeField)
-		{
-			if (is_numeric($themeSlugOrID))
-			{
-				$themeSlugOrID = intval($themeSlugOrID);
-				$where .= " AND {script}.{$themeField}=?";
-			}
-			else
-			{
-				$joins[] = array('table'=>'theme', 'conditions'=>array(array('leftField'=>'theme_id', 'rightField'=>'id', 'joinOp'=>'=')));
-				$where .= ' AND {theme}.slug=?';
-			}
-			$bind[] = $themeSlugOrID;
-		}
-
-		$row = $db->selectJoinRow('script', '{script}.*', $joins, $where, $bind);
-		
-		if ($row)
-		{
-			$script = $this->factory->manufacture('Script', $row);
-		}
-		else
-		{
-			$script = false;
-		}
-
-		return $this->_cache['scripts'][$cacheKey] = $script;
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchScriptContent($scriptSlugOrID, $themeSlugOrID = NULL)
+	public function fetchScriptContent($scriptSlugOrID, $themeSlugOrID = NULL, $branch = NULL)
 	{
-		if ($script = $this->fetchScript($scriptSlugOrID, $themeSlugOrID))
+		if ($script = $this->fetchScript($scriptSlugOrID, $themeSlugOrID, $branch))
 		{
 			return $script->content;
 		}
@@ -2302,7 +2094,7 @@ class _PublishContentModel extends SparkModel
 	{
 		$cacheKey = $imageSlugOrID . ($themeSlugOrID ? '_'.$themeSlugOrID : '');
 
-		if (($image = @$this->_cache['images'][$cacheKey]) !== NULL)
+		if (($image = @$this->_cache['image'][$cacheKey]) !== NULL)
 		{
 			return $image;
 		}
@@ -2326,7 +2118,7 @@ class _PublishContentModel extends SparkModel
 			$image = false;
 		}
 
-		return $this->_cache['images'][$cacheKey] = $image;
+		return $this->_cache['image'][$cacheKey] = $image;
 	}
 
 	//---------------------------------------------------------------------------
@@ -2469,17 +2261,329 @@ class _PublishContentModel extends SparkModel
 	//
 	//---------------------------------------------------------------------------
 	
+	public function fetchDesignAssetByID($table, $id, $select = '*')
+	{
+		if (($asset = @$this->_cache[$table][$id]) !== NULL)
+		{
+			return $asset;
+		}
+		
+		$selectAll = ($select === '*');
+		$select .= ',branch_status AS asset_branch_status';
+		
+		$db = $this->loadDB();
+
+		$row = $db->selectRow($table, $select, 'id=?', $id);
+
+		if ($row && ($row['asset_branch_status'] == ContentObject::branch_status_deleted))
+		{
+			$row = NULL;
+		}
+
+		if ($row)
+		{
+			unset($row['asset_branch_status']);
+			$asset = $this->factory->manufacture($table, $row);
+			if ($selectAll)
+			{
+				$this->_cache[$table][$id] = $asset;
+			}
+		}
+		else
+		{
+			$this->_cache[$table][$id] = $asset = false;
+		}
+
+		return $asset;
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchFinalDesignAssetByName($table, $nameCol, $name, $themeSlugOrID = NULL, $branch = 1, $select = '*')
+	{
+		// Retrieve a design asset by name in the specified theme and branch.
+		// Theme may be specified by name (slug) or ID.
+		// If a theme is specified, only that theme is considered. Ancestors of the specified theme are not considered.
+		
+		$cacheKey = $name . ($themeSlugOrID ? '_'.$themeSlugOrID : '') . ($branch ? '_'.$branch : '');
+
+		if (($asset = @$this->_cache[$table][$cacheKey]) !== NULL)
+		{
+			return $asset;
+		}
+
+		if ($selectAll = ($select === '*'))
+		{
+			$select = "{{$table}}.*";
+		}
+
+		$select .= ",{{$table}}.branch_status AS asset_branch_status";
+		
+		if (empty($themeSlugOrID))
+		{
+			$themeSlugOrID = 0;
+		}
+					
+		$db = $this->loadDB();
+
+		$where = "{{$table}}.{$nameCol}=?";
+		$bind[] = $name;
+		
+		if ($branch)
+		{
+			$where .= " AND {{$table}}.branch<=?";
+			$bind[] = $branch;
+		}
+		
+		if (SparkUtil::valid_int($themeSlugOrID))
+		{
+			$joins = NULL;
+			$where .= " AND {{$table}}.theme_id=?";
+		}
+		else
+		{
+			$joins[] = array('table'=>'theme', 'conditions'=>array(array('leftField'=>'theme_id', 'rightField'=>'id', 'joinOp'=>'=')));
+			$where .= ' AND {theme}.slug=?';
+		}
+		$bind[] = $themeSlugOrID;
+
+		$sql = $db->buildSelect($table, $select, $joins, $where, "{{$table}}.theme_id DESC, {{$table}}.branch DESC", 1);
+		$row = $db->query($sql, $bind)->row();
+		
+		if ($row && ($row['asset_branch_status'] == ContentObject::branch_status_deleted))
+		{
+			$row = NULL;
+		}
+		if ($row)
+		{
+			unset($row['asset_branch_status']);
+			$asset = $this->factory->manufacture($table, $row);
+			if ($selectAll)
+			{
+				$this->_cache[$table][$cacheKey] = $asset;
+			}
+		}
+		else
+		{
+			$this->_cache[$table][$cacheKey] = $asset = false;
+		}
+
+		return $asset;
+	}
+
+	//---------------------------------------------------------------------------
+	
+	protected function fetchDesignAssetByName($table, $nameCol, $name, $theme = NULL, $branch = 1, $select = '*')
+	{
+		// Retrieve a design asset by name in the specified theme and branch.
+		// If a theme is specified, all ancestor themes in that theme's lineage are considered (i.e. theme inheritance is honored).
+		// If asset is marked deleted in a non-production branch, additional queries may be required to locate the asset,
+		// but this has no performance impact when searching the production branch only (i.e. $branch == 1).
+		
+		$cacheKey = $name . ($theme ? '_'.$theme->slug : '') . ($branch ? '_'.$branch : '');
+
+		if (($asset = @$this->_cache[$table][$cacheKey]) !== NULL)
+		{
+			return $asset;
+		}
+
+		$selectAll = ($select === '*');
+		$select .= ',theme_id AS asset_theme_id,branch_status AS asset_branch_status';
+
+		if ($theme)
+		{
+			$lineage = explode(',', $theme->lineage);
+			$lineage[] = $theme->id;
+		}
+		else
+		{
+			$lineage[] = 0;
+		}
+
+		$db = $this->loadDB();
+
+		while (true)
+		{
+			$where = $this->buildThemeSearchWhere($db, $table, $nameCol, $name, $lineage, $branch, $bind);
+			$sql = $db->buildSelect($table, $select, NULL, $where, 'theme_id DESC, branch DESC', 1);
+			$row = $db->query($sql, $bind)->row();
+			
+			if ($row && ($row['asset_branch_status'] == ContentObject::branch_status_deleted))
+			{
+				// should we restart search at theme's parent?
+				
+				$curThemeID = $row['asset_theme_id'];
+				while (($pop = array_pop($lineage)) && ($pop != $curThemeID))
+				{
+				}
+				if ($pop)
+				{
+					continue;
+				}
+				$row = NULL;
+			}
+			
+			break;
+		}
+
+		if ($row)
+		{
+			unset($row['asset_theme_id']); unset($row['asset_branch_status']);
+			$asset = $this->factory->manufacture($table, $row);
+			if ($selectAll)
+			{
+				$this->_cache[$table][$cacheKey] = $asset;
+			}
+		}
+		else
+		{
+			$this->_cache[$table][$cacheKey] = $asset = false;
+		}
+
+		return $asset;
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchAllDesignAssets($table, $nameCol, $theme = NULL, $branch = 1, $select = '*')
+	{
+		$selectAll = ($select === '*');
+		$select .= ',branch_status AS asset_branch_status';
+
+		if ($theme)
+		{
+			$lineage = explode(',', $theme->lineage);
+			$lineage[] = $theme->id;
+		}
+		else
+		{
+			$lineage[] = 0;
+		}
+
+		$db = $this->loadDB();
+
+		$where = $this->buildThemeSearchWhere($db, $table, $nameCol, NULL, $lineage, $branch, $bind);
+		$sql = $db->buildSelect($table, $select, NULL, $where, 'theme_id DESC, branch DESC');
+
+		$assets = array();
+
+		foreach ($db->query($sql, $bind)->rows() as $row)
+		{
+			if (!isset($names[$name = $row[$nameCol]]))
+			{
+				$cacheKey = $name . ($theme ? '_'.$theme->slug : '') . ($branch ? '_'.$branch : '');
+
+				if ($row['asset_branch_status'] != ContentObject::branch_status_deleted)
+				{
+					unset($row['asset_branch_status']);
+					$assets[] = $asset = $this->factory->manufacture($table, $row);
+					if ($selectAll)
+					{
+						$this->_cache[$table][$cacheKey] = $asset;
+					}
+				}
+				else
+				{
+					$this->_cache[$table][$cacheKey] = false;
+				}
+
+				$names[$name] = true;
+			}
+		}
+
+		return $assets;
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchDesignAssetChain($table, $nameCol, $name, $theme = NULL, $branch = 1, $select = '*')
+	{
+		if ($selectAll = ($select === '*'))
+		{
+			$select = "{{$table}}.*";
+		}
+
+		$select .= ",{{$table}}.branch_status AS asset_branch_status";
+
+		if ($theme)
+		{
+			$select .= ',{theme}.slug AS theme,{theme}.style_url AS theme_style_url,{theme}.script_url AS theme_script_url,{theme}.image_url AS theme_image_url';
+			$lineage = explode(',', $theme->lineage);
+			$lineage[] = $theme->id;
+			$joins[] = array('type'=>'left', 'table'=>'theme', 'conditions'=>array(array('leftField'=>'theme_id', 'rightField'=>'id', 'joinOp'=>'=')));
+		}
+		else
+		{
+			$lineage[] = 0;
+			$joins = NULL;
+		}
+		
+		$rows = array();
+
+		$db = $this->loadDB();
+
+		$where = $this->buildThemeSearchWhere($db, $table, $nameCol, $name, $lineage, $branch, $bind);
+		$sql = $db->buildSelect($table, $select, $joins, $where, "theme_id ASC, {{$table}}.branch DESC");
+
+		$names = array();
+		foreach ($db->query($sql, $bind)->rows() as $row)
+		{
+			if (!isset($names[$themeName = $row['theme']]))
+			{
+				$names[$themeName] = true;
+				if ($row['asset_branch_status'] != ContentObject::branch_status_deleted)
+				{
+					unset($row['asset_branch_status']);
+					$rows[] = $row;
+				}
+			}
+		}
+		
+		return $rows;
+	}
+
+	//---------------------------------------------------------------------------
+	
+	protected function buildThemeSearchWhere($db, $table, $nameCol, $name, $lineage, $branch, &$bind)
+	{
+		$bind = $lineage;
+		if (count($lineage) === 1)
+		{
+			$where = "{{$table}}.theme_id=?";
+		}
+		else
+		{
+			$where = $db->buildFieldIn($table, 'theme_id', $bind);
+		}
+		
+		if ($branch)
+		{
+			$bind[] = $branch;
+			$where .= " AND {{$table}}.branch<=?";
+		}
+
+		if ($name)
+		{
+			$bind[] = $name;
+			$where .= " AND {{$table}}.{$nameCol}=?";
+		}
+
+		return $where;
+	}
+	
+	//---------------------------------------------------------------------------
+	
 	protected function fetchObjectUser($object, $table, $user)
 	{
 		if (!$object->{$user})
 		{
 			if ($object->{$user.'_id'})
 			{
-				if (($object->{$user} = @$this->_cache['users'][$object->{$user.'_id'}]) === NULL)
+				if (($object->{$user} = @$this->_cache['user'][$object->{$user.'_id'}]) === NULL)
 				{
 					$db = $this->loadDB();
 					$row = $db->selectRow('user', '*', 'id=?', $object->{$user.'_id'});
-					$object->{$user} = $this->_cache['users'][$object->{$user.'_id'}] = ($row ? $this->factory->manufacture('User', $row) : false);
+					$object->{$user} = $this->_cache['user'][$object->{$user.'_id'}] = ($row ? $this->factory->manufacture('User', $row) : false);
 				}
 			}
 			else
@@ -2488,7 +2592,7 @@ class _PublishContentModel extends SparkModel
 				$joins[] = array('table'=>'user', 'conditions'=>array(array('leftField'=>"{$user}_id", 'rightField'=>'id', 'joinOp'=>'=')));
 				$row = $db->selectJoinRow($table, '{user}.*', $joins, "{{$table}}.id=?", $object->id);
 				$object->{$user.'_id'} = $row ? $row['id'] : 0;
-				$object->{$user} = $this->_cache['users'][$object->{$user.'_id'}] = ($row ? $this->factory->manufacture('User', $row) : false);
+				$object->{$user} = $this->_cache['user'][$object->{$user.'_id'}] = ($row ? $this->factory->manufacture('User', $row) : false);
 			}
 		}
 		if ($object->{$user})
@@ -2573,7 +2677,7 @@ class _PublishContentModel extends SparkModel
 		
 		$id = $slugs[0];
 		
-		if (($page = @$this->_cache['pages'][$id]) !== NULL)
+		if (($page = @$this->_cache['page'][$id]) !== NULL)
 		{
 			return array('uri' => $page->uri(), 'id'=>$page->id, 'level'=>$page->level);
 		}

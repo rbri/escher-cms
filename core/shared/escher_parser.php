@@ -120,7 +120,7 @@ class _EscherParser extends CoreTagParser
 	
 	public final function currentPageTemplateContent(&$contentType, &$parsable, &$cacheable, &$secure, &$lastModTime, &$fileName, &$fileSize)
 	{
-		if (!$template = $this->currentPageContext()->fetchTemplate($this->content, $this->theme, $this->prefs))
+		if (!$template = $this->currentPageContext()->fetchTemplate($this->content, $this->theme, $this->branch, $this->prefs))
 		{
 			$this->reportError(self::$lang->get('template_not_found', $this->currentPageContext()->activeTemplateName()), E_USER_WARNING);
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'template not found'));
@@ -159,7 +159,7 @@ class _EscherParser extends CoreTagParser
 			}
 		}
 
-		if (!$template = $page->fetchTemplate($this->content, $this->theme, $this->prefs))
+		if (!$template = $page->fetchTemplate($this->content, $this->theme, $this->branch, $this->prefs))
 		{
 			$this->reportError(self::$lang->get('template_not_found', $page->activeTemplateName()), E_USER_WARNING);
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'template not found'));
@@ -238,7 +238,7 @@ class _EscherParser extends CoreTagParser
 	
 	protected final function parseTemplate($name)
 	{
-		if (($template = $this->content->fetchTemplateContent($name, $this->theme)) === false)
+		if (($template = $this->content->fetchTemplateContent($name, $this->theme, $this->branch)) === false)
 		{
 			$this->reportError(self::$lang->get('template_not_found', $name), E_USER_WARNING);
 			return;
@@ -1055,6 +1055,10 @@ class _EscherParser extends CoreTagParser
 		}
 		else
 		{
+			if (SparkUtil::valid_int($body))
+			{
+				$this->reportError(self::$lang->get('fetch_by_id_deprecated', 'snippet', $name), E_USER_WARNING);
+			}
 			$body = $this->parseSnippet($body);
 		}
 
@@ -1330,7 +1334,7 @@ class _EscherParser extends CoreTagParser
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'style')));
 
 		$out = '';
-		foreach ($this->content->fetchStyleChain($name, $this->theme) as $styleInfo)
+		foreach ($this->content->fetchStyleChain($name, $this->theme, $this->branch) as $styleInfo)
 		{
 			$themeComponent = empty($styleInfo['theme']) ? '' : '/' . $styleInfo['theme'];
 
@@ -1374,7 +1378,7 @@ class _EscherParser extends CoreTagParser
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'script')));
 
 		$out = '';
-		foreach ($this->content->fetchScriptChain($name, $this->theme) as $scriptInfo)
+		foreach ($this->content->fetchScriptChain($name, $this->theme, $this->branch) as $scriptInfo)
 		{
 			$themeComponent = empty($scriptInfo['theme']) ? '' : '/' . $scriptInfo['theme'];
 
@@ -1464,9 +1468,14 @@ class _EscherParser extends CoreTagParser
 
 		$name || $id || check($name || $id, $this->output->escape(self::$lang->get('attribute_required', 'name|id', 'snippet')));
 
-		if (($name === '') && is_numeric($id))
+		if ($name === '')
 		{
-			$name = intval($id);
+			$name = (int) $id;
+		}
+
+		if (SparkUtil::valid_int($name))
+		{
+			$this->reportError(self::$lang->get('fetch_by_id_deprecated', 'snippet', $name), E_USER_WARNING);
 		}
 		
 		$this->_yield_stack[] = $this->getContent();

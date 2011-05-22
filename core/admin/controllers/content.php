@@ -341,7 +341,7 @@ class _ContentController extends EscherAdminController
 		$theme = intval($this->app->get_pref('theme'));
 		$theme = $theme ? $model->fetchTheme($theme) : NULL;
 		$themeID = $theme ? $theme->id : 0;
-		$templates = $model->fetchTemplateNames($themeID, true);
+		$templates = $model->fetchTemplateNames($themeID, 1, true);
 				
 		$statuses = _Page::statusOptions();
 		unset($statuses[_Page::Status_expired]);
@@ -454,7 +454,7 @@ class _ContentController extends EscherAdminController
 		$theme = intval($this->app->get_pref('theme'));
 		$theme = $theme ? $model->fetchTheme($theme) : NULL;
 		$themeID = $theme ? $theme->id : 0;
-		$templates = $model->fetchTemplateNames($themeID, true);
+		$templates = $model->fetchTemplateNames($themeID, 1, true);
 		
 		$statuses = _Page::statusOptions();
 		unset($statuses[_Page::Status_expired]);
@@ -731,7 +731,7 @@ class _ContentController extends EscherAdminController
 		$theme = intval($this->app->get_pref('theme'));
 		$theme = $theme ? $model->fetchTheme($theme) : NULL;
 		$themeID = $theme ? $theme->id : 0;
-		$templates = $model->fetchTemplateNames($themeID, true);
+		$templates = $model->fetchTemplateNames($themeID, 1, true);
 				
 		$statuses = _Page::statusOptions();
 		unset($statuses[_Page::Status_expired]);
@@ -883,7 +883,7 @@ class _ContentController extends EscherAdminController
 		$theme = intval($this->app->get_pref('theme'));
 		$theme = $theme ? $model->fetchTheme($theme) : NULL;
 		$themeID = $theme ? $theme->id : 0;
-		$templates = $model->fetchTemplateNames($themeID, true);
+		$templates = $model->fetchTemplateNames($themeID, 1, true);
 		
 		$statuses = _Page::statusOptions();
 		if ($page->status != _Page::Status_expired)

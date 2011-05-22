@@ -11,7 +11,7 @@
 <? if (!empty($tags)): ?>
 	Editing tag <select name="selected_tag_id">
 	<? foreach($tags as $id=>$name): ?>
-		<option value="<?= $id ?>" <?= ($id == $selected_tag_id) ? 'selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
+		<option value="<?= $id ?>"<?= ($id == $selected_tag_id) ? ' selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
 	<? endforeach; ?>
 	</select>
 	<? if (isset($selected_theme_id)): ?>
@@ -23,6 +23,8 @@
 	<? if (isset($selected_theme_id)): ?>
 		<? $this->render('design/theme_selector'); ?>
 	<? endif; ?>
+	in branch
+	<? $this->render('design/branch_selector'); ?>
 	<input type="submit" name="go" value="Switch" />
 </div>
 <? endif; ?>
@@ -43,6 +45,8 @@
 				<? if (isset($selected_theme_id)): ?>
 					for theme <? $this->render('design/theme_selector'); ?>
 				<? endif; ?>
+				in branch
+				<? $this->render('design/branch_selector'); ?>
 				<?= isset($errors['tag_name']) ? "<div class=\"error\">{$this->escape($errors['tag_name'])}</div>" : '' ?>
 			</div>
 <? endif; ?>
@@ -54,24 +58,28 @@
 <? endif; ?>
 	</div>
 	<div class="buttons">
+<? if ($showButtons = ($can_save || ($mode === 'edit' && $can_delete))): ?>
+<? if ($can_save): ?>
 		<button class="positive" type="submit" name="save">
 			<img src="<?= $image_root.'tick.png' ?>" alt="" />
 			Save <?= ($mode === 'add') ? 'Tag' : 'Changes' ?>
 		</button>
-<? if ($mode === 'edit'): ?>
+<? endif; ?>
+<? if ($mode === 'edit' && $can_delete): ?>
 		<a class="negative" href="<?= $this->urlTo('/design/tags/delete/'.$selected_tag_id) ?>">
 			<img src="<?= $image_root.'cross.png' ?>" alt="" />
 			Delete Tag &ldquo;<?= $tagName ?>&rdquo;
 		</a>
 <? endif; ?>
+<? endif; ?>
 	</div>
-<? if ($mode === 'edit'): ?>
-	or <a href="<?= $this->urlTo('/design/tags/add') ?>">Add New Tag</a>
-<? else: ?>
-	or <a href="<?= $this->urlTo('/design/tags/edit') ?>">Edit Existing Tag</a>
+<? if ($mode === 'edit' && $can_add): ?>
+	<?= $showButtons ? 'or' : '' ?> <a href="<?= $this->urlTo('/design/tags/add') ?>">Add New Tag</a>
+<? elseif ($mode === 'add' && $can_edit): ?>
+	<?= $showButtons ? 'or' : '' ?> <a href="<?= $this->urlTo('/design/tags/edit') ?>">Edit Existing Tag</a>
 <? endif; ?>
 </form>
-<? else: ?>
+<? elseif ($can_add): ?>
 <div class="buttons">
 	<a class="positive" href="<?= $this->urlTo('/design/tags/add') ?>">Add New Tag</a>
 </div>

@@ -12,8 +12,9 @@
 <div id="page-header">
 	<ul>
 		<li class="warning">
-			Are you sure you want to permanently push branch &ldquo;<?= $branch_name ?>&rdquo; to &ldquo;<?= $to_branch_name ?>?&rdquo;
-			This action will overwrite the contents of the &ldquo;<?= $to_branch_name ?>&rdquo; branch.
+			Are you sure you want to push all changes to the <em><?= $branch_name ?></em> branch into the <em><?= $to_branch_name ?> branch?</em>
+			<br /><br />
+			This action will overwrite the contents of the <em><?= $to_branch_name ?></em> branch.
 			This action cannot be undone.
 		</li>
 	</ul>

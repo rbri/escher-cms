@@ -483,9 +483,9 @@ class _Page extends _PageModel
 		$this->slug = self::filterSlug($this->slug);
 	}
 	
-	public function fetchTemplate($model, $theme, $prefs)
+	public function fetchTemplate($model, $theme, $branch, $prefs)
 	{
-		return $model->fetchTemplate($this->active_template_name, $theme);
+		return $model->fetchTemplate($this->active_template_name, $theme, $branch);
 	}
 
 	public function fetchOverridePage($model)

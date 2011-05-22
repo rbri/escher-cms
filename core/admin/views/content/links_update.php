@@ -10,7 +10,7 @@
 <div class="form-area">
 	Editing link <select name="selected_link_id">
 	<? foreach($links as $id=>$name): ?>
-		<option value="<?= $id ?>" <?= ($id == $selected_link_id) ? 'selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
+		<option value="<?= $id ?>"<?= ($id == $selected_link_id) ? ' selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
 	<? endforeach; ?>
 	</select>
 	<input type="submit" name="go" value="Switch" />

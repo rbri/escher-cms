@@ -310,6 +310,11 @@ class _DesignController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
 		
+		if (!$toBranch = $model->fetchBranch($branchID-1))
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+		
 		$curUser = $this->app->get_user();
 
 		$this->getCommonVars($vars);
@@ -398,6 +403,7 @@ class _DesignController extends EscherAdminController
 		$vars['changes'] = $changes;
 		$vars['lang'] = self::$lang;
 		$vars['branch_name'] = $branch->name;
+		$vars['to_branch_name'] = !empty($toBranch) ? $toBranch->name : '';
 
 		$this->observer->notify('escher:render:before:design:branch:edit', $branch);
 		$this->render('main', $vars);
@@ -487,6 +493,11 @@ class _DesignController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
 		
+		if (!$toBranch = $model->fetchBranch($branchID-1))
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+		}
+		
 		$curUser = $this->app->get_user();
 
 		$this->getCommonVars($vars);
@@ -512,6 +523,7 @@ class _DesignController extends EscherAdminController
 		$vars['selected_subtab'] = 'branches';
 		$vars['branch_id'] = $branchID;
 		$vars['branch_name'] = $branch->name;
+		$vars['to_branch_name'] = $toBranch->name;
 
 		$this->observer->notify('escher:render:before:design:branch:rollback', $branch);
 		$this->render('main', $vars);
@@ -753,9 +765,11 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
+		$branch = $this->getWorkingBranch();
+
 		$model = $this->newAdminContentModel();
 		
-		$template = $this->factory->manufacture('Template', array('theme_id'=>$themeID));
+		$template = $this->factory->manufacture('Template', array('theme_id'=>$themeID, 'branch'=>$branch));
 
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'templates', 'add');
@@ -770,7 +784,7 @@ class _DesignController extends EscherAdminController
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif ($model->templateExists($template->name, $template->theme_id))
+			elseif ($model->templateExists($template->name, $template->theme_id, $branch, $info))
 			{
 				$errors['template_name'] = 'A template with this name already exists.';
 			}
@@ -779,7 +793,17 @@ class _DesignController extends EscherAdminController
 				try
 				{
 					$this->updateObjectCreated($template);
-					$model->addTemplate($template);
+					$template->created = NULL;
+					
+					if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+					{
+						$template->id = $info['id'];
+						$model->undeleteTemplate($template);
+					}
+					else
+					{
+						$model->addTemplate($template);
+					}
 					$this->observer->notify('escher:site_change:design:template:add', $template);
 					$this->session->flashSet('notice', 'Template added successfully.');
 					$this->redirect('/design/templates/edit/'.$template->id);
@@ -796,6 +820,8 @@ class _DesignController extends EscherAdminController
 		$vars['template'] = $template;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
 
 		if (!empty($errors))
 		{
@@ -819,13 +845,17 @@ class _DesignController extends EscherAdminController
 			$templateID = @$params[0];
 		}
 
+		$targetTemplateID = $templateID;
+
+		$branch = $this->getWorkingBranch();
+
 		$model = $this->newAdminContentModel();
 		
 		// if a theme was specified, we only show templates for that theme
 		
 		if (isset($themeID))
 		{
-			$templateNames = $model->fetchTemplateNames($themeID);
+			$templateNames = $model->fetchTemplateNames($themeID, $branch);
 			if (!isset($templateNames[$templateID]))
 			{
 				$templateID = 0;
@@ -837,7 +867,7 @@ class _DesignController extends EscherAdminController
 			{
 				$template = $model->fetchTemplate(intval($templateID));
 			}
-			$templateNames = $model->fetchTemplateNames($themeID = $template ? $template->theme_id : 0);
+			$templateNames = $model->fetchTemplateNames($themeID = $template ? $template->theme_id : 0, $branch);
 		}
 		
 		if (!$template)
@@ -864,39 +894,74 @@ class _DesignController extends EscherAdminController
 		
 		if (isset($params['pv']['save']))
 		{
-			$params['pv']['template_name'] = $template->name;
-
-			// build template object from form data
-			
-			$oldName = $template->name;
-			$this->buildTemplate($params['pv'], $template);
-
-			if (!$vars['can_save'])
+			if (!$template)
 			{
-				$vars['warning'] = 'Permission denied.';
+				$errors[] = $vars['warning'] = 'The template you attempted to edit no longer exists.';
 			}
-			elseif (($template->name !== $oldName) && $model->templateExists($template->name, $template->theme_id))
+			elseif ($targetTemplateID != $templateID)
 			{
-				$errors['template_name'] = 'A template with this name already exists.';
+				$errors[] = $vars['warning'] = 'Your changes were not saved because you attempted to edit a stale or deleted template.';
 			}
-			elseif ($this->validateTemplate($params['pv'], $errors))
+			else
 			{
-				try
+				$params['pv']['template_name'] = $template->name;
+	
+				// build template object from form data
+				
+				$oldName = $template->name;
+				$this->buildTemplate($params['pv'], $template);
+	
+				if (!$vars['can_save'])
 				{
-					$this->updateObjectEdited($template);
-					$model->updateTemplate($template);
-					$this->observer->notify('escher:site_change:design:template:edit', $template);
-					$vars['notice'] = 'Template saved successfully.';
+					$vars['warning'] = 'Permission denied.';
 				}
-				catch (SparkDBException $e)
+				elseif (($template->name !== $oldName) && $model->templateExists($template->name, $template->theme_id, $branch, $info))
 				{
-					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					$errors['template_name'] = 'A template with this name already exists.';
+				}
+				elseif ($this->validateTemplate($params['pv'], $errors))
+				{
+					try
+					{
+						$this->updateObjectEdited($template);
+						if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+						{
+							$template->id = $info['id'];
+							$model->undeleteTemplate($template);
+						}
+						else
+						{
+							// check the branch, as we may need to create it if it does not exist
+							
+							if ($template->branch != $branch)
+							{
+								$template->id = $model->copyTemplateToBranch($template->name, $themeID, $branch);
+								$template->branch = $branch;
+							}
+		
+							$model->updateTemplate($template);
+						}
+						$this->observer->notify('escher:site_change:design:template:edit', $template);
+						$vars['notice'] = 'Template saved successfully.';
+					}
+					catch (SparkDBException $e)
+					{
+						$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					}
 				}
 			}
 		}
 		else
 		{
 			$vars['notice'] = $this->session->flashGet('notice');
+		}
+
+		// template ID changed on us (due to branch change), update data for view
+
+		if ($template && ($template->id != $templateID))
+		{
+			$templateID = $template->id;
+			$templateNames = $model->fetchTemplateNames($template->theme_id, $branch);
 		}
 
 		$vars['selected_subtab'] = 'templates';
@@ -906,6 +971,8 @@ class _DesignController extends EscherAdminController
 		$vars['selected_template_id'] = $templateID;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
 
 		if (!empty($errors))
 		{
@@ -928,12 +995,16 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
+		$branch = $this->getWorkingBranch();
+
 		$model = $this->newAdminContentModel();
 
 		if (!$template = $model->fetchTemplate(intval($templateID)))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'template not found'));
 		}
+
+		$themeID = $template->theme_id;
 
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'templates', 'delete', $template);
@@ -946,7 +1017,18 @@ class _DesignController extends EscherAdminController
 			}
 			else
 			{
-				$model->deleteTemplateByID($templateID);
+				// check the branch, as we may need to create it if it does not exist
+				
+				if ($template->branch != $branch)
+				{
+					$template->id = $model->copyTemplateToBranch($template->name, $themeID, $branch, true);
+					$template->branch = $branch;
+				}
+				else
+				{
+					$model->markTemplateDeletedByID($template->id);
+				}
+				
 				$this->observer->notify('escher:site_change:design:template:delete', $template);
 				$this->session->flashSet('notice', 'Template deleted successfully.');
 				$this->redirect('/design/templates');
@@ -1267,9 +1349,11 @@ class _DesignController extends EscherAdminController
 			}
 		}
 		
+		$branch = $this->getWorkingBranch();
+		
 		$model = $this->newAdminContentModel();
 		
-		$tag = $this->factory->manufacture('Tag', array('theme_id'=>$themeID));
+		$tag = $this->factory->manufacture('Tag', array('theme_id'=>$themeID, 'branch'=>$branch));
 
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'tags', 'add');
@@ -1284,7 +1368,7 @@ class _DesignController extends EscherAdminController
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif ($model->tagExists($tag->name, $tag->theme_id))
+			elseif ($model->tagExists($tag->name, $tag->theme_id, $branch, $info))
 			{
 				$errors['tag_name'] = 'A tag with this name already exists.';
 			}
@@ -1293,7 +1377,17 @@ class _DesignController extends EscherAdminController
 				try
 				{
 					$this->updateObjectCreated($tag);
-					$model->addTag($tag);
+					$tag->created = NULL;
+
+					if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+					{
+						$tag->id = $info['id'];
+						$model->undeleteTag($tag);
+					}
+					else
+					{
+						$model->addTag($tag);
+					}
 					$this->observer->notify('escher:site_change:design:tag:add', $tag);
 					$this->observer->notify('escher:cache:request_flush:plug', $tag);
 					$this->session->flashSet('notice', 'Tag added successfully.');
@@ -1311,6 +1405,8 @@ class _DesignController extends EscherAdminController
 		$vars['tag'] = $tag;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
 		
 		if (!empty($errors))
 		{
@@ -1333,6 +1429,8 @@ class _DesignController extends EscherAdminController
 		{
 			$tagID = @$params[0];
 		}
+
+		$targetTagID = $tagID;
 
 		$branch = $this->getWorkingBranch();
 
@@ -1381,40 +1479,77 @@ class _DesignController extends EscherAdminController
 		
 		if (isset($params['pv']['save']))
 		{
-			$params['pv']['tag_name'] = $tag->name;
-
-			// build tag object from form data
-			
-			$oldName = $tag->name;
-			$this->buildTag($params['pv'], $tag);
-
-			if (!$vars['can_save'])
+			if (!$tag)
 			{
-				$vars['warning'] = 'Permission denied.';
+				$errors[] = $vars['warning'] = 'The tag you attempted to edit no longer exists.';
 			}
-			elseif (($tag->name !== $oldName) && $model->tagExists($tag->name, $tag->theme_id))
+			elseif ($targetTagID != $tagID)
 			{
-				$errors['tag_name'] = 'A tag with this name already exists.';
+				$errors[] = $vars['warning'] = 'Your changes were not saved because you attempted to edit a stale or deleted tag.';
 			}
-			elseif ($this->validateTag($params['pv'], $errors))
+			else
 			{
-				try
+				$params['pv']['tag_name'] = $tag->name;
+	
+				// build tag object from form data
+				
+				$oldName = $tag->name;
+				
+				$this->buildTag($params['pv'], $tag);
+	
+				if (!$vars['can_save'])
 				{
-					$this->updateObjectEdited($tag);
-					$model->updateTagContent($tag);
-					$this->observer->notify('escher:site_change:design:tag:edit', $tag);
-					$this->observer->notify('escher:cache:request_flush:plug', $tag);
-					$vars['notice'] = 'Tag saved successfully.';
+					$vars['warning'] = 'Permission denied.';
 				}
-				catch (SparkDBException $e)
+				elseif (($tag->name !== $oldName) && $model->tagExists($tag->name, $tag->theme_id, $branch, $info))
 				{
-					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					$errors['tag_name'] = 'A tag with this name already exists.';
+				}
+				elseif ($this->validateTag($params['pv'], $errors))
+				{
+					try
+					{
+						$this->updateObjectEdited($tag);
+						
+						if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+						{
+							$tag->id = $info['id'];
+							$model->undeleteTag($tag);
+						}
+						else
+						{
+							// check the branch, as we may need to create it if it does not exist
+							
+							if ($tag->branch != $branch)
+							{
+								$tag->id = $model->copyTagToBranch($tag->name, $themeID, $branch);
+								$tag->branch = $branch;
+							}
+		
+							$model->updateTagContent($tag);
+						}
+						$this->observer->notify('escher:site_change:design:tag:edit', $tag);
+						$this->observer->notify('escher:cache:request_flush:plug', $tag);
+						$vars['notice'] = 'Tag saved successfully.';
+					}
+					catch (SparkDBException $e)
+					{
+						$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					}
 				}
 			}
 		}
 		else
 		{
 			$vars['notice'] = $this->session->flashGet('notice');
+		}
+
+		// tag ID changed on us (due to branch change), update data for view
+
+		if ($tag && ($tag->id != $tagID))
+		{
+			$tagID = $tag->id;
+			$tagNames = $model->fetchTagNames($tag->theme_id, $branch);
 		}
 
 		$vars['selected_subtab'] = 'tags';
@@ -1424,6 +1559,8 @@ class _DesignController extends EscherAdminController
 		$vars['selected_tag_id'] = $tagID;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
 
 		if (!empty($errors))
 		{
@@ -1446,6 +1583,8 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
+		$branch = $this->getWorkingBranch();
+
 		$model = $this->newAdminContentModel();
 
 		if (!$tag = $model->fetchTag(intval($tagID)))
@@ -1453,6 +1592,8 @@ class _DesignController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'tag not found'));
 		}
 
+		$themeID = $tag->theme_id;
+		
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'tags', 'delete', $tag);
 
@@ -1464,7 +1605,18 @@ class _DesignController extends EscherAdminController
 			}
 			else
 			{
-				$model->deleteTagByID($tagID);
+				// check the branch, as we may need to create it if it does not exist
+				
+				if ($tag->branch != $branch)
+				{
+					$tag->id = $model->copySnippetToBranch($tag->name, $themeID, $branch, true);
+					$tag->branch = $branch;
+				}
+				else
+				{
+					$model->markTagDeletedByID($tag->id);
+				}
+				
 				$this->observer->notify('escher:site_change:design:tag:delete', $tag);
 				$this->observer->notify('escher:cache:request_flush:plug', $tag);
 				$this->session->flashSet('notice', 'Tag deleted successfully.');
@@ -1492,10 +1644,12 @@ class _DesignController extends EscherAdminController
 				$themeID = 0;
 			}
 		}
-
+		
+		$branch = $this->getWorkingBranch();
+		
 		$model = $this->newAdminContentModel();
 		
-		$style = $this->factory->manufacture('Style', array('theme_id'=>$themeID));
+		$style = $this->factory->manufacture('Style', array('theme_id'=>$themeID, 'branch'=>$branch));
 
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'styles', 'add');
@@ -1510,7 +1664,7 @@ class _DesignController extends EscherAdminController
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif ($model->styleExists($style->slug, $style->theme_id))
+			elseif ($model->styleExists($style->slug, $style->theme_id, $branch, $info))
 			{
 				$errors['style_slug'] = 'A style with this name already exists.';
 			}
@@ -1520,7 +1674,17 @@ class _DesignController extends EscherAdminController
 				try
 				{
 					$this->updateObjectCreated($style);
-					$model->addStyle($style);
+					$style->created = NULL;
+					
+					if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+					{
+						$style->id = $info['id'];
+						$model->undeleteStyle($style);
+					}
+					else
+					{
+						$model->addStyle($style);
+					}
 					$this->observer->notify('escher:site_change:design:style:add', $style);
 					$this->session->flashSet('notice', 'Style added successfully.');
 					$this->redirect('/design/styles/edit/'.$style->id);
@@ -1537,12 +1701,14 @@ class _DesignController extends EscherAdminController
 		$vars['style'] = $style;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
-
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
+		
 		if (!empty($errors))
 		{
 			$vars['errors'] = $errors;
 		}
-		
+
 		$this->observer->notify('escher:render:before:design:style:add', $style);
 		$this->render('main', $vars);
 	}
@@ -1559,6 +1725,8 @@ class _DesignController extends EscherAdminController
 		{
 			$styleID = @$params[0];
 		}
+
+		$targetStyleID = $styleID;
 
 		$branch = $this->getWorkingBranch();
 
@@ -1607,39 +1775,76 @@ class _DesignController extends EscherAdminController
 		
 		if (isset($params['pv']['save']))
 		{
-			$params['pv']['style_name'] = $style->slug;
-
-			// build style object from form data
-			
-			$oldSlug = $style->slug;
-			$this->buildStyle($params['pv'], $style);
-
-			if (!$vars['can_save'])
+			if (!$style)
 			{
-				$vars['warning'] = 'Permission denied.';
+				$errors[] = $vars['warning'] = 'The style you attempted to edit no longer exists.';
 			}
-			elseif (($style->slug !== $oldSlug) && $model->styleExists($style->slug, $style->theme_id))
+			elseif ($targetStyleID != $styleID)
 			{
-				$errors['style_slug'] = 'A style with this name already exists.';
+				$errors[] = $vars['warning'] = 'Your changes were not saved because you attempted to edit a stale or deleted style.';
 			}
-			elseif ($this->validateStyle($params['pv'], $errors))
+			else
 			{
-				try
+				$params['pv']['style_name'] = $style->slug;
+	
+				// build style object from form data
+				
+				$oldSlug = $style->slug;
+				
+				$this->buildStyle($params['pv'], $style);
+	
+				if (!$vars['can_save'])
 				{
-					$this->updateObjectEdited($style);
-					$model->updateStyleContent($style);
-					$this->observer->notify('escher:site_change:design:style:edit', $style);
-					$vars['notice'] = 'Style saved successfully.';
+					$vars['warning'] = 'Permission denied.';
 				}
-				catch (SparkDBException $e)
+				elseif (($style->slug !== $oldSlug) && $model->styleExists($style->slug, $style->theme_id, $branch, $info))
 				{
-					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					$errors['style_slug'] = 'A style with this name already exists.';
+				}
+				elseif ($this->validateStyle($params['pv'], $errors))
+				{
+					try
+					{
+						$this->updateObjectEdited($style);
+						
+						if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+						{
+							$style->id = $info['id'];
+							$model->undeleteStyle($style);
+						}
+						else
+						{
+							// check the branch, as we may need to create it if it does not exist
+							
+							if ($style->branch != $branch)
+							{
+								$style->id = $model->copyStyleToBranch($style->slug, $themeID, $branch);
+								$style->branch = $branch;
+							}
+		
+							$model->updateStyleContent($style);
+						}
+						$this->observer->notify('escher:site_change:design:style:edit', $style);
+						$vars['notice'] = 'Style saved successfully.';
+					}
+					catch (SparkDBException $e)
+					{
+						$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					}
 				}
 			}
 		}
 		else
 		{
 			$vars['notice'] = $this->session->flashGet('notice');
+		}
+
+		// style ID changed on us (due to branch change), update data for view
+
+		if ($style && ($style->id != $styleID))
+		{
+			$styleID = $style->id;
+			$styleNames = $model->fetchStyleNames($style->theme_id, $branch);
 		}
 
 		$vars['selected_subtab'] = 'styles';
@@ -1649,6 +1854,8 @@ class _DesignController extends EscherAdminController
 		$vars['selected_style_id'] = $styleID;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
 
 		if (!empty($errors))
 		{
@@ -1671,12 +1878,16 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
+		$branch = $this->getWorkingBranch();
+
 		$model = $this->newAdminContentModel();
 
 		if (!$style = $model->fetchStyle(intval($styleID)))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'style not found'));
 		}
+
+		$themeID = $style->theme_id;
 		
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'styles', 'delete', $style);
@@ -1689,7 +1900,18 @@ class _DesignController extends EscherAdminController
 			}
 			else
 			{
-				$model->deleteStyleByID($styleID);
+				// check the branch, as we may need to create it if it does not exist
+				
+				if ($style->branch != $branch)
+				{
+					$style->id = $model->copyStyleToBranch($style->slug, $themeID, $branch, true);
+					$style->branch = $branch;
+				}
+				else
+				{
+					$model->markStyleDeletedByID($style->id);
+				}
+				
 				$this->observer->notify('escher:site_change:design:style:delete', $style);
 				$this->session->flashSet('notice', 'Style deleted successfully.');
 				$this->redirect('/design/styles');
@@ -1716,10 +1938,12 @@ class _DesignController extends EscherAdminController
 				$themeID = 0;
 			}
 		}
-
+		
+		$branch = $this->getWorkingBranch();
+		
 		$model = $this->newAdminContentModel();
 		
-		$script = $this->factory->manufacture('Script', array('theme_id'=>$themeID));
+		$script = $this->factory->manufacture('Script', array('theme_id'=>$themeID, 'branch'=>$branch));
 
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'scripts', 'add');
@@ -1734,7 +1958,7 @@ class _DesignController extends EscherAdminController
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif ($model->scriptExists($script->slug, $script->theme_id))
+			elseif ($model->scriptExists($script->slug, $script->theme_id, $branch, $info))
 			{
 				$errors['script_slug'] = 'A script with this name already exists.';
 			}
@@ -1744,7 +1968,17 @@ class _DesignController extends EscherAdminController
 				try
 				{
 					$this->updateObjectCreated($script);
-					$model->addScript($script);
+					$script->created = NULL;
+					
+					if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+					{
+						$script->id = $info['id'];
+						$model->undeleteScript($script);
+					}
+					else
+					{
+						$model->addScript($script);
+					}
 					$this->observer->notify('escher:site_change:design:script:add', $script);
 					$this->session->flashSet('notice', 'Script added successfully.');
 					$this->redirect('/design/scripts/edit/'.$script->id);
@@ -1761,7 +1995,9 @@ class _DesignController extends EscherAdminController
 		$vars['script'] = $script;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
-
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
+		
 		if (!empty($errors))
 		{
 			$vars['errors'] = $errors;
@@ -1783,6 +2019,8 @@ class _DesignController extends EscherAdminController
 		{
 			$scriptID = @$params[0];
 		}
+
+		$targetScriptID = $scriptID;
 
 		$branch = $this->getWorkingBranch();
 
@@ -1831,39 +2069,76 @@ class _DesignController extends EscherAdminController
 		
 		if (isset($params['pv']['save']))
 		{
-			$params['pv']['script_name'] = $script->slug;
-
-			// build script object from form data
-			
-			$oldSlug = $script->slug;
-			$this->buildScript($params['pv'], $script);
-
-			if (!$vars['can_save'])
+			if (!$script)
 			{
-				$vars['warning'] = 'Permission denied.';
+				$errors[] = $vars['warning'] = 'The script you attempted to edit no longer exists.';
 			}
-			elseif (($script->slug !== $oldSlug) && $model->scriptExists($script->slug, $script->theme_id))
+			elseif ($targetScriptID != $scriptID)
 			{
-				$errors['script_slug'] = 'A script with this name already exists.';
+				$errors[] = $vars['warning'] = 'Your changes were not saved because you attempted to edit a stale or deleted script.';
 			}
-			elseif ($this->validateScript($params['pv'], $errors))
+			else
 			{
-				try
+				$params['pv']['script_name'] = $script->slug;
+	
+				// build script object from form data
+				
+				$oldSlug = $script->slug;
+				
+				$this->buildScript($params['pv'], $script);
+	
+				if (!$vars['can_save'])
 				{
-					$this->updateObjectEdited($script);
-					$model->updateScriptContent($script);
-					$this->observer->notify('escher:site_change:design:script:edit', $script);
-					$vars['notice'] = 'Script saved successfully.';
+					$vars['warning'] = 'Permission denied.';
 				}
-				catch (SparkDBException $e)
+				elseif (($script->slug !== $oldSlug) && $model->scriptExists($script->slug, $script->theme_id, $branch, $info))
 				{
-					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					$errors['script_slug'] = 'A script with this name already exists.';
+				}
+				elseif ($this->validateScript($params['pv'], $errors))
+				{
+					try
+					{
+						$this->updateObjectEdited($script);
+						
+						if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+						{
+							$script->id = $info['id'];
+							$model->undeleteScript($script);
+						}
+						else
+						{
+							// check the branch, as we may need to create it if it does not exist
+							
+							if ($script->branch != $branch)
+							{
+								$script->id = $model->copyScriptToBranch($script->slug, $themeID, $branch);
+								$script->branch = $branch;
+							}
+		
+							$model->updateScriptContent($script);
+						}
+						$this->observer->notify('escher:site_change:design:script:edit', $script);
+						$vars['notice'] = 'Script saved successfully.';
+					}
+					catch (SparkDBException $e)
+					{
+						$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					}
 				}
 			}
 		}
 		else
 		{
 			$vars['notice'] = $this->session->flashGet('notice');
+		}
+
+		// script ID changed on us (due to branch change), update data for view
+
+		if ($script && ($script->id != $scriptID))
+		{
+			$scriptID = $script->id;
+			$scriptNames = $model->fetchScriptNames($script->theme_id, $branch);
 		}
 
 		$vars['selected_subtab'] = 'scripts';
@@ -1873,6 +2148,8 @@ class _DesignController extends EscherAdminController
 		$vars['selected_script_id'] = $scriptID;
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
 
 		if (!empty($errors))
 		{
@@ -1895,6 +2172,8 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
+		$branch = $this->getWorkingBranch();
+
 		$model = $this->newAdminContentModel();
 
 		if (!$script = $model->fetchScript(intval($scriptID)))
@@ -1902,6 +2181,8 @@ class _DesignController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'script not found'));
 		}
 
+		$themeID = $script->theme_id;
+		
 		$this->getCommonVars($vars);
 		$this->getDesignPerms($vars, 'scripts', 'delete', $script);
 
@@ -1913,7 +2194,18 @@ class _DesignController extends EscherAdminController
 			}
 			else
 			{
-				$model->deleteScriptByID($scriptID);
+				// check the branch, as we may need to create it if it does not exist
+				
+				if ($script->branch != $branch)
+				{
+					$script->id = $model->copyScriptToBranch($script->slug, $themeID, $branch, true);
+					$script->branch = $branch;
+				}
+				else
+				{
+					$model->markScriptDeletedByID($script->id);
+				}
+				
 				$this->observer->notify('escher:site_change:design:script:delete', $script);
 				$this->session->flashSet('notice', 'Script deleted successfully.');
 				$this->redirect('/design/scripts');

@@ -11,7 +11,7 @@
 <? if (!empty($snippets)): ?>
 	Editing snippet <select name="selected_snippet_id">
 	<? foreach($snippets as $id=>$name): ?>
-		<option value="<?= $id ?>" <?= ($id == $selected_snippet_id) ? 'selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
+		<option value="<?= $id ?>"<?= ($id == $selected_snippet_id) ? ' selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
 	<? endforeach; ?>
 	</select>
 	<? if (isset($selected_theme_id)): ?>
@@ -23,9 +23,9 @@
 	<? if (isset($selected_theme_id)): ?>
 		<? $this->render('design/theme_selector'); ?>
 	<? endif; ?>
-	<input type="submit" name="go" value="Switch" />
 	in branch
 	<? $this->render('design/branch_selector'); ?>
+	<input type="submit" name="go" value="Switch" />
 </div>
 <? endif; ?>
 </form>

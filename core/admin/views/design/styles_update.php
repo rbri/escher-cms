@@ -11,7 +11,7 @@
 <? if (!empty($styles)): ?>
 	Editing style <select name="selected_style_id">
 	<? foreach($styles as $id=>$name): ?>
-		<option value="<?= $id ?>" <?= ($id == $selected_style_id) ? 'selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
+		<option value="<?= $id ?>"<?= ($id == $selected_style_id) ? ' selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
 	<? endforeach; ?>
 	</select>
 	<? if (isset($selected_theme_id)): ?>
@@ -23,6 +23,8 @@
 	<? if (isset($selected_theme_id)): ?>
 		<? $this->render('design/theme_selector'); ?>
 	<? endif; ?>
+	in branch
+	<? $this->render('design/branch_selector'); ?>
 	<input type="submit" name="go" value="Switch" />
 </div>
 <? endif; ?>
@@ -43,6 +45,8 @@
 				<? if (isset($selected_theme_id)): ?>
 					for theme <? $this->render('design/theme_selector'); ?>
 				<? endif; ?>
+				in branch
+				<? $this->render('design/branch_selector'); ?>
 				<?= isset($errors['style_name']) ? "<div class=\"error\">{$this->escape($errors['style_name'])}</div>" : '' ?>
 			</div>
 <? endif; ?>

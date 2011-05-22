@@ -32,7 +32,7 @@ class _PageScript extends Page
 {
 	const PageType = 'PageScript';
 
-	public function fetchTemplate($model, $theme, $prefs)
+	public function fetchTemplate($model, $theme, $branch, $prefs)
 	{
 		if (empty($this->magic))
 		{
@@ -57,7 +57,7 @@ class _PageScript extends Page
 			}
 		}
 
-		$template = $model->fetchScript($file, $theme);
+		$template = $model->fetchScript($file, $theme, $branch);
 
 		// if the request was for a versioned file name, ensure that we are serving the requested version
 		

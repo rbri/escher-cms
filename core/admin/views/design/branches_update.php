@@ -112,8 +112,11 @@ EOD;
 <div id="page-header">
 	<ul>
 		<li class="warning">
-			Are you sure you want to permanently push changes to the selected assets on branch &ldquo;<?= $this->escape($branch_name) ?>?&rdquo;
-			To confirm your action, please click the  &ldquo;Push Selected&rdquo; button again.
+			Are you sure you want to push all changes to the selected assets of the <em><?= $branch_name ?></em> branch into the <em><?= $to_branch_name ?> branch?</em>
+			<br /><br />
+			This action will overwrite the contents of the <em><?= $to_branch_name ?></em> branch.
+			<br /><br />
+			To confirm your action, click the <em>Push Selected</em> button again.
 		</li>
 	</ul>
 </div>
@@ -121,10 +124,12 @@ EOD;
 <div id="page-header">
 	<ul>
 		<li class="warning">
-			Are you sure you want to permanently rollback changes to the selected assets on branch &ldquo;<?= $this->escape($branch_name) ?>?&rdquo;
-			This action will revert the selected assets of this branch to the current state of its parent branch.
-			All modifications to the selected assets on this branch will be lost.
-			To confirm your action, please click the  &ldquo;Roll Back Selected&rdquo; button again.
+			Are you sure you want to permanently roll back all changes to the selected assets of the <em><?= $this->escape($branch_name) ?></em> branch?
+			<br /><br />
+			This action will revert the selected assets of the <em><?= $this->escape($branch_name) ?></em> branch to their current state in the <em><?= $this->escape($to_branch_name) ?></em> branch.
+			All modifications to the <em><?= $this->escape($branch_name) ?></em> branch will be lost.
+			<br /><br />
+			To confirm your action, click the <em>Roll Back Selected</em> button again.
 		</li>
 	</ul>
 </div>

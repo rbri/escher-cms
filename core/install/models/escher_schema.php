@@ -237,7 +237,7 @@ class _EscherSchemaModel extends SparkModel
 		$ci->table('style');
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', 'style_slug_theme_branch');
 		$db->query($ci->compile());
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url', 'style_url');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, theme_id, branch', 'style_url_theme_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'style_theme');
 		$db->query($ci->compile());
@@ -267,7 +267,7 @@ class _EscherSchemaModel extends SparkModel
 		$ci->table('script');
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', 'script_slug_theme_branch');
 		$db->query($ci->compile());
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url', 'script_url');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, theme_id, branch', 'script_url_theme_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'script_theme');
 		$db->query($ci->compile());
@@ -302,7 +302,7 @@ class _EscherSchemaModel extends SparkModel
 		$ci->table('image');
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', 'image_slug_theme_branch');
 		$db->query($ci->compile());
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url', 'image_url');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, theme_id, branch', 'image_url_theme_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'priority', 'image_priority');
 		$db->query($ci->compile());

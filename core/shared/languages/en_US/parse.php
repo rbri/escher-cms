@@ -60,4 +60,5 @@ $lang['parse'] = array
 	'not_an_image' => 'cannot push non-image object onto image stack',
 	'not_a_file' => 'cannot push non-file object onto file stack',
 	'not_a_link' => 'cannot push non-link object onto link stack',
+	'fetch_by_id_deprecated' => 'fetching design assets by id is deprecated (asset type: %1$s, id: %2$s)',
 );

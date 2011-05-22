@@ -35,7 +35,7 @@ $lang['prefs'] = array
 	'site_time_zone' => NULL,
 	'site_maintenance_page' => NULL,
 	'production_status' => NULL,
-	'debug_level' => NULL,
+	'debug_level' => 'Production Debug Lebel',
 	
 	'category_trigger' => NULL,
 	'permlink_titles' => NULL,
@@ -92,7 +92,7 @@ $lang['prefs'] = array
 	'site_time_zone_help' => 'All dates will be displayed in the chosen time zone.',
 	'site_maintenance_page_help' => 'Optionally specify a static page not managed by Escher to be displayed when site is placed into Maintenance mode. Recommended.',
 	'production_status_help' => 'Determine which branch of your site is displayed to vistors to your Site URL. Live sites should operate in Production mode. Maintenance mode takes the site offline.',
-	'debug_level_help' => 'Higher debug levels will result in progressively more information being added to the source of generated pages. Select 0 to disable all debug messages. Select 9 to display errors and warnings on pages.',
+	'debug_level_help' => 'Debug level for your production branch. Higher debug levels will result in progressively more information being added to the source of generated pages. Select 0 to disable all debug messages. Select 9 to display errors and warnings on pages (not recommended for live sites).',
 	
 	'category_trigger_help' => 'Customize the word that invokes category pages when present in the URL.',
 	'permlink_titles_help' => 'Automatically append SEO-friendly page title to permlinks?',

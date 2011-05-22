@@ -32,7 +32,7 @@ class _PageStyle extends Page
 {
 	const PageType = 'PageStyle';
 
-	public function fetchTemplate($model, $theme, $prefs)
+	public function fetchTemplate($model, $theme, $branch, $prefs)
 	{
 		if (empty($this->magic))
 		{
@@ -57,7 +57,7 @@ class _PageStyle extends Page
 			}
 		}
 
-		$template = $model->fetchStyle($file, $theme);
+		$template = $model->fetchStyle($file, $theme, $branch);
 
 		// if the request was for a versioned file name, ensure that we are serving the requested version
 		

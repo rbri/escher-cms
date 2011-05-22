@@ -9,9 +9,10 @@
 <div id="page-header">
 	<ul>
 		<li class="warning">
-			Are you sure you want to permanently rollback branch &ldquo;<?= $branch_name ?>?&rdquo;
-			This action will revert this branch to the current state of its parent branch.
-			All modifications to this branch will be lost. This action cannot be undone.
+			Are you sure you want to permanently roll back all changes to the <em><?= $this->escape($branch_name) ?></em> branch?
+			<br /><br />
+			This action will revert all assets of the <em><?= $this->escape($branch_name) ?></em> branch to their current state in the <em><?= $this->escape($to_branch_name) ?></em> branch.
+			All modifications to the <em><?= $this->escape($branch_name) ?></em> branch will be lost.
 		</li>
 	</ul>
 </div>

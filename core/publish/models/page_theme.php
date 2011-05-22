@@ -32,7 +32,7 @@ class _PageTheme extends Page
 {
 	const PageType = 'PageTheme';
 
-	public function fetchTemplate($model, $theme, $prefs)
+	public function fetchTemplate($model, $theme, $branch, $prefs)
 	{
 		if (empty($this->magic) || count($this->magic) < 2)
 		{
@@ -86,15 +86,15 @@ class _PageTheme extends Page
 		switch ($type)
 		{
 			case 1:
-				$template = $model->fetchStyle($file, $theme);
+				$template = $model->fetchStyle($file, $theme, $branch);
 				break;
 
 			case 2:
-				$template = $model->fetchScript($file, $theme);
+				$template = $model->fetchScript($file, $theme, $branch);
 				break;
 
 			case 3:
-				$template = $model->fetchImage($file, true, $theme ? $theme : 0);
+				$template = $model->fetchImage($file, true, $theme ? $theme : 0, $branch);
 				break;
 		}
 		

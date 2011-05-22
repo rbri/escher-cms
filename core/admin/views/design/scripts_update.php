@@ -11,7 +11,7 @@
 <? if (!empty($scripts)): ?>
 	Editing script <select name="selected_script_id">
 	<? foreach($scripts as $id=>$name): ?>
-		<option value="<?= $id ?>" <?= ($id == $selected_script_id) ? 'selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
+		<option value="<?= $id ?>"<?= ($id == $selected_script_id) ? ' selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
 	<? endforeach; ?>
 	</select>
 	<? if (isset($selected_theme_id)): ?>
@@ -23,6 +23,8 @@
 	<? if (isset($selected_theme_id)): ?>
 		<? $this->render('design/theme_selector'); ?>
 	<? endif; ?>
+	in branch
+	<? $this->render('design/branch_selector'); ?>
 	<input type="submit" name="go" value="Switch" />
 </div>
 <? endif; ?>
@@ -43,6 +45,8 @@
 				<? if (isset($selected_theme_id)): ?>
 					for theme <? $this->render('design/theme_selector'); ?>
 				<? endif; ?>
+				in branch
+				<? $this->render('design/branch_selector'); ?>
 				<?= isset($errors['script_name']) ? "<div class=\"error\">{$this->escape($errors['script_name'])}</div>" : '' ?>
 			</div>
 <? endif; ?>

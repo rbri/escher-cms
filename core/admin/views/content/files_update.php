@@ -10,7 +10,7 @@
 <div class="form-area">
 	Editing file <select name="selected_file_id">
 	<? foreach($files as $id=>$name): ?>
-		<option value="<?= $id ?>" <?= ($id == $selected_file_id) ? 'selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
+		<option value="<?= $id ?>"<?= ($id == $selected_file_id) ? ' selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
 	<? endforeach; ?>
 	</select>
 	<input type="submit" name="go" value="Switch" />

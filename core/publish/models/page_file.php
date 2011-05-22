@@ -32,7 +32,7 @@ class _PageFile extends Page
 {
 	const PageType = 'PageFile';
 
-	public function fetchTemplate($model, $theme, $prefs)
+	public function fetchTemplate($model, $theme, $branch, $prefs)
 	{
 		if (empty($this->magic))
 		{

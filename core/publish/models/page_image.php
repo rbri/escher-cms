@@ -32,7 +32,7 @@ class _PageImage extends Page
 {
 	const PageType = 'PageImage';
 
-	public function fetchTemplate($model, $theme, $prefs)
+	public function fetchTemplate($model, $theme, $branch, $prefs)
 	{
 		if (empty($this->magic))
 		{

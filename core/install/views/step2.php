@@ -19,7 +19,7 @@
 					<label for="selected_driver">Database Kind:</label>
 					<select name="selected_driver" onchange="window.location='<?= $page_base_url ?>' + '/' + this.value">
 					<? foreach($db_drivers as $id=>$name): ?>
-						<option value="<?= $id ?>" <?= ($id == $selected_driver) ? 'selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
+						<option value="<?= $id ?>"<?= ($id == $selected_driver) ? ' selected="selected"' : '' ?>><?= $this->escape($name) ?></option>
 					<? endforeach; ?>
 					</select>
 					<?= isset($errors['selected_driver']) ? "<div class=\"error\">{$this->escape($errors['selected_driver'])}</div>" : '' ?>
