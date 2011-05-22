@@ -1690,7 +1690,7 @@ class _ContentController extends EscherAdminController
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif ($model->imageExists($image->slug, -1))
+			elseif ($model->imageExists($image->slug, -1, 1, $ignore))
 			{
 				$errors['image_name'] = 'A content image with this name already exists.';
 			}
@@ -1810,7 +1810,7 @@ class _ContentController extends EscherAdminController
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif (($image->slug !== $oldSlug) && $model->imageExists($image->slug, -1))
+			elseif (($image->slug !== $oldSlug) && $model->imageExists($image->slug, -1, 1, $ignore))
 			{
 				$errors['image_name'] = 'A content image with this name already exists.';
 			}
@@ -1915,7 +1915,7 @@ class _ContentController extends EscherAdminController
 			}
 			else
 			{
-				$model->deleteImageByID($imageID, true);
+				$model->deleteImageByID($imageID);
 				$this->observer->notify('escher:site_change:content:image:delete', $image);
 				$this->session->flashSet('notice', 'Image deleted successfully.');
 				$this->redirect('/content/images');

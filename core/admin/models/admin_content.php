@@ -1518,7 +1518,7 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
-	public function deleteImageByID($imageID, $deleteCategories)
+	public function deleteImageByID($imageID)
 	{
 		$db = $this->loadDB();
 		
@@ -1527,10 +1527,8 @@ class _AdminContentModel extends _PublishContentModel
 		try
 		{
 			$db->deleteRows('image', 'id=?', $imageID);
-			if ($deleteCategories)
-			{
-				$db->deleteRows('image_category', 'image_id=?', $imageID);
-			}
+			$db->deleteRows('image_category', 'image_id=?', $imageID);
+			$db->deleteRows('image_meta', 'image_id=?', $imageID);
 		}
 		catch (Exception $e)
 		{
@@ -1539,6 +1537,51 @@ class _AdminContentModel extends _PublishContentModel
 		}
 		
 		$db->commit();
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function markImageDeletedByID($id)
+	{
+		return $this->markDesignAssetDeletedByID('image', $id);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function undeleteImage($image)
+	{
+		return $this->undeleteDesignAsset('image', $image);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function copyImageToBranch($image, $branch, $delete = false)
+	{
+		$newID = $this->copyDesignAssetToBranch('image', 'slug', $image->slug, $image->theme_id, $branch, $delete);
+		
+		// also need to copy image's metadata to new branch
+		
+		if (!$delete && ($newID != $image->id))
+		{
+			$db = $this->loadDB();
+			if ($rows = $db->selectRows('image_meta', 'name, data', 'image_id=?', $image->id))
+			{
+				foreach ($rows as $row)
+				{
+					$meta[$row['name']] = $row['data'];
+				}
+				$this->addImageMeta($newID, $meta);
+			}
+		}
+		
+		return $newID;
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function imageExists($slug, $themeID, $branch, &$info)
+	{
+		return $this->designAssetExists('image', 'slug', $slug, $themeID, $branch, $info);
 	}
 
 	//---------------------------------------------------------------------------

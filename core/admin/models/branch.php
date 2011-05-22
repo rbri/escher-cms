@@ -332,11 +332,16 @@ class _BranchModel extends SparkModel
 	private function updateAsset($db, $table, $toBranch, $changes)
 	{
 		$nameCol = self::$_assetBranchInfo[$table];
+		
+		if ($hasMeta = ($table === 'image'))
+		{
+			$metaTable = "{$table}_meta";
+			$metaID = "{$table}_id";
+		}
 
 		foreach ($changes as $change)
 		{
-			$row = $db->selectRow($table, '*', 'id=?', $change['source_id']);
-			
+			$row = $db->selectRow($table, '*', 'id=?', $srcID = $change['source_id']);
 			unset($row['id']);
 			
 			// if target exists, update it
@@ -346,7 +351,11 @@ class _BranchModel extends SparkModel
 				unset($row[$nameCol]);
 				unset($row['theme_id']);
 				unset($row['branch']);
-				$db->updateRows($table, $row, 'id=?', $change['target_id']);
+				if (isset($row['rev']))
+				{
+					$row['rev'] = $db->getFunction('literal')->literal('rev+1');
+				}
+				$db->updateRows($table, $row, 'id=?', $dstID = $change['target_id']);
 			}
 			
 			// otherwise, (target does not exist) so we must create it
@@ -354,7 +363,19 @@ class _BranchModel extends SparkModel
 			else
 			{
 				$row['branch'] = $toBranch;
+				unset($row['rev']);
 				$db->insertRow($table, $row);
+				$dstID = $db->lastInsertID();
+			}
+
+			if ($hasMeta && ($meta = $db->selectRows($metaTable, 'name, data', "{$metaID}=?", $srcID)))
+			{
+				foreach ($meta as &$row)
+				{
+					$row[$metaID] = $dstID;
+				}
+				$db->deleteRows($metaTable, "{$metaID}=?", $dstID);
+				$db->insertRows($metaTable, $meta);
 			}
 		}
 	}

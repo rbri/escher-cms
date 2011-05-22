@@ -2081,15 +2081,6 @@ class _PublishContentModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 	
-	public function imageExists($slug, $theme_id)
-	{
-		$db = $this->loadDB();
-		$row = $db->selectRow('image', 'id', 'slug=? AND theme_id=?', array($slug, $theme_id));
-		return isset($row['id']) ? true : false;
-	}
-
-	//---------------------------------------------------------------------------
-	
 	public function fetchImage($imageSlugOrID, $withContent = false, $themeSlugOrID = NULL, $contentImageOverride = false)
 	{
 		$cacheKey = $imageSlugOrID . ($themeSlugOrID ? '_'.$themeSlugOrID : '');

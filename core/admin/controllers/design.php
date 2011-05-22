@@ -2232,10 +2232,12 @@ class _DesignController extends EscherAdminController
 				$themeID = 0;
 			}
 		}
-
+		
+		$branch = $this->getWorkingBranch();
+		
 		$model = $this->newAdminContentModel();
 		
-		$image = $this->factory->manufacture('Image', array('theme_id'=>$themeID));
+		$image = $this->factory->manufacture('Image', array('theme_id'=>$themeID, 'branch'=>$branch));
 
 		$curUser = $this->app->get_user();
 		$this->getCommonVars($vars);
@@ -2256,32 +2258,45 @@ class _DesignController extends EscherAdminController
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif ($model->imageExists($image->slug, $image->theme_id))
-			{
-				$errors['image_slug'] = 'An image with this name already exists.';
-			}
 			elseif ($imageHelper->validateImage($params['pv'], $vars['can_upload'], $errors))
 			{
 				if ($vars['can_upload'])
 				{
 					$imageHelper->loadImage($image);
 				}
-				try
+				if ($model->imageExists($image->slug, $image->theme_id, $branch, $info))
 				{
-					$image->makeSlug();
-					$this->updateObjectCreated($image);
-					$model->addImage($image);
-					$this->observer->notify('escher:site_change:design:image:add', $image);
-					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
-					{
-						$model->saveImageMeta($image, $vars);
-					}
-					$this->session->flashSet('notice', 'Image added successfully.');
-					$this->redirect('/design/images/edit/'.$image->id);
+					$errors['image_slug'] = 'An image with this name already exists.';
 				}
-				catch (SparkDBException $e)
+				else
 				{
-					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					try
+					{
+						$image->makeSlug();
+						$this->updateObjectCreated($image);
+						$image->created = NULL;
+	
+						if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+						{
+							$image->id = $info['id'];
+							$model->undeleteImage($image);
+						}
+						else
+						{
+							$model->addImage($image);
+						}
+						$this->observer->notify('escher:site_change:design:image:add', $image);
+						if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+						{
+							$model->saveImageMeta($image, $vars);
+						}
+						$this->session->flashSet('notice', 'Image added successfully.');
+						$this->redirect('/design/images/edit/'.$image->id);
+					}
+					catch (SparkDBException $e)
+					{
+						$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+					}
 				}
 			}
 		}
@@ -2296,7 +2311,9 @@ class _DesignController extends EscherAdminController
 		$vars['max_upload_size'] = $this->app->get_pref('max_upload_size');
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
-
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
+		
 		if (!empty($errors))
 		{
 			$vars['errors'] = $errors;
@@ -2318,6 +2335,8 @@ class _DesignController extends EscherAdminController
 		{
 			$imageID = @$params[0];
 		}
+
+		$targetImageID = $imageID;
 
 		$branch = $this->getWorkingBranch();
 
@@ -2377,52 +2396,85 @@ class _DesignController extends EscherAdminController
 		
 		if (isset($params['pv']['save']))
 		{
-			require($this->config->get('core_dir') . '/admin/lib/image_helper.php');
-			$imageHelper = $this->factory->manufacture('ImageHelper');
-
-			$params['pv']['image_name'] = $image->slug;
-
-			// build image object from form data
-			
-			$oldSlug = $image->slug;
-			$imageHelper->buildImage($params['pv'], $image);
-
 			if (!$vars['can_save'])
 			{
 				$vars['warning'] = 'Permission denied.';
 			}
-			elseif (($image->slug !== $oldSlug) && $model->imageExists($image->slug, $image->theme_id))
+			elseif (!$image)
 			{
-				$errors['image_slug'] = 'An image with this name already exists.';
+				$errors[] = $vars['warning'] = 'The image you attempted to edit no longer exists.';
 			}
-			elseif ($imageHelper->validateImage($params['pv'], $vars['can_upload'], $errors))
+			elseif ($targetImageID != $imageID)
 			{
-				$image = clone $image;			// clone the image so we don't remove cached content
-				$image->content = NULL;			// only update image data if we load a new image
-				if ($vars['can_upload'])
+				$errors[] = $vars['warning'] = 'Your changes were not saved because you attempted to edit a stale or deleted image.';
+			}
+			else
+			{
+				require($this->config->get('core_dir') . '/admin/lib/image_helper.php');
+				$imageHelper = $this->factory->manufacture('ImageHelper');
+	
+				$params['pv']['image_name'] = $image->slug;
+	
+				// build image object from form data
+				
+				$oldSlug = $image->slug;
+				
+				$imageHelper->buildImage($params['pv'], $image);
+	
+				if ($imageHelper->validateImage($params['pv'], $vars['can_upload'], $errors))
 				{
-					$imageHelper->loadImage($image);
-				}
-				try
-				{
-					$this->updateObjectEdited($image);
-					$model->updateImage($image);
-					$this->observer->notify('escher:site_change:design:image:edit', $image);
-					if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+					$image = clone $image;			// clone the image so we don't remove cached content
+					$image->content = NULL;			// only update image data if we load a new image
+					if ($vars['can_upload'])
 					{
-						$model->saveImageMeta($image, $vars);
+						$imageHelper->loadImage($image);
 					}
-					$vars['notice'] = 'Image saved successfully.';
+					if (($image->slug !== $oldSlug) && $model->imageExists($image->slug, $image->theme_id, $branch, $info))
+					{
+						$errors['image_slug'] = 'An image with this name already exists.';
+					}
+					else
+					{
+						try
+						{
+							$this->updateObjectEdited($image);
+	
+							if (isset($info['id']) && ($info['branch_status'] == ContentObject::branch_status_deleted) && ($info['branch'] == $branch))
+							{
+								$image->id = $info['id'];
+								$model->undeleteImage($image);
+							}
+							else
+							{
+								// check the branch, as we may need to create it if it does not exist
+								
+								if ($image->branch != $branch)
+								{
+									$image->theme_id = $themeID;
+									$image->id = $model->copyImageToBranch($image, $branch);
+									$image->branch = $branch;
+								}
+			
+								$model->updateImage($image);
+							}
+							$this->observer->notify('escher:site_change:design:image:edit', $image);
+							if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
+							{
+								$model->saveImageMeta($image, $vars);
+							}
+							$vars['notice'] = 'Image saved successfully.';
+						}
+						catch (SparkDBException $e)
+						{
+							$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
+						}
+					}
+	
+					// must refresh image metadata from database so new field names get generated for newly added metadata
+	
+					$image->meta = NULL;
+					$model->fetchImageMeta($image);
 				}
-				catch (SparkDBException $e)
-				{
-					$errors[] = $vars['warning'] = $this->getDBErrorMsg($e);
-				}
-
-				// must refresh image metadata from database so new field names get generated for newly added metadata
-
-				$image->meta = NULL;
-				$model->fetchImageMeta($image);
 			}
 		}
 		else
@@ -2436,6 +2488,14 @@ class _DesignController extends EscherAdminController
 		
 		if ($image)
 		{
+			// image ID changed on us (due to branch change), update data for view
+	
+			if ($image->id != $imageID)
+			{
+				$imageID = $image->id;
+				$imageNames = $model->fetchImageNames($image->theme_id, $branch);
+			}
+
 			$image->display_url = $this->urlTo('/design/images/display/' . $image->id);
 			if (!is_array($image->meta))
 			{
@@ -2451,7 +2511,9 @@ class _DesignController extends EscherAdminController
 		$vars['max_upload_size'] = $this->app->get_pref('max_upload_size');
 		$vars['themes'] = $model->fetchThemeNames();
 		$vars['selected_theme_id'] = $themeID;
-		
+		$vars['branches'] = $model->fetchBranchNames();
+		$vars['selected_branch'] = $branch;
+
 		if (!empty($errors))
 		{
 			$vars['errors'] = $errors;
@@ -2473,6 +2535,8 @@ class _DesignController extends EscherAdminController
 			}
 		}
 
+		$branch = $this->getWorkingBranch();
+
 		$model = $this->newAdminContentModel();
 
 		if (!$image = $model->fetchImage(intval($imageID), false))
@@ -2480,7 +2544,7 @@ class _DesignController extends EscherAdminController
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
 		}
 		
-		if ($image->theme_id == -1)	// this is a content image!
+		if (($themeID = $image->theme_id) == -1)	// this is a content image!
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
 		}
@@ -2496,7 +2560,18 @@ class _DesignController extends EscherAdminController
 			}
 			else
 			{
-				$model->deleteImageByID($imageID, false);
+				// check the branch, as we may need to create it if it does not exist
+				
+				if ($image->branch != $branch)
+				{
+					$image->id = $model->copyImageToBranch($image, $branch, true);
+					$image->branch = $branch;
+				}
+				else
+				{
+					$model->markImageDeletedByID($image->id);
+				}
+				
 				$this->observer->notify('escher:site_change:design:image:delete', $image);
 				$this->session->flashSet('notice', 'Image deleted successfully.');
 				$this->redirect('/design/images');
