@@ -41,7 +41,6 @@ class _ImageHelper extends SparkPlug
 		$image->height = trim($params['image_height']);
 		$image->alt = trim($params['image_alt']);
 		$image->title = trim($params['image_title']);
-		$image->theme_id = 0;
 
 		// build image metadata
 	

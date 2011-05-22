@@ -1822,7 +1822,7 @@ class _DesignController extends EscherAdminController
 								$style->branch = $branch;
 							}
 		
-							$model->updateStyleContent($style);
+							$model->updateStyle($style);
 						}
 						$this->observer->notify('escher:site_change:design:style:edit', $style);
 						$vars['notice'] = 'Style saved successfully.';
@@ -2116,7 +2116,7 @@ class _DesignController extends EscherAdminController
 								$script->branch = $branch;
 							}
 		
-							$model->updateScriptContent($script);
+							$model->updateScript($script);
 						}
 						$this->observer->notify('escher:site_change:design:script:edit', $script);
 						$vars['notice'] = 'Script saved successfully.';

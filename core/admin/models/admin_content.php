@@ -2978,7 +2978,7 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
-	public function updateStyleContent($style)
+	public function updateStyle($style)
 	{
 		$db = $this->loadDB();
 		$now = self::now();
@@ -3081,7 +3081,7 @@ class _AdminContentModel extends _PublishContentModel
 
 	//---------------------------------------------------------------------------
 	
-	public function updateScriptContent($script)
+	public function updateScript($script)
 	{
 		$db = $this->loadDB();
 		$now = self::now();
