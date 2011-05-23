@@ -366,7 +366,12 @@ class _PageModel extends ContentObject
 	}
 
 	public function statusText() { return self::statusToText($this->status); }
+	public function isDraft() { return intval($this->status) === self::Status_draft; }
+	public function isReviewed() { return intval($this->status) === self::Status_reviewed; }
+	public function isPublished() { return intval($this->status) === self::Status_published; }
+	public function isSticky() { return intval($this->status) === self::Status_sticky; }
 	public function isHidden() { return intval($this->status) === self::Status_hidden; }
+	public function isExpired() { return intval($this->status) === self::Status_expired; }
 }
 
 //------------------------------------------------------------------------------

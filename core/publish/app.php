@@ -110,12 +110,12 @@ class _EscherSite extends SparkApplication
 			{
 				$this->_hostPrefix = $matches[1];
 
-				if (($this->_hostPrefix === $devHostPrefix) && $this->get_pref('enable_development_branch_auto_routing'))
+				if (($this->_hostPrefix === $devHostPrefix) && $this->get_pref('development_branch_auto_routing'))
 				{
 					$this->_productionStatus = EscherProductionStatus::Development;
 					$this->_branchPrefix = $this->_hostPrefix;
 				}
-				elseif (($this->_hostPrefix === $stagingHostPrefix) && $this->get_pref('enable_staging_branch_auto_routing'))
+				elseif (($this->_hostPrefix === $stagingHostPrefix) && $this->get_pref('staging_branch_auto_routing'))
 				{
 					$this->_productionStatus = EscherProductionStatus::Staging;
 					$this->_branchPrefix = $this->_hostPrefix;

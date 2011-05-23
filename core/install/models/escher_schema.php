@@ -237,7 +237,7 @@ class _EscherSchemaModel extends SparkModel
 		$ci->table('style');
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', 'style_slug_theme_branch');
 		$db->query($ci->compile());
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, theme_id, branch', 'style_url_theme_branch');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, branch', 'style_url_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'style_theme');
 		$db->query($ci->compile());
@@ -267,7 +267,7 @@ class _EscherSchemaModel extends SparkModel
 		$ci->table('script');
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', 'script_slug_theme_branch');
 		$db->query($ci->compile());
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, theme_id, branch', 'script_url_theme_branch');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, branch', 'script_url_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'theme_id', 'script_theme');
 		$db->query($ci->compile());
@@ -302,7 +302,7 @@ class _EscherSchemaModel extends SparkModel
 		$ci->table('image');
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', 'image_slug_theme_branch');
 		$db->query($ci->compile());
-		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, theme_id, branch', 'image_url_theme_branch');
+		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, branch', 'image_url_branch');
 		$db->query($ci->compile());
 		$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'priority', 'image_priority');
 		$db->query($ci->compile());
@@ -857,7 +857,7 @@ class _EscherSchemaModel extends SparkModel
 
 			array
 			(
-				'name' => 'enable_parsing_in_blocks',
+				'name' => 'parsing_in_blocks',
 				'group_name' => 'expert',
 				'section_name' => 'parser',
 				'position' => 10,
@@ -867,7 +867,7 @@ class _EscherSchemaModel extends SparkModel
 			),
 			array
 			(
-				'name' => 'enable_parsing_in_parts',
+				'name' => 'parsing_in_parts',
 				'group_name' => 'expert',
 				'section_name' => 'parser',
 				'position' => 20,
@@ -890,10 +890,20 @@ class _EscherSchemaModel extends SparkModel
 			),
 			array
 			(
-				'name' => 'enable_development_branch_auto_routing',
+				'name' => 'development_draft_as_published',
 				'group_name' => 'expert',
 				'section_name' => 'branches',
 				'position' => 10,
+				'type' => 'yesnoradio',
+				'validation' => '',
+				'val' => 'true',
+			),
+			array
+			(
+				'name' => 'development_branch_auto_routing',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 20,
 				'type' => 'yesnoradio',
 				'validation' => '',
 				'val' => false,
@@ -903,7 +913,7 @@ class _EscherSchemaModel extends SparkModel
 				'name' => 'development_branch_host_prefix',
 				'group_name' => 'expert',
 				'section_name' => 'branches',
-				'position' => 20,
+				'position' => 30,
 				'type' => 'text',
 				'validation' => '',
 				'val' => 'dev',
@@ -913,7 +923,7 @@ class _EscherSchemaModel extends SparkModel
 				'name' => 'development_debug_level',
 				'group_name' => 'expert',
 				'section_name' => 'branches',
-				'position' => 30,
+				'position' => 40,
 				'type' => 'select',
 				'data' => serialize(array(0=>'0', 1=>'1', 2=>'2', 3=>'3', 4=>'4', 5=>'5', 6=>'6', 7=>'7', 8=>'8', 9=>'9')),
 				'validation' => '',
@@ -924,17 +934,27 @@ class _EscherSchemaModel extends SparkModel
 				'name' => 'development_theme',
 				'group_name' => 'expert',
 				'section_name' => 'branches',
-				'position' => 40,
+				'position' => 50,
 				'type' => 'theme',
 				'validation' => '',
 				'val' => '0',
 			),
 			array
 			(
-				'name' => 'enable_staging_branch_auto_routing',
+				'name' => 'staging_draft_as_published',
 				'group_name' => 'expert',
 				'section_name' => 'branches',
 				'position' => 110,
+				'type' => 'yesnoradio',
+				'validation' => '',
+				'val' => 'true',
+			),
+			array
+			(
+				'name' => 'staging_branch_auto_routing',
+				'group_name' => 'expert',
+				'section_name' => 'branches',
+				'position' => 120,
 				'type' => 'yesnoradio',
 				'validation' => '',
 				'val' => false,
@@ -944,7 +964,7 @@ class _EscherSchemaModel extends SparkModel
 				'name' => 'staging_branch_host_prefix',
 				'group_name' => 'expert',
 				'section_name' => 'branches',
-				'position' => 120,
+				'position' => 130,
 				'type' => 'text',
 				'validation' => '',
 				'val' => 'staging',
@@ -954,7 +974,7 @@ class _EscherSchemaModel extends SparkModel
 				'name' => 'staging_debug_level',
 				'group_name' => 'expert',
 				'section_name' => 'branches',
-				'position' => 130,
+				'position' => 140,
 				'type' => 'select',
 				'data' => serialize(array(0=>'0', 1=>'1', 2=>'2', 3=>'3', 4=>'4', 5=>'5', 6=>'6', 7=>'7', 8=>'8', 9=>'9')),
 				'validation' => '',
@@ -965,7 +985,7 @@ class _EscherSchemaModel extends SparkModel
 				'name' => 'staging_theme',
 				'group_name' => 'expert',
 				'section_name' => 'branches',
-				'position' => 140,
+				'position' => 150,
 				'type' => 'theme',
 				'validation' => '',
 				'val' => '0',

@@ -41,6 +41,7 @@ class _PublishContentModel extends SparkModel
 
 	protected $_cache;
 	protected $_category_trigger;
+	protected $_drafts_are_published;
 	
 	//---------------------------------------------------------------------------
 
@@ -63,6 +64,7 @@ class _PublishContentModel extends SparkModel
 		
 		$this->_cache = array();
 		$this->_category_trigger = @$params['category_trigger'];
+		$this->_drafts_are_published = @$params['drafts_are_published'];
 	}
 
 	//---------------------------------------------------------------------------
@@ -2732,6 +2734,14 @@ class _PublishContentModel extends SparkModel
 			$status = explode(',', $status);
 		}
 		$status = array_map(array('_Page', 'textToStatus'), $status);
+		
+		if ($this->_drafts_are_published)
+		{
+			if (in_array(_PageModel::Status_published, $status) && !in_array(_PageModel::Status_draft, $status))
+			{
+				$status[] = _PageModel::Status_draft;
+			}
+		}
 
 		return $db->buildFieldIn($table, 'status', $status);
 	}

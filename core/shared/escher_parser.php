@@ -51,7 +51,6 @@ class _EscherParser extends CoreTagParser
 	private $_category_stack;
 
 	private $_production_status;
-
 	private $_current_page;
 
 	protected $prefs;
@@ -62,6 +61,7 @@ class _EscherParser extends CoreTagParser
 	protected $branch;
 	protected $debug_level;
 	protected $category_trigger;
+	protected $drafts_are_published;
 	
 	//---------------------------------------------------------------------------
 
@@ -96,6 +96,7 @@ class _EscherParser extends CoreTagParser
 		$this->branch = $this->_production_status;
 		$this->debug_level = $params['debug_level'];
 		$this->category_trigger = $this->getPref('category_trigger', 'category');
+		$this->drafts_are_published = @$params['drafts_are_published'];
 
 		if (!$this->_current_page = $this->content->fetchPageByURI($currentURI))
 		{
@@ -107,6 +108,11 @@ class _EscherParser extends CoreTagParser
 			case _Page::Status_published:
 			case _Page::Status_sticky:
 				break;
+			case _Page::Status_draft:
+				if ($this->drafts_are_published)
+				{
+					break;
+				}
 			default:
 				throw new SparkHTTPException_NotFound();
 		}
@@ -306,7 +312,7 @@ class _EscherParser extends CoreTagParser
 	
 	protected final function parseBlock($block)
 	{
-		if (!$this->getPref('enable_parsing_in_blocks'))
+		if (!$this->getPref('parsing_in_blocks'))
 		{
 			return $block->content_html;
 		}
@@ -335,7 +341,7 @@ class _EscherParser extends CoreTagParser
 	
 	protected final function parsePart($part)
 	{
-		if (!$this->getPref('enable_parsing_in_parts'))
+		if (!$this->getPref('parsing_in_parts'))
 		{
 			return $part->content_html;
 		}

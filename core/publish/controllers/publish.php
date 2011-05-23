@@ -52,14 +52,17 @@ class _PublishController extends SparkController
 		switch ($params['production_status'] = $this->app->get_production_status())
 		{
 			case EscherProductionStatus::Development:
+				$params['drafts_are_published'] = @$prefs['development_draft_as_published'] ? true : false;
 				$params['debug_level'] = @$prefs['development_debug_level'];
 				$themeID = @$prefs['development_theme'];
 				break;
 			case EscherProductionStatus::Staging:
+				$params['drafts_are_published'] = @$prefs['staging_draft_as_published'] ? true : false;
 				$params['debug_level'] = @$prefs['staging_debug_level'];
 				$themeID = @$prefs['staging_theme'];
 				break;
 			default:
+				$params['drafts_are_published'] = false;
 				$params['debug_level'] = @$prefs['debug_level'];
 				$themeID = @$prefs['theme'];
 				break;

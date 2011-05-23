@@ -50,17 +50,19 @@ $lang['prefs'] = array
 	'script_path' => NULL,
 	'image_path' => NULL,
 	
-	'enable_parsing_in_blocks' => NULL,
-	'enable_parsing_in_parts' => NULL,
+	'parsing_in_blocks' => 'Enable Parsing In Blocks',
+	'parsing_in_parts' => 'Enable Parsing In Parts',
 	
 	'working_branch' => NULL,
 
-	'enable_development_branch_auto_routing' => NULL,
+	'development_draft_as_published' => NULL,
+	'development_branch_auto_routing' => 'Enable Development Branch Auto Routing',
 	'development_branch_host_prefix' => NULL,
 	'development_debug_level' => NULL,
 	'development_theme' => NULL,
 	
-	'enable_staging_branch_auto_routing' => NULL,
+	'staging_draft_as_published' => NULL,
+	'staging_branch_auto_routing' => 'Enable Staging Branch Auto Routing',
 	'staging_branch_host_prefix' => NULL,
 	'staging_debug_level' => NULL,
 	'staging_theme' => NULL,
@@ -107,17 +109,19 @@ $lang['prefs'] = array
 	'script_path_help' => 'Path component of URL to your scripts page or directory. If Escher is managing your scripts, this must match where your magic page for scripts resides in your page hierarchy.',
 	'image_path_help' => 'Path component of URL to your design images page or directory. If Escher is managing your design images, this must match where your magic page for design images resides in your page hierarchy.',
 
-	'enable_parsing_in_blocks_help' => 'Allow use of Escher tags in block content?',
-	'enable_parsing_in_parts_help' => 'Allow use of Escher tags in page parts?',
+	'parsing_in_blocks_help' => 'Allow use of Escher tags in block content?',
+	'parsing_in_parts_help' => 'Allow use of Escher tags in page parts?',
 	
 	'working_branch_help' => 'The branch to which changes will apply when editing your site in the admin interface. This setting does not affect which branch of your site is displayed to the browser. That is determined by your Production Status setting.',
 
-	'enable_development_branch_auto_routing_help' => 'Automatically route requests to your development branch when development branch host prefix is detected in uri?',
+	'development_draft_as_published_help' => 'Display pages with draft status when viewing your development branch?',
+	'development_branch_auto_routing_help' => 'Automatically route requests to your development branch when development branch host prefix is detected in uri?',
 	'development_branch_host_prefix_help' => 'This prefix to your site url identifies the development branch of your site. You may wish to pick a prefix that is not easily guessable, in order to hide your development branch from public view.',
 	'development_debug_level_help' => 'Debug level for your development branch. Higher debug levels will result in progressively more information being added to the source of generated pages. Select 0 to disable all debug messages. Select 9 to display errors and warnings on pages.',
 	'development_theme_help' => 'Active theme for your development branch.',
 	
-	'enable_staging_branch_auto_routing_help' => 'Automatically route requests to your staging branch when staging branch host prefix is detected in uri?',
+	'staging_draft_as_published_help' => 'Display pages with draft status when viewing your staging branch?',
+	'staging_branch_auto_routing_help' => 'Automatically route requests to your staging branch when staging branch host prefix is detected in uri?',
 	'staging_branch_host_prefix_help' => 'This prefix to your site url identifies the staging branch of your site. You may wish to pick a prefix that is not easily guessable, in order to hide your staging branch from public view.',
 	'staging_debug_level_help' => 'Debug level for your staging branch. Higher debug levels will result in progressively more information being added to the source of generated pages. Select 0 to disable all debug messages. Select 9 to display errors and warnings on pages.',
 	'staging_theme_help' => 'Active theme for your staging branch.',

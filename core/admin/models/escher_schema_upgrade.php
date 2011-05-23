@@ -269,7 +269,7 @@ class _EscherSchemaUpgradeModel extends SparkModel
 				$ci->table($table);
 				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'slug, theme_id, branch', "{$table}_slug_theme_branch");
 				$db->query($ci->compile());
-				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, theme_id, branch', "{$table}_url_theme_branch");
+				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'url, branch', "{$table}_url_branch");
 				$db->query($ci->compile());
 				$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'branch', "{$table}_branch");
 				$db->query($ci->compile());
@@ -290,10 +290,20 @@ class _EscherSchemaUpgradeModel extends SparkModel
 					),
 					array
 					(
-						'name' => 'enable_development_branch_auto_routing',
+						'name' => 'development_draft_as_published',
 						'group_name' => 'expert',
 						'section_name' => 'branches',
 						'position' => 10,
+						'type' => 'yesnoradio',
+						'validation' => '',
+						'val' => 'true',
+					),
+					array
+					(
+						'name' => 'development_branch_auto_routing',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 20,
 						'type' => 'yesnoradio',
 						'validation' => '',
 						'val' => false,
@@ -303,7 +313,7 @@ class _EscherSchemaUpgradeModel extends SparkModel
 						'name' => 'development_branch_host_prefix',
 						'group_name' => 'expert',
 						'section_name' => 'branches',
-						'position' => 20,
+						'position' => 30,
 						'type' => 'text',
 						'validation' => '',
 						'val' => 'dev',
@@ -313,28 +323,38 @@ class _EscherSchemaUpgradeModel extends SparkModel
 						'name' => 'development_debug_level',
 						'group_name' => 'expert',
 						'section_name' => 'branches',
-						'position' => 30,
+						'position' => 40,
 						'type' => 'select',
 						'data' => serialize(array(0=>'0', 1=>'1', 2=>'2', 3=>'3', 4=>'4', 5=>'5', 6=>'6', 7=>'7', 8=>'8', 9=>'9')),
 						'validation' => '',
-						'val' => 0,
+						'val' => 9,
 					),
 					array
 					(
 						'name' => 'development_theme',
 						'group_name' => 'expert',
 						'section_name' => 'branches',
-						'position' => 40,
+						'position' => 50,
 						'type' => 'theme',
 						'validation' => '',
 						'val' => '0',
 					),
 					array
 					(
-						'name' => 'enable_staging_branch_auto_routing',
+						'name' => 'staging_draft_as_published',
 						'group_name' => 'expert',
 						'section_name' => 'branches',
 						'position' => 110,
+						'type' => 'yesnoradio',
+						'validation' => '',
+						'val' => 'true',
+					),
+					array
+					(
+						'name' => 'staging_branch_auto_routing',
+						'group_name' => 'expert',
+						'section_name' => 'branches',
+						'position' => 120,
 						'type' => 'yesnoradio',
 						'validation' => '',
 						'val' => false,
@@ -344,7 +364,7 @@ class _EscherSchemaUpgradeModel extends SparkModel
 						'name' => 'staging_branch_host_prefix',
 						'group_name' => 'expert',
 						'section_name' => 'branches',
-						'position' => 120,
+						'position' => 130,
 						'type' => 'text',
 						'validation' => '',
 						'val' => 'staging',
@@ -354,7 +374,7 @@ class _EscherSchemaUpgradeModel extends SparkModel
 						'name' => 'staging_debug_level',
 						'group_name' => 'expert',
 						'section_name' => 'branches',
-						'position' => 130,
+						'position' => 140,
 						'type' => 'select',
 						'data' => serialize(array(0=>'0', 1=>'1', 2=>'2', 3=>'3', 4=>'4', 5=>'5', 6=>'6', 7=>'7', 8=>'8', 9=>'9')),
 						'validation' => '',
@@ -365,13 +385,16 @@ class _EscherSchemaUpgradeModel extends SparkModel
 						'name' => 'staging_theme',
 						'group_name' => 'expert',
 						'section_name' => 'branches',
-						'position' => 140,
+						'position' => 150,
 						'type' => 'theme',
 						'validation' => '',
 						'val' => '0',
 					),
 				)
 			);
+
+			$db->updateRows('pref', array('name'=>'parsing_in_blocks'), 'name="enable_parsing_in_blocks"');
+			$db->updateRows('pref', array('name'=>'parsing_in_parts'), 'name="enable_parsing_in_parts"');
 
 			$row = $db->selectRow('pref', '*', 'name="production_status"');
 			if (!empty($row))
