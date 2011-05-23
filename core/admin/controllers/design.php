@@ -1609,7 +1609,7 @@ class _DesignController extends EscherAdminController
 				
 				if ($tag->branch != $branch)
 				{
-					$tag->id = $model->copySnippetToBranch($tag->name, $themeID, $branch, true);
+					$tag->id = $model->copyTagToBranch($tag->name, $themeID, $branch, true);
 					$tag->branch = $branch;
 				}
 				else
@@ -2356,7 +2356,7 @@ class _DesignController extends EscherAdminController
 		{
 			if ($imageID)
 			{
-				$image = $model->fetchImage(intval($imageID), false);
+				$image = $model->fetchImage(intval($imageID), NULL, NULL, false);
 			}
 			$imageNames = $model->fetchImageNames($themeID = $image ? $image->theme_id : 0, $branch);
 		}
@@ -2367,7 +2367,7 @@ class _DesignController extends EscherAdminController
 			{
 				$imageID = $first[0];
 			}
-			$image = $model->fetchImage(intval($imageID), false);
+			$image = $model->fetchImage(intval($imageID), NULL, NULL, false);
 		}
 
 		if ($image)
@@ -2539,7 +2539,7 @@ class _DesignController extends EscherAdminController
 
 		$model = $this->newAdminContentModel();
 
-		if (!$image = $model->fetchImage(intval($imageID), false))
+		if (!$image = $model->fetchImage(intval($imageID), NULL, NULL, false))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
 		}
@@ -2597,7 +2597,7 @@ class _DesignController extends EscherAdminController
 		}
 		
 		$model = $this->newAdminContentModel();
-		$image = $model->fetchImage($imageID, true);
+		$image = $model->fetchImage($imageID, NULL, NULL, true);
 
 		if ($image)
 		{

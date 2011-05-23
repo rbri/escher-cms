@@ -834,32 +834,31 @@ class _EscherParser extends CoreTagParser
 			unset($atts['id']);
 		}
 		
-		$imageInfo = $this->content->fetchImageInfo($nameOrID, false, NULL, true);
-		if (empty($imageInfo))
+		if (!$image = $this->content->fetchImage($nameOrID, NULL, 1, false))
 		{
 			$this->reportError(self::$lang->get('image_not_found', $nameOrID), E_USER_WARNING);
 			return '';
 		}
 		
-		if (!isset($atts['alt'])) { $atts['alt'] = $imageInfo['alt']; };
-		if (!isset($atts['title'])) { $atts['title'] = $imageInfo['title']; };
-		if (!isset($atts['height'])) { $atts['height'] = $imageInfo['height']; };
-		if (!isset($atts['width'])) { $atts['width'] = $imageInfo['width']; };
+		if (!isset($atts['alt'])) { $atts['alt'] = $image->alt; };
+		if (!isset($atts['title'])) { $atts['title'] = $image->title; };
+		if (!isset($atts['height'])) { $atts['height'] = $image->height; };
+		if (!isset($atts['width'])) { $atts['width'] = $image->width; };
 		
-		if ($imageInfo['url'] == '')
+		if ($image->url == '')
 		{
 			if (!empty($this->prefs['auto_versioned_images']))
 			{
-				$filename = preg_replace('/^(.*)(\..*)$/', "$1,{$imageInfo['rev']}$2", $imageInfo['slug']);
+				$filename = preg_replace('/^(.*)(\..*)$/', "$1,{$image->rev}$2", $image->slug);
 			}
 			else
 			{
-				$filename = $imageInfo['slug'];
+				$filename = $image->slug;
 			}
-			$imageInfo['url'] = $this->siteURL(false) . $this->prefs['content_image_path'] . '/'  . $filename;
+			$image->url = $this->siteURL(false) . $this->prefs['content_image_path'] . '/'  . $filename;
 		}
 
-		$atts['src'] = $imageInfo['url'];
+		$atts['src'] = $image->url;
 
 		$atts = $this->matts($atts);
 		$out = $this->output->tag(NULL, 'img', '', '', $atts) . "\n";
@@ -1419,37 +1418,49 @@ class _EscherParser extends CoreTagParser
 		$contentImageOverride = isset($atts['prefer_content']) && $this->truthy($atts['prefer_content']);
 		unset($atts['prefer_content']);
 
-		$imageInfo = $this->content->fetchImageInfo($atts['name'], false, $this->theme ? $this->theme : 0, $contentImageOverride);
+		if (!$image = $this->content->fetchDesignImageByName($atts['name'], $this->theme ? $this->theme : 0, $this->branch, false, $contentImageOverride))
+		{
+			$this->reportError(self::$lang->get('image_not_found', $atts['name']), E_USER_WARNING);
+			return '';
+		}
+
 		unset($atts['name']);
 
-		if (!isset($atts['alt'])) { $atts['alt'] = $imageInfo['alt']; };
-		if (!isset($atts['title'])) { $atts['title'] = $imageInfo['title']; };
-		if (!isset($atts['height'])) { $atts['height'] = $imageInfo['height']; };
-		if (!isset($atts['width'])) { $atts['width'] = $imageInfo['width']; };
+		if (!isset($atts['alt'])) { $atts['alt'] = $image->alt; };
+		if (!isset($atts['title'])) { $atts['title'] = $image->title; };
+		if (!isset($atts['height'])) { $atts['height'] = $image->height; };
+		if (!isset($atts['width'])) { $atts['width'] = $image->width; };
 
-		$themeComponent = empty($imageInfo['theme']) ? '' : '/' . $imageInfo['theme'];
-
-		if ($imageInfo['url'] == '')
+		if (empty($image->url))
 		{
 			if (!empty($this->prefs['auto_versioned_images']))
 			{
-				$filename = preg_replace('/^(.*)(\..*)$/', "$1,{$imageInfo['rev']}$2", $imageInfo['slug']);
+				$filename = preg_replace('/^(.*)(\..*)$/', "$1,{$image->rev}$2", $image->slug);
 			}
 			else
 			{
-				$filename = $imageInfo['slug'];
+				$filename = $image->slug;
 			}
-			if (!empty($this->prefs['theme_path']))
+			if ($image->theme_id == -1)				// we have a content image override
 			{
-				$imageInfo['url'] = $this->siteURL(false) . $this->prefs['theme_path'] . $themeComponent . $this->prefs['image_path'] . '/' . $filename;
+				$image->url = $this->siteURL(false) . $this->prefs['content_image_path'] . '/'  . $filename;
 			}
 			else
 			{
-				$imageInfo['url'] = $this->siteURL(false) . $this->prefs['image_path'] . $themeComponent . '/'  . $filename;
+				$themeComponent = empty($image->theme) ? '' : '/' . $image->theme;
+
+				if (!empty($this->prefs['theme_path']))
+				{
+					$image->url = $this->siteURL(false) . $this->prefs['theme_path'] . $themeComponent . $this->prefs['image_path'] . '/' . $filename;
+				}
+				else
+				{
+					$image->url = $this->siteURL(false) . $this->prefs['image_path'] . $themeComponent . '/'  . $filename;
+				}
 			}
 		}
 
-		$atts['src'] = $imageInfo['url'];
+		$atts['src'] = $image->url;
 		
 		$atts = $this->matts($atts);
 		$out = $this->output->tag(NULL, 'img', '', '', $atts) . "\n";
@@ -2931,10 +2942,11 @@ class _EscherParser extends CoreTagParser
 
 		$id || $name || check($id || $name, $this->output->escape(self::$lang->get('attribute_required', 'id|name', 'images:image')));
 
-		$contentImageOverride = $this->falsy($design);
-		$themeID = $contentImageOverride ? NULL : ($this->theme ? $this->theme->id : NULL);
+		$isContentImage = !$this->truthy($design);
+		$theme = $isContentImage ? NULL : $this->theme;
+		$branch = $isContentImage ? 1 : $this->branch;
 
-		if (!$image = $this->content->fetchImage($handle = $id ? intval($id) : $name, false, $themeID, $contentImageOverride))
+		if (!$image = $this->content->fetchImage($handle = $id ? intval($id) : $name, $theme, $branch, false, $isContentImage))
 		{
 			$this->dup($this->_image_stack);
 			$this->reportError(self::$lang->get('image_not_found', $handle), E_USER_WARNING);
@@ -2951,7 +2963,7 @@ class _EscherParser extends CoreTagParser
 			{
 				$filename = $image->slug;
 			}
-			if (!$contentImageOverride)
+			if (!$isContentImage)
 			{
 				$themeComponent = empty($image->theme) ? '' : '/' . $image->theme;
 				if (!empty($this->prefs['theme_path']))

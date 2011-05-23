@@ -2081,133 +2081,83 @@ class _PublishContentModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchImage($imageSlugOrID, $withContent = false, $themeSlugOrID = NULL, $contentImageOverride = false)
+	public function fetchImage($slugOrID, $theme = NULL, $branch = NULL, $withContent = false, $contentOverride = false)
 	{
-		$cacheKey = $imageSlugOrID . ($themeSlugOrID ? '_'.$themeSlugOrID : '');
-
-		if (($image = @$this->_cache['image'][$cacheKey]) !== NULL)
+		if (SparkUtil::valid_int($slugOrID))
 		{
-			return $image;
+			$select = $withContent ? '*' : '{image}.id, {image}.slug, {image}.ctype, {image}.url, {image}.width, {image}.height, {image}.alt, {image}.title, {image}.rev, {image}.created, {image}.edited, {image}.author_id, {image}.editor_id, {image}.theme_id';
+			return $this->fetchDesignAssetByID('image', $slugOrID, $select);
 		}
-
-		if (is_numeric($imageSlugOrID))
+		elseif ($theme === NULL)
 		{
-			$imageSlugOrID = intval($imageSlugOrID);
-			$theme = NULL;
+			return $this->fetchContentImageByName($slugOrID, $withContent);
 		}
 		else
 		{
-			$theme = empty($themeSlugOrID) ? $themeSlugOrID : $this->fetchTheme($themeSlugOrID);
+			return $this->fetchDesignImageByName($slugOrID, $theme, $branch, $withContent, $contentOverride);
 		}
-
-		if ($imageInfo = $this->fetchImageInfo($imageSlugOrID, $withContent, $theme, $contentImageOverride))
-		{
-			$image = $this->factory->manufacture('Image', $imageInfo);
-		}
-		else
-		{
-			$image = false;
-		}
-
-		return $this->_cache['image'][$cacheKey] = $image;
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchImageInfo($imageSlugOrID, $withContent = false, $theme = NULL, $contentImageOverride = false)
+	public function fetchContentImageByName($slug, $withContent = false)
 	{
+		$cacheKey = $slug . '_-1';
+
+		// we don't cache image content (conserves memory)
+
+		if (($image = @$this->_cache['image'][$cacheKey]) !== NULL)
+		{
+			if (!$withContent || !$image)
+			{
+				return $image;
+			}
+		}
+
 		$db = $this->loadDB();
-		
-		if (is_integer($imageSlugOrID))
-		{
-			$imageField = 'id';
-			$theme = NULL;
-		}
-		else
-		{
-			$imageField = 'slug';
-			if (empty($theme) && ($theme !== 0))	// force empty theme to be NULL or zero
-			{
-				$theme = NULL;
-				$contentImageOverride = true;
-			}
-		}
 
-		if ($withContent)
+		$select = $withContent ? '*' : '{image}.id, {image}.slug, {image}.ctype, {image}.url, {image}.width, {image}.height, {image}.alt, {image}.title, {image}.rev, {image}.created, {image}.edited, {image}.author_id, {image}.editor_id, {image}.theme_id';
+	
+		if ($row = $db->selectRow('image', $select, 'slug=? AND theme_id = -1', $slug))
 		{
-			$select = '{image}.*';
-		}
-		else
-		{
-			$select = '{image}.id, {image}.slug, {image}.ctype, {image}.url, {image}.width, {image}.height, {image}.alt, {image}.title, {image}.rev, {image}.created, {image}.edited, {image}.author_id, {image}.editor_id, {image}.theme_id';
-		}
-
-		if ($theme)
-		{
-			$select .= ',{theme}.slug AS theme,{theme}.image_url AS theme_image_url';
-			$lineage = $theme->lineage . ',' . $theme->id;
-			$joins = array(array('type'=>'left', 'table'=>'theme', 'conditions'=>array(array('leftField'=>'theme_id', 'rightField'=>'id', 'joinOp'=>'='))));
-			if ($contentImageOverride)
+			$image = $this->factory->manufacture('Image', $row);
+			if (!$withContent)
 			{
-				$lineage .= ',' . '-1';
-			}
-			$sql = $db->buildSelect('image', $select, $joins, "{image}.slug=? AND {image}.theme_id IN ({$lineage})", 'theme_id DESC', $contentImageOverride ? NULL : 1);
-			$rows = $db->query($sql, $imageSlugOrID)->rows();
-			if (empty($rows))
-			{
-				$row = false;
-			}
-			else
-			{
-				if (!$contentImageOverride || count($rows) == 1)
-				{
-					$row = $rows[0];
-				}
-				else
-				{
-					$row = $rows[count($rows)-1];
-					if ($row['theme_id'] != -1)
-					{
-						$row = $rows[0];
-					}
-				}
-				if (empty($row['url']) && !empty($row['theme_image_url']))
-				{
-					$row['url'] = rtrim($row['theme_image_url'], '/') . '/' . $imageSlugOrID;
-				}
-				unset($row['theme_image_url']);
+				$this->_cache['image'][$cacheKey] = $image;
 			}
 		}
 		else
 		{
-			// 5 possibilities:
-			//   1. $imageSlugOrID is id, $theme === NULL, $contentImageOverride === false (find any image by ID)
-			//   2. $imageSlugOrID is id, $theme === NULL, $contentImageOverride === true (content image by ID, ignore design images)
-			//   3. $imageSlugOrID is slug, $theme === NULL, $contentImageOverride === true (find content image by name, ignore design images)
-			//   4. $imageSlugOrID is slug, $theme === 0, $contentImageOverride === false (find image in default theme)
-			//   5. $imageSlugOrID is slug, $theme === 0, $contentImageOverride === true (find image in default theme, with content image override)
-		
-			$where = "{$imageField}=?";
-			if (($theme !== NULL) || $contentImageOverride)
-			{
-				if ($theme === NULL)
-				{
-					$where .= ' AND theme_id = -1';
-				}
-				elseif (!$contentImageOverride)
-				{
-					$where .= ' AND theme_id = 0';
-				}
-				else
-				{
-					$where .= ' AND theme_id IN (-1,0)';
-				}
-			}
-			$sql = $db->buildSelect('image', $select, NULL, $where, 'theme_id ASC', 1);
-			$row = $db->query($sql, $imageSlugOrID)->row();
+			$this->_cache['image'][$cacheKey] = false;
 		}
 
-		return $row;
+		return $image;
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public function fetchDesignImageByName($slugOrID, $theme = NULL, $branch = NULL, $withContent = false, $contentOverride = false)
+	{
+		$select = $withContent ? '*' : '{image}.id, {image}.slug, {image}.ctype, {image}.url, {image}.width, {image}.height, {image}.alt, {image}.title, {image}.rev, {image}.created, {image}.edited, {image}.author_id, {image}.editor_id, {image}.theme_id';
+
+		if ($theme && (is_string($theme) || is_int($theme)))
+		{
+			$theme = $this->fetchTheme($theme);
+		}
+
+		if ($image = $this->fetchDesignAssetByName('image', 'slug', $slugOrID, $theme, $branch, $select, $contentOverride ? -1 : NULL))
+		{
+			if ($theme && ($image->theme_id != -1))	// if not a content image override, check for theme override url
+			{
+				$image->theme = $theme->slug;
+				if (empty($image->url) && !empty($theme->image_url))
+				{
+					$image->url = rtrim($theme->image_url, '/') . '/' . $slugOrID;
+				}
+			}
+		}
+
+		return $image;
 	}
 
 	//---------------------------------------------------------------------------
@@ -2364,19 +2314,21 @@ class _PublishContentModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 	
-	protected function fetchDesignAssetByName($table, $nameCol, $name, $theme = NULL, $branch = 1, $select = '*')
+	protected function fetchDesignAssetByName($table, $nameCol, $name, $theme = NULL, $branch = 1, $select = '*', $themeOverride = NULL)
 	{
 		// Retrieve a design asset by name in the specified theme and branch.
 		// If a theme is specified, all ancestor themes in that theme's lineage are considered (i.e. theme inheritance is honored).
 		// If asset is marked deleted in a non-production branch, additional queries may be required to locate the asset,
 		// but this has no performance impact when searching the production branch only (i.e. $branch == 1).
-		
-		$cacheKey = $name . ($theme ? '_'.$theme->slug : '') . ($branch ? '_'.$branch : '');
+
+		$cacheKey = $name . ($theme ? '_'.$theme->slug : '_0') . ($branch ? '_'.$branch : '');
 
 		if (($asset = @$this->_cache[$table][$cacheKey]) !== NULL)
 		{
 			return $asset;
 		}
+
+		$db = $this->loadDB();
 
 		$selectAll = ($select === '*');
 		$select .= ',theme_id AS asset_theme_id,branch_status AS asset_branch_status';
@@ -2390,15 +2342,24 @@ class _PublishContentModel extends SparkModel
 		{
 			$lineage[] = 0;
 		}
-
-		$db = $this->loadDB();
+		
+		if (is_int($themeOverride))
+		{
+			$lineage[] = $themeOverride;
+			$select .= ',' . $db->getFunction('cond')->condition("theme_id = {$themeOverride}", 2147483647, 'theme_id')->compile() . ' AS sort_by';
+			$orderBy = 'sort_by DESC, branch DESC';
+		}
+		else
+		{
+			$orderBy = 'theme_id DESC, branch DESC';
+		}
 
 		while (true)
 		{
 			$where = $this->buildThemeSearchWhere($db, $table, $nameCol, $name, $lineage, $branch, $bind);
-			$sql = $db->buildSelect($table, $select, NULL, $where, 'theme_id DESC, branch DESC', 1);
+			$sql = $db->buildSelect($table, $select, NULL, $where, $orderBy, 1);
 			$row = $db->query($sql, $bind)->row();
-			
+
 			if ($row && ($row['asset_branch_status'] == ContentObject::branch_status_deleted))
 			{
 				// should we restart search at theme's parent?
@@ -2519,7 +2480,7 @@ class _PublishContentModel extends SparkModel
 		$names = array();
 		foreach ($db->query($sql, $bind)->rows() as $row)
 		{
-			if (!isset($names[$themeName = $row['theme']]))
+			if (!isset($names[$themeName = @$row['theme']]))
 			{
 				$names[$themeName] = true;
 				if ($row['asset_branch_status'] != ContentObject::branch_status_deleted)

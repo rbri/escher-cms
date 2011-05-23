@@ -2370,6 +2370,7 @@ EOD;
 					'name'=>'default', 'ctype'=>'text/html', 'content'=>$templateBody,
 					'author_id'=>1, 'editor_id'=>1,
 					'theme_id'=>0,
+					'branch'=>1,
 				)
 			)
 		);
@@ -2602,6 +2603,7 @@ EOD;
 						'width'=>$width, 'height'=>$height, 'alt'=>'', 'title'=>'',
 						'author_id'=>1,
 						'theme_id'=>-1,
+						'branch'=>1,
 					)
 				);
 				$image->makeSlug();

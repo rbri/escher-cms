@@ -44,8 +44,17 @@ class _PageImage extends Page
 		}
 		
 		$file = $this->magic[$lastMagic--];
-		$theme = ($lastMagic === 0) ? $this->magic[$lastMagic] : 0;
-		$isContentImage = empty($theme) && (dirname($this->uri()) === $prefs['content_image_path']);
+		
+		if ($theme = ($lastMagic === 0) ? $this->magic[$lastMagic] : 0)
+		{
+			$theme = $model->fetchTheme($theme);
+		}
+		
+		if ($isContentImage = empty($theme) && (dirname($this->uri()) === $prefs['content_image_path']))
+		{
+			$theme = NULL;
+			$branch = 1;
+		}
 
 		// check for versioned file name
 
@@ -58,7 +67,7 @@ class _PageImage extends Page
 			}
 		}
 
-		$template = $model->fetchImage($file, true, $theme, $isContentImage);
+		$template = $model->fetchImage($file, $theme, $branch, true, $isContentImage);
 
 		// if the request was for a versioned file name, ensure that we are serving the requested version
 		

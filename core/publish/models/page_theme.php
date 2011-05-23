@@ -94,7 +94,7 @@ class _PageTheme extends Page
 				break;
 
 			case 3:
-				$template = $model->fetchImage($file, true, $theme ? $theme : 0, $branch);
+				$template = $model->fetchImage($file, $theme ? $theme : 0, $branch, true);
 				break;
 		}
 		

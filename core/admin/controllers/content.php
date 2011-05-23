@@ -1669,7 +1669,7 @@ class _ContentController extends EscherAdminController
 	{
 		$model = $this->newAdminContentModel();
 		
-		$image = $this->factory->manufacture('Image', array());
+		$image = $this->factory->manufacture('Image', array('branch'=>1));
 
 		$curUser = $this->app->get_user();
 		$this->getCommonVars($vars);
@@ -1756,7 +1756,7 @@ class _ContentController extends EscherAdminController
 		
 		if ($imageID)
 		{
-			$image = $model->fetchImage(intval($imageID), false);
+			$image = $model->fetchImage(intval($imageID), NULL, NULL, false);
 		}
 		$imageNames = $model->fetchImageNames(-1, 1);		// themeID -1 -> content image
 		
@@ -1766,7 +1766,7 @@ class _ContentController extends EscherAdminController
 			{
 				$imageID = $first[0];
 			}
-			$image = $model->fetchImage(intval($imageID), false);
+			$image = $model->fetchImage(intval($imageID), NULL, NULL, false);
 		}
 
 		if ($image)
@@ -1894,7 +1894,7 @@ class _ContentController extends EscherAdminController
 
 		$model = $this->newAdminContentModel();
 
-		if (!$image = $model->fetchImage(intval($imageID), false))
+		if (!$image = $model->fetchImage(intval($imageID), NULL, NULL, false))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
 		}
@@ -1941,7 +1941,7 @@ class _ContentController extends EscherAdminController
 		}
 		
 		$model = $this->newAdminContentModel();
-		$image = $model->fetchImage($imageID, true);
+		$image = $model->fetchImage($imageID, NULL, NULL, true);
 
 		if ($image)
 		{
