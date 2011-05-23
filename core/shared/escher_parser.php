@@ -1414,6 +1414,11 @@ class _EscherParser extends CoreTagParser
 	protected function _tag_design_image($atts)
 	{
 		!empty($atts['name']) || check($atts['name'], $this->output->escape(self::$lang->get('attribute_required', 'name', 'image')));
+		
+		if (SparkUtil::valid_int($atts['name']))
+		{
+			$this->reportError(self::$lang->get('fetch_by_id_deprecated', 'design image', $atts['name']), E_USER_WARNING);
+		}
 
 		$contentImageOverride = isset($atts['prefer_content']) && $this->truthy($atts['prefer_content']);
 		unset($atts['prefer_content']);

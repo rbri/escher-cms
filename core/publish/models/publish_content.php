@@ -2136,7 +2136,7 @@ class _PublishContentModel extends SparkModel
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchDesignImageByName($slugOrID, $theme = NULL, $branch = NULL, $withContent = false, $contentOverride = false)
+	public function fetchDesignImageByName($slug, $theme = NULL, $branch = NULL, $withContent = false, $contentOverride = false)
 	{
 		$select = $withContent ? '*' : '{image}.id, {image}.slug, {image}.ctype, {image}.url, {image}.width, {image}.height, {image}.alt, {image}.title, {image}.rev, {image}.created, {image}.edited, {image}.author_id, {image}.editor_id, {image}.theme_id';
 
@@ -2145,14 +2145,14 @@ class _PublishContentModel extends SparkModel
 			$theme = $this->fetchTheme($theme);
 		}
 
-		if ($image = $this->fetchDesignAssetByName('image', 'slug', $slugOrID, $theme, $branch, $select, $contentOverride ? -1 : NULL))
+		if ($image = $this->fetchDesignAssetByName('image', 'slug', $slug, $theme, $branch, $select, $contentOverride ? -1 : NULL))
 		{
 			if ($theme && ($image->theme_id != -1))	// if not a content image override, check for theme override url
 			{
 				$image->theme = $theme->slug;
 				if (empty($image->url) && !empty($theme->image_url))
 				{
-					$image->url = rtrim($theme->image_url, '/') . '/' . $slugOrID;
+					$image->url = rtrim($theme->image_url, '/') . '/' . $slug;
 				}
 			}
 		}
