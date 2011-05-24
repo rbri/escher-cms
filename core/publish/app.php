@@ -122,17 +122,20 @@ class _EscherSite extends SparkApplication
 				}
 			}
 		}
+				
+		switch ($this->_productionStatus)
+		{
+			case EscherProductionStatus::Maintenance:	// Do we need to update the database schema? Are we in maintenance mode?
+				return;											// If yes, do not load any plugins...
+
+			case EscherProductionStatus::Staging:		// FIXME! We need to add support for separate page caches for dev/staging branches.
+			case EscherProductionStatus::Development:	// Until we do, we need to disable the page cache for those branches to avoid
+				$this->disableCache();						// mixing up the cache with pages from different branches.
+				break;
+		}
 
 		$this->setDefaultTTL($this->_prefs['page_cache_ttl']);
 
-		// Do we need to update the database schema? Are we in maintenance mode?
-		// If yes, do not load any plugins...
-		
-		if ($this->_productionStatus == EscherProductionStatus::Maintenance)
-		{
-			return;
-		}
-		
 		// by loading plugins via a notification, we avoid loading (and therefore disable)
 		// plugins for cached pages
 		

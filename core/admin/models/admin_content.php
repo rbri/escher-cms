@@ -2799,7 +2799,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchTemplateNames($themeID, $branch, $searchAll = false)
 	{
-		return $this->fetchDesignAssetNames('template', 'name', $themeID, $branch, true);
+		return $this->fetchDesignAssetNames('template', 'name', $themeID, $branch, $searchAll);
 	}
 
 	//---------------------------------------------------------------------------
