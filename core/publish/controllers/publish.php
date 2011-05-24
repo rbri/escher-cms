@@ -52,16 +52,19 @@ class _PublishController extends SparkController
 		switch ($params['production_status'] = $this->app->get_production_status())
 		{
 			case EscherProductionStatus::Development:
+				$plugCacheSubDir = 'dev';
 				$params['drafts_are_published'] = @$prefs['development_draft_as_published'] ? true : false;
 				$params['debug_level'] = @$prefs['development_debug_level'];
 				$themeID = @$prefs['development_theme'];
 				break;
 			case EscherProductionStatus::Staging:
+				$plugCacheSubDir = 'staging';
 				$params['drafts_are_published'] = @$prefs['staging_draft_as_published'] ? true : false;
 				$params['debug_level'] = @$prefs['staging_debug_level'];
 				$themeID = @$prefs['staging_theme'];
 				break;
 			default:
+				$plugCacheSubDir = NULL;
 				$params['drafts_are_published'] = false;
 				$params['debug_level'] = @$prefs['debug_level'];
 				$themeID = @$prefs['theme'];
@@ -135,7 +138,9 @@ class _PublishController extends SparkController
 		$uri = '/' . implode('/', $params['segments']);
 		try
 		{
+			$this->factory->setPlugCacheSubDir($plugCacheSubDir);	// ensure user tags are cached separately for each branch
 			$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, $uri);
+			$this->factory->setPlugCacheSubDir(NULL);
 			$content = $parser->currentPageTemplateContent($contentType, $parsable, $cacheable, $secure, $lastModTime, $fileName, $fileSize);
 
 			// sanity check host name in url
@@ -172,7 +177,9 @@ class _PublishController extends SparkController
 		catch (SparkHTTPException $e)
 		{
 			$this->app->setCacheable(false);		// don't cache error pages!
+			$this->factory->setPlugCacheSubDir($plugCacheSubDir);	// ensure user tags are cached separately for each branch
 			$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
+			$this->factory->setPlugCacheSubDir(NULL);
 			$content = $parser->errorPageTemplateContent($e->getHTTPStatusCode(), $e->getMessage(), $contentType);
 			$this->display($content, $contentType);
 			return;
@@ -199,7 +206,9 @@ class _PublishController extends SparkController
 			catch (SparkHTTPException $e)
 			{
 				$this->app->setCacheable(false);		// don't cache error pages!
+				$this->factory->setPlugCacheSubDir($plugCacheSubDir);	// ensure user tags are cached separately for each branch
 				$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
+				$this->factory->setPlugCacheSubDir(NULL);
 				$content = $parser->errorPageTemplateContent($e->getHTTPStatusCode(), $e->getMessage(), $contentType);
 				$this->display($content, $contentType);
 				return;
