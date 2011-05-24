@@ -48,25 +48,25 @@ class _PublishController extends SparkController
 
 		$params['prefs'] =& $prefs;
 		$params['category_trigger'] = @$prefs['category_trigger'];
-		
+				
 		switch ($params['production_status'] = $this->app->get_production_status())
 		{
 			case EscherProductionStatus::Development:
-				$plugCacheSubDir = 'dev';
+				$plugCacheDir = dirName($this->factory->getPlugCacheDir()) . '/code-dev';
 				$partialCachePrefix = 'dev.';
 				$params['drafts_are_published'] = @$prefs['development_draft_as_published'] ? true : false;
 				$params['debug_level'] = @$prefs['development_debug_level'];
 				$themeID = @$prefs['development_theme'];
 				break;
 			case EscherProductionStatus::Staging:
-				$plugCacheSubDir = 'staging';
+				$plugCacheDir = dirName($this->factory->getPlugCacheDir()) . '/code-staging';
 				$partialCachePrefix = 'staging.';
 				$params['drafts_are_published'] = @$prefs['staging_draft_as_published'] ? true : false;
 				$params['debug_level'] = @$prefs['staging_debug_level'];
 				$themeID = @$prefs['staging_theme'];
 				break;
 			default:
-				$plugCacheSubDir = NULL;
+				$plugCacheDir = NULL;
 				$partialCachePrefix = '';
 				$params['drafts_are_published'] = false;
 				$params['debug_level'] = @$prefs['debug_level'];
@@ -142,9 +142,15 @@ class _PublishController extends SparkController
 		$uri = '/' . implode('/', $params['segments']);
 		try
 		{
-			$this->factory->setPlugCacheSubDir($plugCacheSubDir);	// ensure user tags are cached separately for each branch
+			if ($plugCacheDir)
+			{
+				$saveDir = $this->factory->setPlugCacheDir($plugCacheDir);	// ensure user tags are cached separately for each branch
+			}
 			$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, $uri);
-			$this->factory->setPlugCacheSubDir(NULL);
+			if ($plugCacheDir)
+			{
+				$this->factory->setPlugCacheDir($saveDir);
+			}
 			$content = $parser->currentPageTemplateContent($contentType, $parsable, $cacheable, $secure, $lastModTime, $fileName, $fileSize);
 
 			// sanity check host name in url
@@ -181,9 +187,16 @@ class _PublishController extends SparkController
 		catch (SparkHTTPException $e)
 		{
 			$this->app->setCacheable(false);		// don't cache error pages!
-			$this->factory->setPlugCacheSubDir($plugCacheSubDir);	// ensure user tags are cached separately for each branch
+			if ($plugCacheDir)
+			{
+				$saveDir = $this->factory->setPlugCacheDir($plugCacheDir);	// ensure user tags are cached separately for each branch
+			}
 			$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
-			$this->factory->setPlugCacheSubDir(NULL);
+			if ($plugCacheDir)
+			{
+				$this->factory->setPlugCacheDir($saveDir);
+			}
+			$this->factory->setPlugCacheDir($saveDir);
 			$content = $parser->errorPageTemplateContent($e->getHTTPStatusCode(), $e->getMessage(), $contentType);
 			$this->display($content, $contentType);
 			return;
@@ -210,9 +223,15 @@ class _PublishController extends SparkController
 			catch (SparkHTTPException $e)
 			{
 				$this->app->setCacheable(false);		// don't cache error pages!
-				$this->factory->setPlugCacheSubDir($plugCacheSubDir);	// ensure user tags are cached separately for each branch
+				if ($plugCacheDir)
+				{
+					$saveDir = $this->factory->setPlugCacheDir($plugCacheDir);	// ensure user tags are cached separately for each branch
+				}
 				$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
-				$this->factory->setPlugCacheSubDir(NULL);
+				if ($plugCacheDir)
+				{
+					$this->factory->setPlugCacheDir($saveDir);
+				}
 				$content = $parser->errorPageTemplateContent($e->getHTTPStatusCode(), $e->getMessage(), $contentType);
 				$this->display($content, $contentType);
 				return;
