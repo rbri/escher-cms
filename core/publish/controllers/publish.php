@@ -53,18 +53,21 @@ class _PublishController extends SparkController
 		{
 			case EscherProductionStatus::Development:
 				$plugCacheSubDir = 'dev';
+				$partialCachePrefix = 'dev.';
 				$params['drafts_are_published'] = @$prefs['development_draft_as_published'] ? true : false;
 				$params['debug_level'] = @$prefs['development_debug_level'];
 				$themeID = @$prefs['development_theme'];
 				break;
 			case EscherProductionStatus::Staging:
 				$plugCacheSubDir = 'staging';
+				$partialCachePrefix = 'staging.';
 				$params['drafts_are_published'] = @$prefs['staging_draft_as_published'] ? true : false;
 				$params['debug_level'] = @$prefs['staging_debug_level'];
 				$themeID = @$prefs['staging_theme'];
 				break;
 			default:
 				$plugCacheSubDir = NULL;
+				$partialCachePrefix = '';
 				$params['drafts_are_published'] = false;
 				$params['debug_level'] = @$prefs['debug_level'];
 				$themeID = @$prefs['theme'];
@@ -115,6 +118,7 @@ class _PublishController extends SparkController
 		{
 			if ($cache_params = $this->config->get('cache'))
 			{
+				$cache_params['namespace'] = $partialCachePrefix . @$cache_params['namespace'];
 				if (isset($prefs['partial_cache_ttl']))
 				{
 					$cache_params['lifetime'] = $prefs['partial_cache_ttl'];
