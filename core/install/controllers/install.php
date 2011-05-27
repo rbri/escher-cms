@@ -745,7 +745,7 @@ class _InstallController extends SparkController
 	{
 		$htAccess = $this->render('cache_htaccess', NULL, true);
 		
-		$dirs = array('admin', 'code');
+		$dirs = array('admin', 'code', 'code.staging', 'code.dev');
 
 		foreach ($dirs as $dir)
 		{

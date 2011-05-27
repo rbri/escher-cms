@@ -186,29 +186,41 @@ class _SettingsController extends EscherAdminController
 
 				if (!empty($changedPrefs))
 				{
-					// react to changes in built-in prefs
+					// if changes to prefs impact our caches, flush them
 					
-					if (isset($changedPrefs['theme']))								// force code cache flush
+					if (isset($changedPrefs['theme']))
 					{
 						$changedPrefs['plug_cache_flush'] = array('name'=>'plug_cache_flush', 'val'=>1);
+						$changedPrefs['partial_cache_flush'] = array('name'=>'partial_cache_flush', 'val'=>1);
+						$changedPrefs['page_cache_flush'] = array('name'=>'page_cache_flush', 'val'=>1);
 					}
-					if (isset($changedPrefs['staging_theme']))					// force code cache flush
+
+					if (isset($changedPrefs['staging_theme']))
 					{
 						$changedPrefs['plug_cache_flush_staging'] = array('name'=>'plug_cache_flush_staging', 'val'=>1);
+						$changedPrefs['partial_cache_flush_staging'] = array('name'=>'partial_cache_flush_staging', 'val'=>1);
+						$changedPrefs['page_cache_flush_staging'] = array('name'=>'page_cache_flush_staging', 'val'=>1);
 					}
-					if (isset($changedPrefs['development_theme']))				// force code cache flush
+
+					if (isset($changedPrefs['development_theme']))
 					{
 						$changedPrefs['plug_cache_flush_dev'] = array('name'=>'plug_cache_flush_dev', 'val'=>1);
+						$changedPrefs['partial_cache_flush_dev'] = array('name'=>'partial_cache_flush_dev', 'val'=>1);
+						$changedPrefs['page_cache_flush_dev'] = array('name'=>'page_cache_flush_dev', 'val'=>1);
 					}
 
-					if (isset($changedPrefs['partial_cache_active']))			// force partial cache flush
+					if (isset($changedPrefs['partial_cache_active']))
 					{
 						$changedPrefs['partial_cache_flush'] = array('name'=>'partial_cache_flush', 'val'=>1);
+						$changedPrefs['partial_cache_flush_staging'] = array('name'=>'partial_cache_flush_staging', 'val'=>1);
+						$changedPrefs['partial_cache_flush_dev'] = array('name'=>'partial_cache_flush_dev', 'val'=>1);
 					}
 
-					if (isset($changedPrefs['page_cache_active']))				// force page cache flush
+					if (isset($changedPrefs['page_cache_active']))
 					{
 						$changedPrefs['page_cache_flush'] = array('name'=>'page_cache_flush', 'val'=>1);
+						$changedPrefs['page_cache_flush_staging'] = array('name'=>'page_cache_flush_staging', 'val'=>1);
+						$changedPrefs['page_cache_flush_dev'] = array('name'=>'page_cache_flush_dev', 'val'=>1);
 					}
 
 					$model->updatePrefs($changedPrefs);

@@ -263,25 +263,25 @@ class _EscherAdmin extends SparkApplication
 			$this->_prefs[$pref] = 1;
 			$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
 			$this->_prefsModel->updatePrefs($changedPrefs);
-			
-			// Configurations utilizing static page caching will not get a chance to
-			// purge the cache on the publish side. So if using a file-based page cache,
-			// we remove the page cache directory here on the admin side.
+		}
 
-			if ($dir = $this->config->get('page_cache_dir'))
+		// Configurations utilizing static page caching will not get a chance to
+		// purge the cache on the publish side. So if using a file-based page cache,
+		// we remove the page cache directory here on the admin side.
+
+		if ($dir = $this->config->get('page_cache_dir'))
+		{
+			switch ($branch)
 			{
-				switch ($branch)
-				{
-					case EscherProductionStatus::Staging:
-						$dir = rtrim($dir, '/\\') . '.staging';
-						break;
-					case EscherProductionStatus::Development:
-						$dir = rtrim($dir, '/\\') . '.dev';
-						break;
-				}
-				$cacher = $this->loadCacher(array('adapter' => 'file', 'cache_dir' => $dir));
-				$cacher->clear();
+				case EscherProductionStatus::Staging:
+					$dir = rtrim($dir, '/\\') . '.staging';
+					break;
+				case EscherProductionStatus::Development:
+					$dir = rtrim($dir, '/\\') . '.dev';
+					break;
 			}
+			$cacher = $this->loadCacher(array('adapter' => 'file', 'cache_dir' => $dir));
+			$cacher->clear();
 		}
 	}
 
