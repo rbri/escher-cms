@@ -51,27 +51,39 @@ class _PublishController extends SparkController
 				
 		switch ($params['production_status'] = $this->app->get_production_status())
 		{
-			case EscherProductionStatus::Development:
-				$plugCacheDir = dirName($this->factory->getPlugCacheDir()) . '/code-dev';
-				$partialCachePrefix = 'dev.';
-				$params['drafts_are_published'] = @$prefs['development_draft_as_published'] ? true : false;
-				$params['debug_level'] = @$prefs['development_debug_level'];
-				$themeID = @$prefs['development_theme'];
-				break;
 			case EscherProductionStatus::Staging:
-				$plugCacheDir = dirName($this->factory->getPlugCacheDir()) . '/code-staging';
-				$partialCachePrefix = 'staging.';
+				$cacheSuffix = '.staging';
+				$partialCachePref = 'partial_cache_flush_staging';
 				$params['drafts_are_published'] = @$prefs['staging_draft_as_published'] ? true : false;
 				$params['debug_level'] = @$prefs['staging_debug_level'];
 				$themeID = @$prefs['staging_theme'];
 				break;
+			case EscherProductionStatus::Development:
+				$cacheSuffix = '.dev';
+				$partialCachePref = 'partial_cache_flush_dev';
+				$params['drafts_are_published'] = @$prefs['development_draft_as_published'] ? true : false;
+				$params['debug_level'] = @$prefs['development_debug_level'];
+				$themeID = @$prefs['development_theme'];
+				break;
 			default:
-				$plugCacheDir = NULL;
-				$partialCachePrefix = '';
+				$cacheSuffix = '';
+				$partialCachePref = 'partial_cache_flush';
 				$params['drafts_are_published'] = false;
 				$params['debug_level'] = @$prefs['debug_level'];
 				$themeID = @$prefs['theme'];
 				break;
+		}
+		
+		if (!empty($cacheSuffix))
+		{
+			if ($plugCacheDir = $this->factory->getPlugCacheDir())
+			{
+				$plugCacheDir = rtrim($plugCacheDir, '/\\') . $cacheSuffix;
+			}
+		}
+		else
+		{
+			$plugCacheDir = NULL;
 		}
 
 		$hostPrefix = $this->app->get_branch_prefix();
@@ -118,7 +130,7 @@ class _PublishController extends SparkController
 		{
 			if ($cache_params = $this->config->get('cache'))
 			{
-				$cache_params['namespace'] = $partialCachePrefix . @$cache_params['namespace'];
+				$cache_params['namespace'] = @$cache_params['namespace'] . $cacheSuffix;
 				if (isset($prefs['partial_cache_ttl']))
 				{
 					$cache_params['lifetime'] = $prefs['partial_cache_ttl'];
@@ -126,10 +138,10 @@ class _PublishController extends SparkController
 				$cache_params['connection'] = $this->_content->loadDB();
 				$cacher = $this->loadCacher($cache_params);
 
-				if (!empty($prefs['partial_cache_flush']))
+				if (!empty($prefs[$partialCachePref]))
 				{
 					$cacher->clear();
-					$changedPrefs['partial_cache_flush'] = array('name'=>'partial_cache_flush', 'val'=>0);
+					$changedPrefs[$partialCachePref] = array('name'=>$partialCachePref, 'val'=>0);
 					$prefsModel->updatePrefs($changedPrefs);
 				}
 			}
@@ -196,7 +208,6 @@ class _PublishController extends SparkController
 			{
 				$this->factory->setPlugCacheDir($saveDir);
 			}
-			$this->factory->setPlugCacheDir($saveDir);
 			$content = $parser->errorPageTemplateContent($e->getHTTPStatusCode(), $e->getMessage(), $contentType);
 			$this->display($content, $contentType);
 			return;

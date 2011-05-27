@@ -390,6 +390,97 @@ class _EscherSchemaUpgradeModel extends SparkModel
 						'validation' => '',
 						'val' => '0',
 					),
+					
+					array
+					(
+						'name' => 'plug_cache_flush',
+						'group_name' => 'performance',
+						'section_name' => 'cache',
+						'position' => 0,
+						'type' => 'hidden',
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'plug_cache_flush_staging',
+						'group_name' => 'performance',
+						'section_name' => 'cache',
+						'position' => 0,
+						'type' => 'hidden',
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'plug_cache_flush_dev',
+						'group_name' => 'performance',
+						'section_name' => 'cache',
+						'position' => 0,
+						'type' => 'hidden',
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'partial_cache_flush',
+						'group_name' => 'performance',
+						'section_name' => 'cache',
+						'position' => 0,
+						'type' => 'hidden',
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'partial_cache_flush_staging',
+						'group_name' => 'performance',
+						'section_name' => 'cache',
+						'position' => 0,
+						'type' => 'hidden',
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'partial_cache_flush_dev',
+						'group_name' => 'performance',
+						'section_name' => 'cache',
+						'position' => 0,
+						'type' => 'hidden',
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'page_cache_flush',
+						'group_name' => 'performance',
+						'section_name' => 'cache',
+						'position' => 0,
+						'type' => 'hidden',
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'page_cache_flush_staging',
+						'group_name' => 'performance',
+						'section_name' => 'cache',
+						'position' => 0,
+						'type' => 'hidden',
+						'validation' => '',
+						'val' => 0,
+					),
+					array
+					(
+						'name' => 'page_cache_flush_dev',
+						'group_name' => 'performance',
+						'section_name' => 'cache',
+						'position' => 0,
+						'type' => 'hidden',
+						'validation' => '',
+						'val' => 0,
+					),
 				)
 			);
 

@@ -48,8 +48,15 @@ class _CacheMonitor extends EscherPlugin
 		// A very simple and conservative full cache flush.
 		// In the future, we may add some intelligence to flush only the objects that have actually changed.
 	
-		$this->observer->notify('escher:cache:request_flush:page');
-		$this->observer->notify('escher:cache:request_flush:partial');
+		// Currently flushing all branches. But if a design asset changed, we could be smarter and only flush the current working branch...
+		
+		$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Production);
+		$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Staging);
+		$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Development);
+
+		$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Production);
+		$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Staging);
+		$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Development);
 	}
 
 	//---------------------------------------------------------------------------

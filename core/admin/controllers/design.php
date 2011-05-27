@@ -1389,7 +1389,7 @@ class _DesignController extends EscherAdminController
 						$model->addTag($tag);
 					}
 					$this->observer->notify('escher:site_change:design:tag:add', $tag);
-					$this->observer->notify('escher:cache:request_flush:plug', $tag);
+					$this->observer->notify('escher:cache:request_flush:plug', $branch);
 					$this->session->flashSet('notice', 'Tag added successfully.');
 					$this->redirect('/design/tags/edit/'.$tag->id);
 				}
@@ -1529,7 +1529,7 @@ class _DesignController extends EscherAdminController
 							$model->updateTagContent($tag);
 						}
 						$this->observer->notify('escher:site_change:design:tag:edit', $tag);
-						$this->observer->notify('escher:cache:request_flush:plug', $tag);
+						$this->observer->notify('escher:cache:request_flush:plug', $branch);
 						$vars['notice'] = 'Tag saved successfully.';
 					}
 					catch (SparkDBException $e)
@@ -1618,7 +1618,7 @@ class _DesignController extends EscherAdminController
 				}
 				
 				$this->observer->notify('escher:site_change:design:tag:delete', $tag);
-				$this->observer->notify('escher:cache:request_flush:plug', $tag);
+				$this->observer->notify('escher:cache:request_flush:plug', $branch);
 				$this->session->flashSet('notice', 'Tag deleted successfully.');
 				$this->redirect('/design/tags');
 			}

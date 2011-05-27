@@ -192,15 +192,23 @@ class _SettingsController extends EscherAdminController
 					{
 						$changedPrefs['plug_cache_flush'] = array('name'=>'plug_cache_flush', 'val'=>1);
 					}
-
-					if (isset($changedPrefs['page_cache_active']))				// force page cache flush
+					if (isset($changedPrefs['staging_theme']))					// force code cache flush
 					{
-						$changedPrefs['page_cache_flush'] = array('name'=>'page_cache_flush', 'val'=>1);
+						$changedPrefs['plug_cache_flush_staging'] = array('name'=>'plug_cache_flush_staging', 'val'=>1);
+					}
+					if (isset($changedPrefs['development_theme']))				// force code cache flush
+					{
+						$changedPrefs['plug_cache_flush_dev'] = array('name'=>'plug_cache_flush_dev', 'val'=>1);
 					}
 
 					if (isset($changedPrefs['partial_cache_active']))			// force partial cache flush
 					{
 						$changedPrefs['partial_cache_flush'] = array('name'=>'partial_cache_flush', 'val'=>1);
+					}
+
+					if (isset($changedPrefs['page_cache_active']))				// force page cache flush
+					{
+						$changedPrefs['page_cache_flush'] = array('name'=>'page_cache_flush', 'val'=>1);
 					}
 
 					$model->updatePrefs($changedPrefs);
@@ -323,8 +331,11 @@ class _SettingsController extends EscherAdminController
 
 			// since we likely just upgraded the code, clear code caches
 
+			$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Production);
+			$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Staging);
+			$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Development);
+
 			$this->observer->notify('Spark:cache:request_flush');
-			$this->observer->notify('escher:cache:request_flush:plug');
 			$this->observer->notify('escher:site_change');
 		}
 

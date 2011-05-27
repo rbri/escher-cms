@@ -136,7 +136,7 @@ class EscherAdminController extends SparkController
 			}
 		}
 		
-		$this->_working_branch = $this->app->get_pref('working_branch', 0);
+		$this->_working_branch = $this->app->get_pref('working_branch', 1);
 
 		return true;
 	}

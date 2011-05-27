@@ -123,15 +123,59 @@ class _EscherSite extends SparkApplication
 			}
 		}
 				
+		// flush the caches if requested from the admin side
+		
+		$changedPrefs = array();
+		
 		switch ($this->_productionStatus)
 		{
 			case EscherProductionStatus::Maintenance:	// Do we need to update the database schema? Are we in maintenance mode?
 				return;											// If yes, do not load any plugins...
 
-			case EscherProductionStatus::Staging:		// FIXME! We need to add support for separate page caches for dev/staging branches.
-			case EscherProductionStatus::Development:	// Until we do, we need to disable the page cache for those branches to avoid
-				$this->disableCache();						// mixing up the cache with pages from different branches.
+			case EscherProductionStatus::Staging:
+				$this->setNameSpace($this->getNameSpace() . '.staging');
+				if (!empty($this->_prefs['plug_cache_flush_staging']))
+				{
+					$this->flushPlugCache('escher:cache:request_flush:plug');
+					$changedPrefs['plug_cache_flush_staging'] = array('name'=>'plug_cache_flush_staging', 'val'=>0);
+				}
+				if (!empty($this->_prefs['page_cache_flush_staging']))
+				{
+					$this->flushPageCache('escher:cache:request_flush:page');
+					$changedPrefs['page_cache_flush_staging'] = array('name'=>'page_cache_flush_staging', 'val'=>0);
+				}
 				break;
+
+			case EscherProductionStatus::Development:
+				$this->setNameSpace($this->getNameSpace() . '.dev');
+				if (!empty($this->_prefs['plug_cache_flush_dev']))
+				{
+					$this->flushPlugCache('escher:cache:request_flush:plug');
+					$changedPrefs['plug_cache_flush_dev'] = array('name'=>'plug_cache_flush_dev', 'val'=>0);
+				}
+				if (!empty($this->_prefs['page_cache_flush_dev']))
+				{
+					$this->flushPageCache('escher:cache:request_flush:page');
+					$changedPrefs['page_cache_flush_dev'] = array('name'=>'page_cache_flush_dev', 'val'=>0);
+				}
+				break;
+			
+			default:
+				if (!empty($this->_prefs['plug_cache_flush']))
+				{
+					$this->flushPlugCache('escher:cache:request_flush:plug');
+					$changedPrefs['plug_cache_flush'] = array('name'=>'plug_cache_flush', 'val'=>0);
+				}
+				if (!empty($this->_prefs['page_cache_flush']))
+				{
+					$this->flushPageCache('escher:cache:request_flush:page');
+					$changedPrefs['page_cache_flush'] = array('name'=>'page_cache_flush', 'val'=>0);
+				}
+		}
+
+		if (!empty($changedPrefs))
+		{
+			$this->_prefsModel->updatePrefs($changedPrefs);
 		}
 
 		$this->setDefaultTTL($this->_prefs['page_cache_ttl']);
@@ -144,26 +188,8 @@ class _EscherSite extends SparkApplication
 		// observe cache flush events
 		
 		$this->observer->observe(array($this, 'flushPlugCache'), array('escher:cache:request_flush:plug'));
-		$this->observer->observe(array($this, 'flushPageCache'), array('escher:cache:request_flush:page'));
 		$this->observer->observe(array($this, 'flushPartialCache'), array('escher:cache:request_flush:partial'));
-		
-		// flush the caches if requested from the admin side
-		
-		$changedPrefs = array();
-		if (!empty($this->_prefs['plug_cache_flush']))
-		{
-			$this->observer->notify('Spark:cache:request_flush');
-			$changedPrefs['plug_cache_flush'] = array('name'=>'plug_cache_flush', 'val'=>0);
-		}
-		if (!empty($this->_prefs['page_cache_flush']))
-		{
-			$this->observer->notify('SparkPageCache:request_flush');
-			$changedPrefs['page_cache_flush'] = array('name'=>'page_cache_flush', 'val'=>0);
-		}
-		if (!empty($changedPrefs))
-		{
-			$this->_prefsModel->updatePrefs($changedPrefs);
-		}
+		$this->observer->observe(array($this, 'flushPageCache'), array('escher:cache:request_flush:page'));
 	}
 
 	//---------------------------------------------------------------------------
@@ -230,28 +256,77 @@ class _EscherSite extends SparkApplication
 
 	//---------------------------------------------------------------------------
 
-	public function flushPlugCache()
+	public function flushPlugCache($message)
 	{
-		$this->observer->notify('Spark:cache:request_flush');
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function flushPageCache()
-	{
-		$this->observer->notify('SparkPageCache:request_flush');
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function flushPartialCache()
-	{
-		if (!$this->_prefs['partial_cache_flush'])
+		if (!$plugCacheDir = $this->factory->getPlugCacheDir())
 		{
-			$this->_prefs['partial_cache_flush'] = 1;
-			$changedPrefs['partial_cache_flush'] = array('name'=>'partial_cache_flush', 'val'=>1);
+			return;
+		}
+
+		// set plug cache directory for appropriate branch so correct cache directory is cleared
+
+		switch ($this->_productionStatus)
+		{
+			case EscherProductionStatus::Staging:
+				$plugCacheDir = rtrim($plugCacheDir, '/\\') . '.staging';
+				break;
+			case EscherProductionStatus::Development:
+				$plugCacheDir = rtrim($plugCacheDir, '/\\') . '.dev';
+				break;
+			default:
+				$plugCacheDir = NULL;
+		}
+		
+		if ($plugCacheDir)
+		{
+			$saveDir = $this->factory->setPlugCacheDir($plugCacheDir);
+		}
+		$this->observer->notify('Spark:cache:request_flush');
+		if ($plugCacheDir)
+		{
+			$this->factory->setPlugCacheDir($saveDir);
+		}
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function flushPartialCache($message)
+	{
+		if (!$this->_prefs['partial_cache_active'])
+		{
+			return;
+		}
+
+		switch ($this->_productionStatus)
+		{
+			case EscherProductionStatus::Staging:
+				$pref = 'partial_cache_flush_staging';
+				break;
+			case EscherProductionStatus::Development:
+				$pref = 'partial_cache_flush_dev';
+				break;
+			default:
+				$pref = 'partial_cache_flush';
+		}
+		
+		if (!$this->_prefs[$pref])
+		{
+			$this->_prefs[$pref] = 1;
+			$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
 			$this->_prefsModel->updatePrefs($changedPrefs);
 		}
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function flushPageCache($message)
+	{
+		if (!$this->_prefs['page_cache_active'])
+		{
+			return;
+		}
+
+		$this->observer->notify('SparkPageCache:request_flush');
 	}
 
 	//---------------------------------------------------------------------------

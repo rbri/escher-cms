@@ -18,14 +18,21 @@ ErrorDocument 403 /index.php
 #
 #   Uncomment this block of rules for static file caching.
 #
+#   Replace all occurrences of "my.fqdn.com" with the fully qualified domain
+#   name of your production site. This will prevent the development and staging
+#   branches from displaying statically cached pages from the production branch.
+#
+#   RewriteCond %{SERVER_NAME} ^my.fqdn.com$
 #   RewriteCond %{REQUEST_METHOD} ^GET$
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI} -f
 #   RewriteRule ^(.*)$ /cache/pages/$1 [L]
 #
+#   RewriteCond %{SERVER_NAME} ^my.fqdn.com$
 #   RewriteCond %{REQUEST_METHOD} ^GET$
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI}.html -f
 #   RewriteRule ^(.*)$ /cache/pages/$1.html [L]
 #
+#   RewriteCond %{SERVER_NAME} ^my.fqdn.com$
 #   RewriteCond %{REQUEST_METHOD} ^GET$
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI} -d
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI}index.html -f

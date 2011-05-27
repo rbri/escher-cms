@@ -89,7 +89,7 @@ class _BranchModel extends SparkModel
 	
 	public function rollbackBranchByID($id)
 	{
-		if (!is_numeric($id) || (($id = intval($id)) <= 1))
+		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
@@ -104,6 +104,7 @@ class _BranchModel extends SparkModel
 			$db->deleteRows('template', 'branch=?', $id);
 			$db->deleteRows('snippet', 'branch=?', $id);
 			$db->deleteRows('tag', 'branch=?', $id);
+			$flushPlugCache = ($db->affectedRows() > 0);
 			$db->deleteRows('style', 'branch=?', $id);
 			$db->deleteRows('script', 'branch=?', $id);
 			$db->deleteRows('image', 'branch=?', $id);
@@ -115,13 +116,20 @@ class _BranchModel extends SparkModel
 		}
 		
 		$db->commit();
+	
+		if ($flushPlugCache)
+		{
+			$this->observer->notify('escher:cache:request_flush:plug', $id);
+		}
+		$this->observer->notify('escher:cache:request_flush:partial', $id);
+		$this->observer->notify('escher:cache:request_flush:page', $id);
 	}
 
 	//---------------------------------------------------------------------------
 	
 	public function pushBranchByID($id)
 	{
-		if (!is_numeric($id) || (($id = intval($id)) <= 1))
+		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
@@ -137,7 +145,7 @@ class _BranchModel extends SparkModel
 			$this->pushAsset($db, 'theme', false, $id);
 			$this->pushAsset($db, 'template', true, $id);
 			$this->pushAsset($db, 'snippet', true, $id);
-			$this->pushAsset($db, 'tag', true, $id);
+			$flushPlugCache = $this->pushAsset($db, 'tag', true, $id);
 			$this->pushAsset($db, 'style', true, $id);
 			$this->pushAsset($db, 'script', true, $id);
 			$this->pushAsset($db, 'image', true, $id);
@@ -166,19 +174,28 @@ class _BranchModel extends SparkModel
 		}
 		
 		$db->commit();
+
+		if ($flushPlugCache)
+		{
+			$this->observer->notify('escher:cache:request_flush:plug', $toBranch);
+		}
+		$this->observer->notify('escher:cache:request_flush:partial', $toBranch);
+		$this->observer->notify('escher:cache:request_flush:page', $toBranch);
 	}
 
 	//---------------------------------------------------------------------------
 	
 	public function rollbackBranchPartialByID($id, $changes)
 	{
-		if (!is_numeric($id) || (($id = intval($id)) <= 1))
+		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
 		
 		if (!empty($changes))
 		{
+			$flushPlugCache = false;	// only need to flush if pushing tag changes
+
 			$db = $this->loadDB();
 			
 			$db->begin();
@@ -190,6 +207,10 @@ class _BranchModel extends SparkModel
 					$where = 'branch=? AND ' . $db->buildFieldIn($table, 'id', $assetIDs);
 					$bind = array_merge(array($id), $assetIDs);
 					$db->deleteRows($table, $where, $bind);
+					if ($table === 'tag')
+					{
+						$flushPlugCache = true;
+					}
 				}
 			}
 			catch (Exception $e)
@@ -199,6 +220,13 @@ class _BranchModel extends SparkModel
 			}
 			
 			$db->commit();
+
+			if ($flushPlugCache)
+			{
+				$this->observer->notify('escher:cache:request_flush:plug', $id);
+			}
+			$this->observer->notify('escher:cache:request_flush:partial', $id);
+			$this->observer->notify('escher:cache:request_flush:page', $id);
 		}
 	}
 
@@ -206,24 +234,29 @@ class _BranchModel extends SparkModel
 
 	public function pushBranchPartialByID($id, $changes)
 	{
-		if (!is_numeric($id) || (($id = intval($id)) <= 1))
+		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
 		
-		$toBranch = $id - 1;		// target branch id of push
-		
-		$db = $this->loadDB();
-		
-		$db->begin();
-
-		try
+		if (!empty($changes))
 		{
-			if (!empty($changes))
+			try
 			{
+				$toBranch = $id - 1;			// target branch id of push
+				$flushPlugCache = false;	// only need to flush if pushing tag changes
+				
+				$db = $this->loadDB();
+				
+				$db->begin();
+		
 				foreach ($changes as $table => $assetIDs)
 				{
 					$this->pushAsset($db, $table, ($table !== 'theme'), $id, $assetIDs);
+					if ($table === 'tag')
+					{
+						$flushPlugCache = true;
+					}
 				}
 				$this->rollbackBranchPartialByID($id, $changes);
 				if ($toBranch === 1)
@@ -231,21 +264,28 @@ class _BranchModel extends SparkModel
 					$db->deleteRows($table, 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
 				}
 			}
-		}
-		catch (Exception $e)
-		{
-			$db->rollback();
-			throw $e;
-		}
+			catch (Exception $e)
+			{
+				$db->rollback();
+				throw $e;
+			}
 		
-		$db->commit();
+			$db->commit();
+	
+			if ($flushPlugCache)
+			{
+				$this->observer->notify('escher:cache:request_flush:plug', $toBranch);
+			}
+			$this->observer->notify('escher:cache:request_flush:partial', $toBranch);
+			$this->observer->notify('escher:cache:request_flush:page', $toBranch);
+		}
 	}
 	
 	//---------------------------------------------------------------------------
 	
 	public function getBranchChanges($id, $table)
 	{
-		if (!is_numeric($id) || (($id = intval($id)) <= 1))
+		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
@@ -287,7 +327,12 @@ class _BranchModel extends SparkModel
 	private function pushAsset($db, $table, $matchTheme, $fromBranch, $restrictTo = NULL)
 	{
 		$changes = $this->fetchAssetChanges($db, $table, $matchTheme, $fromBranch, $restrictTo);
-		$this->updateAsset($db, $table, $fromBranch-1, $changes);
+		if (!empty($changes))
+		{
+			$this->updateAsset($db, $table, $fromBranch-1, $changes);
+			return true;
+		}
+		return false;
 	}
 	
 	//---------------------------------------------------------------------------

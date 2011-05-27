@@ -134,8 +134,8 @@ class _EscherAdmin extends SparkApplication
 		$this->observer->observe(array($this, 'beforeRender'), array('SparkView:render:before:main'));
 		$this->observer->observe(array($this, 'addHeadElement'), array('escher:page:request_add_element:head'));
 		$this->observer->observe(array($this, 'flushPlugCache'), array('escher:cache:request_flush:plug'));
-		$this->observer->observe(array($this, 'flushPageCache'), array('escher:cache:request_flush:page'));
 		$this->observer->observe(array($this, 'flushPartialCache'), array('escher:cache:request_flush:partial'));
+		$this->observer->observe(array($this, 'flushPageCache'), array('escher:cache:request_flush:page'));
 		
 		// load "always-enabled" auto-load plugins, listed in config
 		
@@ -196,24 +196,72 @@ class _EscherAdmin extends SparkApplication
 
 	//---------------------------------------------------------------------------
 
-	public function flushPlugCache()
+	public function flushPlugCache($message, $branch)
 	{
-		if (!$this->_prefs['plug_cache_flush'])
+		switch ($branch)
 		{
-			$this->_prefs['plug_cache_flush'] = 1;
-			$changedPrefs['plug_cache_flush'] = array('name'=>'plug_cache_flush', 'val'=>1);
+			case EscherProductionStatus::Staging:
+				$pref = 'plug_cache_flush_staging';
+				break;
+			case EscherProductionStatus::Development:
+				$pref = 'plug_cache_flush_dev';
+				break;
+			default:
+				$pref = 'plug_cache_flush';
+		}
+		
+		if (!$this->_prefs[$pref])
+		{
+			$this->_prefs[$pref] = 1;
+			$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
 			$this->_prefsModel->updatePrefs($changedPrefs);
 		}
 	}
 
 	//---------------------------------------------------------------------------
 
-	public function flushPageCache()
+	public function flushPartialCache($message, $branch)
 	{
-		if (!$this->_prefs['page_cache_flush'])
+		switch ($branch)
 		{
-			$this->_prefs['page_cache_flush'] = 1;
-			$changedPrefs['page_cache_flush'] = array('name'=>'page_cache_flush', 'val'=>1);
+			case EscherProductionStatus::Staging:
+				$pref = 'partial_cache_flush_staging';
+				break;
+			case EscherProductionStatus::Development:
+				$pref = 'partial_cache_flush_dev';
+				break;
+			default:
+				$pref = 'partial_cache_flush';
+		}
+		
+		if (!$this->_prefs[$pref])
+		{
+			$this->_prefs[$pref] = 1;
+			$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
+			$this->_prefsModel->updatePrefs($changedPrefs);
+		}
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function flushPageCache($message, $branch)
+	{
+		switch ($branch)
+		{
+			case EscherProductionStatus::Staging:
+				$pref = 'page_cache_flush_staging';
+				break;
+			case EscherProductionStatus::Development:
+				$pref = 'page_cache_flush_dev';
+				break;
+			default:
+				$pref = 'page_cache_flush';
+		}
+
+		if (!$this->_prefs[$pref])
+		{
+			$this->_prefs[$pref] = 1;
+			$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
 			$this->_prefsModel->updatePrefs($changedPrefs);
 			
 			// Configurations utilizing static page caching will not get a chance to
@@ -222,21 +270,18 @@ class _EscherAdmin extends SparkApplication
 
 			if ($dir = $this->config->get('page_cache_dir'))
 			{
+				switch ($branch)
+				{
+					case EscherProductionStatus::Staging:
+						$dir = rtrim($dir, '/\\') . '.staging';
+						break;
+					case EscherProductionStatus::Development:
+						$dir = rtrim($dir, '/\\') . '.dev';
+						break;
+				}
 				$cacher = $this->loadCacher(array('adapter' => 'file', 'cache_dir' => $dir));
 				$cacher->clear();
 			}
-		}
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function flushPartialCache()
-	{
-		if (!$this->_prefs['partial_cache_flush'])
-		{
-			$this->_prefs['partial_cache_flush'] = 1;
-			$changedPrefs['partial_cache_flush'] = array('name'=>'partial_cache_flush', 'val'=>1);
-			$this->_prefsModel->updatePrefs($changedPrefs);
 		}
 	}
 
