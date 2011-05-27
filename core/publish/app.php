@@ -292,11 +292,6 @@ class _EscherSite extends SparkApplication
 
 	public function flushPartialCache($message)
 	{
-		if (!$this->_prefs['partial_cache_active'])
-		{
-			return;
-		}
-
 		switch ($this->_productionStatus)
 		{
 			case EscherProductionStatus::Staging:
@@ -321,11 +316,6 @@ class _EscherSite extends SparkApplication
 
 	public function flushPageCache($message)
 	{
-		if (!$this->_prefs['page_cache_active'])
-		{
-			return;
-		}
-
 		$this->observer->notify('SparkPageCache:request_flush');
 	}
 
