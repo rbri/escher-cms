@@ -12,6 +12,14 @@ Major new feature: Integrated branch management. Escher sites now have
 production, staging and development branches that can each be independently
 developed and viewed.
 
+If you would like to take advantage of the new branching feature, you will need
+to add two new subdirectories to your cache directory. Add these directories at
+the same level as your existing cache/code directory, and give them the same
+ownership and permissions as your existing cache/code directory:
+
+	cache/code.staging
+	cache/code.dev
+
 Specifying snippets by ID when using escher tags such as <et:design:snippet> is
 now deprecated and support will be dropped in the next release. Fetch snippets
 by name instead.

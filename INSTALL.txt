@@ -127,7 +127,7 @@ Enabling clean URLs requires two steps:
 Change the permissions on your config file (config/site-config.php) so that it
 is no longer writable by the web server.
 
-We also receommend that you remove the installation script file once you have
+We also recommend that you remove the installation script file once you have
 completed the installation process. The file ito remove is: admin/install.php
 If you later decide to reinstall Escher CMS, you will need to recreate the
 install.php file.
@@ -136,7 +136,7 @@ It is recommended that you install Escher CMS on a dedicated server or VPS, as
 this affords you the best and most granular control over the security of your
 installation.
 
-If you are hosting in a shared environement, be aware that many shared hosts
+If you are hosting in a shared environment, be aware that many shared hosts
 implement their PHP functionality in such a way as to grant all user accounts
 access to the files in every other user account. This usually occurs because
 they are running mod_php under apache as a single user for all accounts. In such
