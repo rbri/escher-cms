@@ -120,6 +120,14 @@ class _BranchModel extends SparkModel
 		if ($flushPlugCache)
 		{
 			$this->observer->notify('escher:cache:request_flush:plug', $id);
+			
+			// if staging is rolled back, development branch's code cache will also
+			// need to be purged of stale tags
+			
+			 if ($id == 2)
+			 {
+				$this->observer->notify('escher:cache:request_flush:plug', 3);
+			 }
 		}
 		$this->observer->notify('escher:cache:request_flush:partial', $id);
 		$this->observer->notify('escher:cache:request_flush:page', $id);
