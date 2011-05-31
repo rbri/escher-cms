@@ -124,9 +124,9 @@ class _BranchModel extends SparkModel
 			// if staging is rolled back, development branch's code cache will also
 			// need to be purged of stale tags
 			
-			 if ($id == 2)
+			 if ($id == EscherProductionStatus::Staging)
 			 {
-				$this->observer->notify('escher:cache:request_flush:plug', 3);
+				$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Development);
 			 }
 		}
 		$this->observer->notify('escher:cache:request_flush:partial', $id);
