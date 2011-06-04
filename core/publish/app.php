@@ -61,7 +61,10 @@ class _EscherSite extends SparkApplication
 	{
 		parent::__construct($spark, $config);
 
-		$this->pushViewDir($this->appDir() . '/views/error_' . $config['error_view']);
+		if (!empty($config['error_view']))
+		{
+			$this->pushViewDir($this->appDir() . '/views/error_' . $config['error_view']);
+		}
 
 		try
 		{
