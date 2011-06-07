@@ -69,6 +69,19 @@ class _PageStyle extends Page
 			}
 		}
 		
+		if ($template)
+		{
+			$this->created = $template->created;
+			$this->edited = $template->edited;
+			$this->author_id = $template->author_id;
+			$this->editor_id = $template->editor_id;
+	
+			$this->author = $template->author;
+			$this->author_name = $template->author_name;
+			$this->editor = $template->editor;
+			$this->editor_name = $template->editor_name;
+		}
+		
 		return $template;
 	}
 }
