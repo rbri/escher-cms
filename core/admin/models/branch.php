@@ -416,7 +416,6 @@ class _BranchModel extends SparkModel
 			else
 			{
 				$row['branch'] = $toBranch;
-				unset($row['rev']);
 				$db->insertRow($table, $row);
 				$dstID = $db->lastInsertID();
 			}
