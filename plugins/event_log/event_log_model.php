@@ -43,7 +43,7 @@ class _EventLogModel extends EscherModel
 	{
 		try
 		{
-			$db = $this->loadDBWithPerm();
+			$db = $this->loadDB(EscherModel::PermRead);
 			@$db->countRows('log');
 			return true;
 		}
@@ -66,7 +66,7 @@ class _EventLogModel extends EscherModel
 	
 	public function clear()
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 		$db->deleteRows('log');
 	}
 	
@@ -74,7 +74,7 @@ class _EventLogModel extends EscherModel
 	
 	public function logEvent($event, $userID)
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 		$now = self::now();
 	
 		$row = array
@@ -91,14 +91,14 @@ class _EventLogModel extends EscherModel
 	
 	public function countEvents()
 	{
-		return $this->loadDBWithPerm()->countRows('log');
+		return $this->loadDB(EscherModel::PermRead)->countRows('log');
 	}
 
 	//---------------------------------------------------------------------------
 	
 	public function getEvents($limit = 25, $offset = 0)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 	
 		$joins[] = array('leftTable'=>'log', 'table'=>'user', 'conditions'=>array(array('leftField'=>'user_id', 'rightField'=>'id', 'joinOp'=>'=')));
 		$sql = $db->buildSelect('log', '{log}.*, {user}.name AS user', $joins, NULL, '{log}.time DESC, {log}.id DESC', $limit, $offset);
@@ -164,7 +164,7 @@ class _EventLogModel extends EscherModel
 	
 	private function installTables()
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 
 		$ct = $db->getFunction('create_table');
 		

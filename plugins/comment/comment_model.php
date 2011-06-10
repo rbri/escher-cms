@@ -43,7 +43,7 @@ class _CommentModel extends EscherModel
 	{
 		try
 		{
-			$db = $this->loadDBWithPerm();
+			$db = $this->loadDB(EscherModel::PermRead);
 			@$db->countRows('comment');
 			return true;
 		}
@@ -67,7 +67,7 @@ class _CommentModel extends EscherModel
 	
 	public function addComment($pageID, $message, $author, $email, $web, $approved = false)
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 		$now = self::now();
 	
 		$row = array
@@ -99,7 +99,7 @@ class _CommentModel extends EscherModel
 	
 	public function updateComment($comment)
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 		
 		$row = array
 		(
@@ -114,7 +114,7 @@ class _CommentModel extends EscherModel
 	
 	public function approveComment($comment)
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 	
 		$db->updateRows('comment', array('approved'=>true), 'id=?', $comment->id);
 	}
@@ -123,7 +123,7 @@ class _CommentModel extends EscherModel
 	
 	public function deleteCommentByID($commentID)
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 	
 		$db->deleteRows('comment', 'id=?', $commentID);
 	}
@@ -132,7 +132,7 @@ class _CommentModel extends EscherModel
 	
 	public function fetchComment($id)
 	{
-		if (!$row = $this->loadDBWithPerm()->selectRow('comment', '*', 'id=?', $id))
+		if (!$row = $this->loadDB(EscherModel::PermRead)->selectRow('comment', '*', 'id=?', $id))
 		{
 			return false;
 		}
@@ -161,14 +161,14 @@ class _CommentModel extends EscherModel
 			$where = implode(' AND ', $where);
 		}
 
-		return $this->loadDBWithPerm()->countRows('comment', $where, $bind);
+		return $this->loadDB(EscherModel::PermRead)->countRows('comment', $where, $bind);
 	}
 
 	//---------------------------------------------------------------------------
 	
 	public function fetchComments($pageID = NULL, $approved = NULL, $limit = 0, $offset = 0, $order = 'desc')
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 	
 		$where = $bind = NULL;
 		if ($approved !== NULL)
@@ -300,7 +300,7 @@ class _CommentModel extends EscherModel
 	
 	private function installTables()
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 
 		$ct = $db->getFunction('create_table');
 		

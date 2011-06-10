@@ -79,16 +79,14 @@ class EscherProductionStatus
 
 class EscherModel extends SparkModel
 {
+	const PermRead = 'default_ro';
+	const PermWrite = 'default';
+
 	//---------------------------------------------------------------------------
 
 	public function __construct($params)
 	{
 		parent::__construct($params);
-	}
-
-	public function loadDBWithPerm($readOnly = true)
-	{
-		return parent::loadDB($readOnly ? $this->config->get('database_default_ro') : NULL);
 	}
 
 	//---------------------------------------------------------------------------

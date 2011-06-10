@@ -53,7 +53,7 @@ class _ArchiveModel extends EscherModel
 	
 	public function fetchArchiveIndexPage($publishModel, $parent, $slug, $type)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 	
 		if (!$row = $db->selectRow('page', '*', 'parent_id=? AND type=?', array($parent->id, $type)))
 		{

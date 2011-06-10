@@ -94,7 +94,7 @@ class _BranchModel extends EscherModel
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
 		
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 		
 		$db->begin();
 
@@ -144,7 +144,7 @@ class _BranchModel extends EscherModel
 		
 		$toBranch = $id - 1;		// target branch id of push
 		
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 		
 		$db->begin();
 
@@ -204,7 +204,7 @@ class _BranchModel extends EscherModel
 		{
 			$flushPlugCache = false;	// only need to flush if pushing tag changes
 
-			$db = $this->loadDBWithPerm(false);
+			$db = $this->loadDB(EscherModel::PermWrite);
 			
 			$db->begin();
 	
@@ -254,7 +254,7 @@ class _BranchModel extends EscherModel
 				$toBranch = $id - 1;			// target branch id of push
 				$flushPlugCache = false;	// only need to flush if pushing tag changes
 				
-				$db = $this->loadDBWithPerm(false);
+				$db = $this->loadDB(EscherModel::PermWrite);
 				
 				$db->begin();
 		
@@ -302,7 +302,7 @@ class _BranchModel extends EscherModel
 		$nameCol = self::$_assetBranchInfo[$table];
 		$table = array($table, 'asset');
 		
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		
 		$select = 'asset.id, asset.created, asset.edited, author.name AS author, editor.name AS editor, asset.branch_status AS status, ' . "asset.{$nameCol} AS name";
 		$joins = array

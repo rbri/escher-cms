@@ -50,7 +50,7 @@ class _PluginsModel extends EscherModel
 	
 	public function addPlugin($plugin)
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 	
 		$row = array
 		(
@@ -73,7 +73,7 @@ class _PluginsModel extends EscherModel
 	{
 		$states = (array)$states;
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$where = $db->buildFieldIn('plugin', 'state', $states) . ' AND (runs_where & ?)';
 		$bind = $states;
@@ -92,7 +92,7 @@ class _PluginsModel extends EscherModel
 	
 	public function fetchPluginCode($pluginName)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$row = $db->selectRow('plugin', 'code', 'name=?', $pluginName);
 		return $row['code'];

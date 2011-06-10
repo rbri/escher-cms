@@ -42,7 +42,7 @@ class _PreferencesModel extends EscherModel
 	
 	public function addPref($pref)
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 	
 		$row = array
 		(
@@ -86,7 +86,7 @@ class _PreferencesModel extends EscherModel
 	
 	public function updatePrefs($prefs, $userID = 0)
 	{
-		$db = $this->loadDBWithPerm(false);
+		$db = $this->loadDB(EscherModel::PermWrite);
 	
 		foreach ($prefs as $pref)
 		{
@@ -103,7 +103,7 @@ class _PreferencesModel extends EscherModel
 	
 	public function fetchPref($name, $userID = 0)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$row = $db->selectRow('pref', '*', 'user_id=? AND name=?', array($userID, $name));
 
@@ -114,7 +114,7 @@ class _PreferencesModel extends EscherModel
 	
 	public function fetchPrefVal($name, $userID = 0)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$row = $db->selectRow('pref', 'val', 'user_id=? AND name=?', array($userID, $name));
 
@@ -125,7 +125,7 @@ class _PreferencesModel extends EscherModel
 	
 	public function fetchPrefs($userID = 0, $groupName = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$where = 'user_id=?';
 		$bind[] = $userID;
@@ -143,7 +143,7 @@ class _PreferencesModel extends EscherModel
 	
 	public function fetchPrefVals($userID = 0, $groupName = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$where = 'user_id=?';
 		$bind[] = $userID;

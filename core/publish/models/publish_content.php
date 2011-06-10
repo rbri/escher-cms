@@ -109,7 +109,7 @@ class _PublishContentModel extends EscherModel
 
 		$selectTemplate = $this->buildSelectTemplate('category', $fields);
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		
 		$select[] = $this->bindTemplate($selectTemplate, 0);
 		$joins = array();
@@ -229,7 +229,7 @@ class _PublishContentModel extends EscherModel
 			return $category;
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$field = is_integer($nameOrID) ? 'id' : 'slug';
 
@@ -283,7 +283,7 @@ class _PublishContentModel extends EscherModel
 	{
 		$cache =& $this->_cache['category'];
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$parent = ($parentNameOrID === NULL) ? NULL : $this->fetchCategory($parentNameOrID);
 		$parentID = $parent ? $parent->id : ($parentNameOrID === 0 ? 0 : NULL);
@@ -356,7 +356,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function countCategories($parentNameOrID = NULL, $recurse = false)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if ($parentNameOrID === NULL)
 		{
@@ -373,7 +373,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function countCategoriesForParentIDs($parentIDs, $recurse = false)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$where = $db->buildFieldIn('category', 'parent_id', $parentIDs);
 		$bind = $parentIDs;
@@ -426,7 +426,7 @@ class _PublishContentModel extends EscherModel
 
 	public function fetchChildCategoryID($parentID, $slug)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		$row = $db->selectRow('category', 'id', 'parent_id=? AND slug=?', array($parentID, $slug));
 		return isset($row['id']) ? $row['id'] : NULL;
 	}
@@ -489,7 +489,7 @@ class _PublishContentModel extends EscherModel
 
 		$selectTemplate = $this->buildSelectTemplate('page', $fields);
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		
 		$select[] = $this->bindTemplate($selectTemplate, 0);
 		$joinType = $virtual ? 'LEFT' : '';
@@ -646,7 +646,7 @@ class _PublishContentModel extends EscherModel
 		$slugs = $this->getSlugs($uri);
 		$lastPageNum = count($slugs);			// zero slugs indicates the URL is "/" (the root page)
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if (!$statement = @$this->_cache['page_query'][$lastPageNum])
 		{
@@ -694,7 +694,7 @@ class _PublishContentModel extends EscherModel
 
 	public function fetchPageByParentAndSlug($parent, $slug)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if (!$row = $db->selectRow('page', '*', 'parent_id=? AND slug=?', array($parent->id, $slug)))
 		{
@@ -811,7 +811,7 @@ class _PublishContentModel extends EscherModel
 			return $page;
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$row = $db->selectRow('page', $select = 'id, level', 'id=?', $id);
 		if (empty($row))
@@ -898,7 +898,7 @@ class _PublishContentModel extends EscherModel
 	public function fetchPageRows($parentPage, $ids = NULL, $categories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
 										$limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		
 		if (!is_numeric($limit))
 		{
@@ -1009,7 +1009,7 @@ class _PublishContentModel extends EscherModel
 	{
 		if (empty($ids) && empty($categories) && (empty($status) || ($status === 'any')) && empty($onOrAfter) && empty($onOrBefore) && empty($limit) && empty($offset))
 		{
-			$db = $this->loadDBWithPerm();
+			$db = $this->loadDB(EscherModel::PermRead);
 			if (empty($parentPage))
 			{
 				return $db->countRows('page');
@@ -1030,7 +1030,7 @@ class _PublishContentModel extends EscherModel
 			return array();
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		
 		if (!is_numeric($limit))
 		{
@@ -1129,7 +1129,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function pageHasCategories($page, $categories = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$joins = array();
 		$this->buildCategoriesJoin('page', $joins);
@@ -1180,7 +1180,7 @@ class _PublishContentModel extends EscherModel
 
 		if (!empty($names))
 		{
-			$db = $this->loadDBWithPerm();
+			$db = $this->loadDB(EscherModel::PermRead);
 	
 			$where = 'page_id=?';
 			$bind[] = $page->id;
@@ -1236,7 +1236,7 @@ class _PublishContentModel extends EscherModel
 		
 		if (empty($names))
 		{
-			$db = $this->loadDBWithPerm();
+			$db = $this->loadDB(EscherModel::PermRead);
 			if ($db->countRows('page_part', 'page_id=?', $page->id) > 0)
 			{
 				return true;
@@ -1280,7 +1280,7 @@ class _PublishContentModel extends EscherModel
 
 	public function blockExists($name)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		$row = $db->selectRow('block', 'id', 'name=?',$name);
 		return isset($row['id']) ? true : false;
 	}
@@ -1294,7 +1294,7 @@ class _PublishContentModel extends EscherModel
 			return $block;
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$field = is_integer($nameOrID) ? 'id' : 'name';
 
@@ -1346,7 +1346,7 @@ class _PublishContentModel extends EscherModel
 
 	public function fetchBlocks($categories = NULL, $sort = NULL, $order = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if (!empty($sort))
 		{
@@ -1381,7 +1381,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function countBlocks($categories = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if (empty($categories))
 		{
@@ -1401,7 +1401,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function blockHasCategories($block, $categories = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$joins = array();
 		$this->buildCategoriesJoin('block', $joins);
@@ -1447,7 +1447,7 @@ class _PublishContentModel extends EscherModel
 
 	public function fetchContentImages($categories = NULL, $sort = NULL, $order = NULL, $withContent = false)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if (!empty($sort))
 		{
@@ -1491,7 +1491,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function countContentImages($categories = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if (empty($categories))
 		{
@@ -1511,7 +1511,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function contentImageHasCategories($image, $categories = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$joins = array();
 		$this->buildCategoriesJoin('image', $joins);
@@ -1533,7 +1533,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function fileExists($slug)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		$row = $db->selectRow('file', 'id', 'slug=?', $slug);
 		return isset($row['id']) ? true : false;
 	}
@@ -1547,7 +1547,7 @@ class _PublishContentModel extends EscherModel
 			return $file;
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if ($withContent)
 		{
@@ -1613,7 +1613,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function fetchFiles($withContent = false, $ids = NULL, $categories = NULL, $status = NULL, $limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$where = '1';
 		$bind = array();
@@ -1684,7 +1684,7 @@ class _PublishContentModel extends EscherModel
 	{
 		if (empty($ids) && empty($categories) && (empty($status) || ($status === 'any')) && empty($limit) && empty($offset))
 		{
-			$db = $this->loadDBWithPerm();
+			$db = $this->loadDB(EscherModel::PermRead);
 			return $db->countRows('file');
 		}
 		
@@ -1703,7 +1703,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function fileHasCategories($file, $categories = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$joins = array();
 		$this->buildCategoriesJoin('file', $joins);
@@ -1725,7 +1725,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function linkExists($name)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		$row = $db->selectRow('link', 'id', 'name=?', $name);
 		return isset($row['id']) ? true : false;
 	}
@@ -1739,7 +1739,7 @@ class _PublishContentModel extends EscherModel
 			return $link;
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$field = is_integer($nameOrID) ? 'id' : 'name';
 
@@ -1782,7 +1782,7 @@ class _PublishContentModel extends EscherModel
 
 	public function fetchLinks($categories = NULL, $sort = NULL, $order = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if (!empty($sort))
 		{
@@ -1817,7 +1817,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function countLinks($categories = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		if (empty($categories))
 		{
@@ -1844,7 +1844,7 @@ class _PublishContentModel extends EscherModel
 	
 	public function linkHasCategories($link, $categories = NULL)
 	{
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$joins = array();
 		$this->buildCategoriesJoin('link', $joins);
@@ -1871,7 +1871,7 @@ class _PublishContentModel extends EscherModel
 			return $theme;
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$field = is_integer($slugOrID) ? 'id' : 'slug';
 
@@ -1967,7 +1967,7 @@ class _PublishContentModel extends EscherModel
 			$lineage[] = 0;
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$where = $this->buildThemeSearchWhere($db, 'tag', 'name',  NULL, $lineage, $branch, $bind);
 		$sql = $db->buildSelect('tag', '*', NULL, $where, 'theme_id ASC, branch DESC');
@@ -2116,7 +2116,7 @@ class _PublishContentModel extends EscherModel
 			}
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$select = $withContent ? '*' : '{image}.id, {image}.slug, {image}.ctype, {image}.url, {image}.width, {image}.height, {image}.alt, {image}.title, {image}.rev, {image}.created, {image}.edited, {image}.author_id, {image}.editor_id, {image}.theme_id';
 	
@@ -2214,7 +2214,7 @@ class _PublishContentModel extends EscherModel
 		$selectAll = ($select === '*');
 		$select .= ',branch_status AS asset_branch_status';
 		
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$row = $db->selectRow($table, $select, 'id=?', $id);
 
@@ -2267,7 +2267,7 @@ class _PublishContentModel extends EscherModel
 			$themeSlugOrID = 0;
 		}
 					
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$where = "{{$table}}.{$nameCol}=?";
 		$bind[] = $name;
@@ -2330,7 +2330,7 @@ class _PublishContentModel extends EscherModel
 			return $asset;
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$selectAll = ($select === '*');
 		$select .= ',theme_id AS asset_theme_id,branch_status AS asset_branch_status';
@@ -2414,7 +2414,7 @@ class _PublishContentModel extends EscherModel
 			$lineage[] = 0;
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$where = $this->buildThemeSearchWhere($db, $table, $nameCol, NULL, $lineage, $branch, $bind);
 		$sql = $db->buildSelect($table, $select, NULL, $where, 'theme_id DESC, branch DESC');
@@ -2474,7 +2474,7 @@ class _PublishContentModel extends EscherModel
 		
 		$rows = array();
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 
 		$where = $this->buildThemeSearchWhere($db, $table, $nameCol, $name, $lineage, $branch, $bind);
 		$sql = $db->buildSelect($table, $select, $joins, $where, "theme_id ASC, {{$table}}.branch DESC");
@@ -2535,14 +2535,14 @@ class _PublishContentModel extends EscherModel
 			{
 				if (($object->{$user} = @$this->_cache['user'][$object->{$user.'_id'}]) === NULL)
 				{
-					$db = $this->loadDBWithPerm();
+					$db = $this->loadDB(EscherModel::PermRead);
 					$row = $db->selectRow('user', '*', 'id=?', $object->{$user.'_id'});
 					$object->{$user} = $this->_cache['user'][$object->{$user.'_id'}] = ($row ? $this->factory->manufacture('User', $row) : false);
 				}
 			}
 			else
 			{
-				$db = $this->loadDBWithPerm();
+				$db = $this->loadDB(EscherModel::PermRead);
 				$joins[] = array('table'=>'user', 'conditions'=>array(array('leftField'=>"{$user}_id", 'rightField'=>'id', 'joinOp'=>'=')));
 				$row = $db->selectJoinRow($table, '{user}.*', $joins, "{{$table}}.id=?", $object->id);
 				$object->{$user.'_id'} = $row ? $row['id'] : 0;
@@ -2567,7 +2567,7 @@ class _PublishContentModel extends EscherModel
 				return $object->meta = $meta;
 			}
 	
-			$db = $this->loadDBWithPerm();
+			$db = $this->loadDB(EscherModel::PermRead);
 	
 			if ($rows = $db->selectRows("{$objType}_meta", 'name, data', "{$objType}_id=?", $object->id))
 			{
@@ -2636,7 +2636,7 @@ class _PublishContentModel extends EscherModel
 			return array('uri' => $page->uri(), 'id'=>$page->id, 'level'=>$page->level);
 		}
 
-		$db = $this->loadDBWithPerm();
+		$db = $this->loadDB(EscherModel::PermRead);
 		if (!$row = $db->selectRow('page', 'level', 'id=?', $id))
 		{
 			return false;
