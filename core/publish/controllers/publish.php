@@ -135,7 +135,7 @@ class _PublishController extends SparkController
 				{
 					$cache_params['lifetime'] = $prefs['partial_cache_ttl'];
 				}
-				$cache_params['connection'] = $this->_content->loadDB(EscherModel::PermWrite);
+				$cache_params['connection'] = $this->_content->loadDBWithPerm(EscherModel::PermWrite);
 				$cacher = $this->loadCacher($cache_params);
 
 				if (!empty($prefs[$partialCachePref]))

@@ -79,14 +79,26 @@ class EscherProductionStatus
 
 class EscherModel extends SparkModel
 {
-	const PermRead = 'default_ro';
-	const PermWrite = 'default';
+	const PermRead = 0;
+	const PermWrite = 1;
+	
+	private $_db_labels;
 
 	//---------------------------------------------------------------------------
 
 	public function __construct($params)
 	{
 		parent::__construct($params);
+		
+		$this->_db_labels[self::PermRead] = $this->config->get('database_default_ro', 'default');
+		$this->_db_labels[self::PermWrite] = NULL;
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function loadDBWithPerm($perm)
+	{
+		return parent::loadDB($this->_db_labels[$perm]);
 	}
 
 	//---------------------------------------------------------------------------

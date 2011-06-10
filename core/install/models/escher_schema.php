@@ -2377,7 +2377,7 @@ class _EscherSchemaModel extends EscherModel
 	{
 		try
 		{
-			$db = $this->loadDB(EscherModel::PermRead);
+			$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
 			if (!$row = $db->selectRow('pref', 'val', 'name="schema"'))
 			{
@@ -2398,7 +2398,7 @@ class _EscherSchemaModel extends EscherModel
 	{
 		try
 		{
-			$db = $this->loadDB(EscherModel::PermRead);
+			$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
 			if (!$row = $db->selectRow('user', 'id', 'id=1'))
 			{
