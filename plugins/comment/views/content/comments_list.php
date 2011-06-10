@@ -23,7 +23,7 @@
 <? else: ?>
 <? $odd = false; ?>
 <? foreach ($comments as $comment): ?>
-		<tr class="row <?= ($odd = !$odd) ? 'odd' : 'even' ?>"><td><?= $this->escape($comment->id) ?></td><td><?= $this->escape($comment->time) ?></td><td><a href="<?= $this->urlTo("/content/comments/moderate/{$comment->id}") ?>"><?= $this->escape($this->app->truncate($comment->message)) ?></a></td><td><?= $this->escape($comment->author) ?></td><td><?= $this->escape($comment->email) ?></td><td><?= $comment->approved ? 'Yes' : 'No' ?></td></tr>
+		<tr class="row <?= ($odd = !$odd) ? 'odd' : 'even' ?>"><td><?= $this->escape($comment->id) ?></td><td><?= $this->escape($comment->time) ?></td><td><a href="<?= $this->urlTo("/content/comments/moderate/{$comment->id}") ?>"><?= $this->escape(SparkUtil::truncate($comment->message)) ?></a></td><td><?= $this->escape($comment->author) ?></td><td><?= $this->escape($comment->email) ?></td><td><?= $comment->approved ? 'Yes' : 'No' ?></td></tr>
 <? endforeach; ?>
 <? endif; ?>
 	</tbody>
