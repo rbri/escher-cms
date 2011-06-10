@@ -37,7 +37,7 @@ class Branch extends EscherObject
 
 //------------------------------------------------------------------------------
 
-class _BranchModel extends SparkModel
+class _BranchModel extends EscherModel
 {
 	private static $_assetBranchInfo = array
 		(
@@ -94,7 +94,7 @@ class _BranchModel extends SparkModel
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -144,7 +144,7 @@ class _BranchModel extends SparkModel
 		
 		$toBranch = $id - 1;		// target branch id of push
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -204,7 +204,7 @@ class _BranchModel extends SparkModel
 		{
 			$flushPlugCache = false;	// only need to flush if pushing tag changes
 
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm(false);
 			
 			$db->begin();
 	
@@ -254,7 +254,7 @@ class _BranchModel extends SparkModel
 				$toBranch = $id - 1;			// target branch id of push
 				$flushPlugCache = false;	// only need to flush if pushing tag changes
 				
-				$db = $this->loadDB();
+				$db = $this->loadDBWithPerm(false);
 				
 				$db->begin();
 		
@@ -302,7 +302,7 @@ class _BranchModel extends SparkModel
 		$nameCol = self::$_assetBranchInfo[$table];
 		$table = array($table, 'asset');
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		
 		$select = 'asset.id, asset.created, asset.edited, author.name AS author, editor.name AS editor, asset.branch_status AS status, ' . "asset.{$nameCol} AS name";
 		$joins = array

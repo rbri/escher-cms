@@ -35,6 +35,10 @@ if (defined('escher_site_id'))
 	{
 		$config['database_default'] = $sites[escher_site_id]['database_default'];
 	}
+	if (!empty($sites[escher_site_id]['database_default_ro']))
+	{
+		$config['database_default_ro'] = $sites[escher_site_id]['database_default_ro'];
+	}
 	unset($sites);
 }
 

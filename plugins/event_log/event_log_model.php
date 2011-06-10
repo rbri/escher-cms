@@ -28,7 +28,7 @@ if (!defined('escher'))
 
 //------------------------------------------------------------------------------
 
-class _EventLogModel extends SparkModel
+class _EventLogModel extends EscherModel
 {
 	//---------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ class _EventLogModel extends SparkModel
 	{
 		try
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 			@$db->countRows('log');
 			return true;
 		}
@@ -66,7 +66,7 @@ class _EventLogModel extends SparkModel
 	
 	public function clear()
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$db->deleteRows('log');
 	}
 	
@@ -74,7 +74,7 @@ class _EventLogModel extends SparkModel
 	
 	public function logEvent($event, $userID)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -91,14 +91,14 @@ class _EventLogModel extends SparkModel
 	
 	public function countEvents()
 	{
-		return $this->loadDB()->countRows('log');
+		return $this->loadDBWithPerm()->countRows('log');
 	}
 
 	//---------------------------------------------------------------------------
 	
 	public function getEvents($limit = 25, $offset = 0)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 	
 		$joins[] = array('leftTable'=>'log', 'table'=>'user', 'conditions'=>array(array('leftField'=>'user_id', 'rightField'=>'id', 'joinOp'=>'=')));
 		$sql = $db->buildSelect('log', '{log}.*, {user}.name AS user', $joins, NULL, '{log}.time DESC, {log}.id DESC', $limit, $offset);
@@ -164,7 +164,7 @@ class _EventLogModel extends SparkModel
 	
 	private function installTables()
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 
 		$ct = $db->getFunction('create_table');
 		
@@ -180,7 +180,7 @@ class _EventLogModel extends SparkModel
 	
 //------------------------------------------------------------------------------
 
-class EventLogEvent extends SparkModel
+class EventLogEvent extends EscherModel
 {
 	public $when;
 	public $what;

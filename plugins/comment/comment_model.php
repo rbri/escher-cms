@@ -28,7 +28,7 @@ if (!defined('escher'))
 
 //------------------------------------------------------------------------------
 
-class _CommentModel extends SparkModel
+class _CommentModel extends EscherModel
 {
 	//---------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ class _CommentModel extends SparkModel
 	{
 		try
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 			@$db->countRows('comment');
 			return true;
 		}
@@ -67,7 +67,7 @@ class _CommentModel extends SparkModel
 	
 	public function addComment($pageID, $message, $author, $email, $web, $approved = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -99,7 +99,7 @@ class _CommentModel extends SparkModel
 	
 	public function updateComment($comment)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$row = array
 		(
@@ -114,7 +114,7 @@ class _CommentModel extends SparkModel
 	
 	public function approveComment($comment)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$db->updateRows('comment', array('approved'=>true), 'id=?', $comment->id);
 	}
@@ -123,7 +123,7 @@ class _CommentModel extends SparkModel
 	
 	public function deleteCommentByID($commentID)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$db->deleteRows('comment', 'id=?', $commentID);
 	}
@@ -132,7 +132,7 @@ class _CommentModel extends SparkModel
 	
 	public function fetchComment($id)
 	{
-		if (!$row = $this->loadDB()->selectRow('comment', '*', 'id=?', $id))
+		if (!$row = $this->loadDBWithPerm()->selectRow('comment', '*', 'id=?', $id))
 		{
 			return false;
 		}
@@ -161,14 +161,14 @@ class _CommentModel extends SparkModel
 			$where = implode(' AND ', $where);
 		}
 
-		return $this->loadDB()->countRows('comment', $where, $bind);
+		return $this->loadDBWithPerm()->countRows('comment', $where, $bind);
 	}
 
 	//---------------------------------------------------------------------------
 	
 	public function fetchComments($pageID = NULL, $approved = NULL, $limit = 0, $offset = 0, $order = 'desc')
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 	
 		$where = $bind = NULL;
 		if ($approved !== NULL)
@@ -300,7 +300,7 @@ class _CommentModel extends SparkModel
 	
 	private function installTables()
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 
 		$ct = $db->getFunction('create_table');
 		

@@ -77,6 +77,25 @@ class EscherProductionStatus
 
 //------------------------------------------------------------------------------
 
+class EscherModel extends SparkModel
+{
+	//---------------------------------------------------------------------------
+
+	public function __construct($params)
+	{
+		parent::__construct($params);
+	}
+
+	public function loadDBWithPerm($readOnly = true)
+	{
+		return parent::loadDB($readOnly ? $this->config->get('database_default_ro') : NULL);
+	}
+
+	//---------------------------------------------------------------------------
+}
+
+//------------------------------------------------------------------------------
+
 class EscherObject extends SparkPlug
 {
 	public $id;

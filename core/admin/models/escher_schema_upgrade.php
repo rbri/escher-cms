@@ -28,7 +28,7 @@ if (!defined('escher'))
 
 //------------------------------------------------------------------------------
 
-class _EscherSchemaUpgradeModel extends SparkModel
+class _EscherSchemaUpgradeModel extends EscherModel
 {
 	public function upgrade($params = NULL)
 	{

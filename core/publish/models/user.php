@@ -30,7 +30,7 @@ require('user_objects.php');
 
 //------------------------------------------------------------------------------
 
-class _UserModel extends SparkModel
+class _UserModel extends EscherModel
 {
 	
 	//---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ class _UserModel extends SparkModel
 	
 	public function addPerms($perms)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -74,7 +74,7 @@ class _UserModel extends SparkModel
 		
 	public function fetchAllPermissions($sort = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$perms = array();
 		
@@ -96,7 +96,7 @@ class _UserModel extends SparkModel
 	
 	public function addRole($role)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$row = array
 		(
@@ -127,7 +127,7 @@ class _UserModel extends SparkModel
 	
 	public function updateRole($role)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$row = array
 		(
@@ -162,7 +162,7 @@ class _UserModel extends SparkModel
 			throw new SparkException('cannot delete administrator account');
 		}
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -185,7 +185,7 @@ class _UserModel extends SparkModel
 	
 	public function updateRolePermissions($role)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -220,7 +220,7 @@ class _UserModel extends SparkModel
 	
 	public function fetchAllRoles($sort = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$roles = array();
 		
@@ -238,7 +238,7 @@ class _UserModel extends SparkModel
 	
 	public function fetchRole($id)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if ($row = $db->selectRow('role', '*', 'id=?', $id))
 		{
@@ -264,7 +264,7 @@ class _UserModel extends SparkModel
 		{
 			$role->permissions = array();
 			
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$joins = array();
 			$this->buildPermissionsJoin('role', $joins);
@@ -282,7 +282,7 @@ class _UserModel extends SparkModel
 	
 	public function roleExists($name)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->selectRow('role', 'id', 'name=?', $name);
 		return isset($row['id']) ? true : false;
 	}
@@ -291,7 +291,7 @@ class _UserModel extends SparkModel
 	
 	public function addUser($user)
 	{	
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 
 		$row = array
@@ -320,7 +320,7 @@ class _UserModel extends SparkModel
 			throw new SparkException('cannot update system user');
 		}
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 
 		$row = array
 		(
@@ -350,7 +350,7 @@ class _UserModel extends SparkModel
 			throw new SparkException('cannot delete administrator');
 		}
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -377,7 +377,7 @@ class _UserModel extends SparkModel
 			throw new SparkException('cannot update system user');
 		}
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -411,7 +411,7 @@ class _UserModel extends SparkModel
 			throw new SparkException('cannot fetch system user');
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if ($row = $db->selectRow('user', '*', 'id=?', $id))
 		{
@@ -446,7 +446,7 @@ class _UserModel extends SparkModel
 			throw new SparkException('cannot fetch system user');
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if ($row = $db->selectRow('user', '*', 'email=?', $email))
 		{
@@ -476,7 +476,7 @@ class _UserModel extends SparkModel
 	
 	public function fetchAllUsers($fetchRoles = false, $fetchPermissions = false, $sort = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$roles = array();
 		
@@ -512,7 +512,7 @@ class _UserModel extends SparkModel
 		{
 			$user->roles = array();
 			
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$joins = array();
 			$this->buildRolesJoin('user', $joins);
@@ -539,7 +539,7 @@ class _UserModel extends SparkModel
 		{
 			$user->permissions = array();
 			
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$joins = array();
 			$this->buildRolesJoin('user', $joins);
@@ -568,7 +568,7 @@ class _UserModel extends SparkModel
 			return false;
 		}
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->selectRow('user', 'id', 'login=?', $login);
 		return isset($row['id']) ? true : false;
 	}
@@ -582,7 +582,7 @@ class _UserModel extends SparkModel
 			return false;
 		}
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->selectRow('user', 'id', 'email=?', $email);
 		return isset($row['id']) ? true : false;
 	}

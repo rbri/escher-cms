@@ -31,7 +31,7 @@ require('content_objects.php');
 
 //------------------------------------------------------------------------------
 
-class _PublishContentModel extends SparkModel
+class _PublishContentModel extends EscherModel
 {
 	const siblings_all = 0;
 	const siblings_before = 1;
@@ -109,7 +109,7 @@ class _PublishContentModel extends SparkModel
 
 		$selectTemplate = $this->buildSelectTemplate('category', $fields);
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		
 		$select[] = $this->bindTemplate($selectTemplate, 0);
 		$joins = array();
@@ -229,7 +229,7 @@ class _PublishContentModel extends SparkModel
 			return $category;
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$field = is_integer($nameOrID) ? 'id' : 'slug';
 
@@ -283,7 +283,7 @@ class _PublishContentModel extends SparkModel
 	{
 		$cache =& $this->_cache['category'];
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$parent = ($parentNameOrID === NULL) ? NULL : $this->fetchCategory($parentNameOrID);
 		$parentID = $parent ? $parent->id : ($parentNameOrID === 0 ? 0 : NULL);
@@ -356,7 +356,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function countCategories($parentNameOrID = NULL, $recurse = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if ($parentNameOrID === NULL)
 		{
@@ -373,7 +373,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function countCategoriesForParentIDs($parentIDs, $recurse = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = $db->buildFieldIn('category', 'parent_id', $parentIDs);
 		$bind = $parentIDs;
@@ -426,7 +426,7 @@ class _PublishContentModel extends SparkModel
 
 	public function fetchChildCategoryID($parentID, $slug)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->selectRow('category', 'id', 'parent_id=? AND slug=?', array($parentID, $slug));
 		return isset($row['id']) ? $row['id'] : NULL;
 	}
@@ -489,7 +489,7 @@ class _PublishContentModel extends SparkModel
 
 		$selectTemplate = $this->buildSelectTemplate('page', $fields);
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		
 		$select[] = $this->bindTemplate($selectTemplate, 0);
 		$joinType = $virtual ? 'LEFT' : '';
@@ -646,7 +646,7 @@ class _PublishContentModel extends SparkModel
 		$slugs = $this->getSlugs($uri);
 		$lastPageNum = count($slugs);			// zero slugs indicates the URL is "/" (the root page)
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (!$statement = @$this->_cache['page_query'][$lastPageNum])
 		{
@@ -694,7 +694,7 @@ class _PublishContentModel extends SparkModel
 
 	public function fetchPageByParentAndSlug($parent, $slug)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (!$row = $db->selectRow('page', '*', 'parent_id=? AND slug=?', array($parent->id, $slug)))
 		{
@@ -811,7 +811,7 @@ class _PublishContentModel extends SparkModel
 			return $page;
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$row = $db->selectRow('page', $select = 'id, level', 'id=?', $id);
 		if (empty($row))
@@ -898,7 +898,7 @@ class _PublishContentModel extends SparkModel
 	public function fetchPageRows($parentPage, $ids = NULL, $categories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
 										$limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		
 		if (!is_numeric($limit))
 		{
@@ -1009,7 +1009,7 @@ class _PublishContentModel extends SparkModel
 	{
 		if (empty($ids) && empty($categories) && (empty($status) || ($status === 'any')) && empty($onOrAfter) && empty($onOrBefore) && empty($limit) && empty($offset))
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 			if (empty($parentPage))
 			{
 				return $db->countRows('page');
@@ -1030,7 +1030,7 @@ class _PublishContentModel extends SparkModel
 			return array();
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		
 		if (!is_numeric($limit))
 		{
@@ -1129,7 +1129,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function pageHasCategories($page, $categories = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$joins = array();
 		$this->buildCategoriesJoin('page', $joins);
@@ -1180,7 +1180,7 @@ class _PublishContentModel extends SparkModel
 
 		if (!empty($names))
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$where = 'page_id=?';
 			$bind[] = $page->id;
@@ -1236,7 +1236,7 @@ class _PublishContentModel extends SparkModel
 		
 		if (empty($names))
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 			if ($db->countRows('page_part', 'page_id=?', $page->id) > 0)
 			{
 				return true;
@@ -1280,7 +1280,7 @@ class _PublishContentModel extends SparkModel
 
 	public function blockExists($name)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->selectRow('block', 'id', 'name=?',$name);
 		return isset($row['id']) ? true : false;
 	}
@@ -1294,7 +1294,7 @@ class _PublishContentModel extends SparkModel
 			return $block;
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$field = is_integer($nameOrID) ? 'id' : 'name';
 
@@ -1346,7 +1346,7 @@ class _PublishContentModel extends SparkModel
 
 	public function fetchBlocks($categories = NULL, $sort = NULL, $order = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (!empty($sort))
 		{
@@ -1381,7 +1381,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function countBlocks($categories = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (empty($categories))
 		{
@@ -1401,7 +1401,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function blockHasCategories($block, $categories = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$joins = array();
 		$this->buildCategoriesJoin('block', $joins);
@@ -1447,7 +1447,7 @@ class _PublishContentModel extends SparkModel
 
 	public function fetchContentImages($categories = NULL, $sort = NULL, $order = NULL, $withContent = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (!empty($sort))
 		{
@@ -1491,7 +1491,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function countContentImages($categories = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (empty($categories))
 		{
@@ -1511,7 +1511,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function contentImageHasCategories($image, $categories = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$joins = array();
 		$this->buildCategoriesJoin('image', $joins);
@@ -1533,7 +1533,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fileExists($slug)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->selectRow('file', 'id', 'slug=?', $slug);
 		return isset($row['id']) ? true : false;
 	}
@@ -1547,7 +1547,7 @@ class _PublishContentModel extends SparkModel
 			return $file;
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if ($withContent)
 		{
@@ -1613,7 +1613,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fetchFiles($withContent = false, $ids = NULL, $categories = NULL, $status = NULL, $limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = '1';
 		$bind = array();
@@ -1684,7 +1684,7 @@ class _PublishContentModel extends SparkModel
 	{
 		if (empty($ids) && empty($categories) && (empty($status) || ($status === 'any')) && empty($limit) && empty($offset))
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 			return $db->countRows('file');
 		}
 		
@@ -1703,7 +1703,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function fileHasCategories($file, $categories = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$joins = array();
 		$this->buildCategoriesJoin('file', $joins);
@@ -1725,7 +1725,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function linkExists($name)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->selectRow('link', 'id', 'name=?', $name);
 		return isset($row['id']) ? true : false;
 	}
@@ -1739,7 +1739,7 @@ class _PublishContentModel extends SparkModel
 			return $link;
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$field = is_integer($nameOrID) ? 'id' : 'name';
 
@@ -1782,7 +1782,7 @@ class _PublishContentModel extends SparkModel
 
 	public function fetchLinks($categories = NULL, $sort = NULL, $order = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (!empty($sort))
 		{
@@ -1817,7 +1817,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function countLinks($categories = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (empty($categories))
 		{
@@ -1844,7 +1844,7 @@ class _PublishContentModel extends SparkModel
 	
 	public function linkHasCategories($link, $categories = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$joins = array();
 		$this->buildCategoriesJoin('link', $joins);
@@ -1871,7 +1871,7 @@ class _PublishContentModel extends SparkModel
 			return $theme;
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$field = is_integer($slugOrID) ? 'id' : 'slug';
 
@@ -1967,7 +1967,7 @@ class _PublishContentModel extends SparkModel
 			$lineage[] = 0;
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = $this->buildThemeSearchWhere($db, 'tag', 'name',  NULL, $lineage, $branch, $bind);
 		$sql = $db->buildSelect('tag', '*', NULL, $where, 'theme_id ASC, branch DESC');
@@ -2116,7 +2116,7 @@ class _PublishContentModel extends SparkModel
 			}
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$select = $withContent ? '*' : '{image}.id, {image}.slug, {image}.ctype, {image}.url, {image}.width, {image}.height, {image}.alt, {image}.title, {image}.rev, {image}.created, {image}.edited, {image}.author_id, {image}.editor_id, {image}.theme_id';
 	
@@ -2214,7 +2214,7 @@ class _PublishContentModel extends SparkModel
 		$selectAll = ($select === '*');
 		$select .= ',branch_status AS asset_branch_status';
 		
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$row = $db->selectRow($table, $select, 'id=?', $id);
 
@@ -2267,7 +2267,7 @@ class _PublishContentModel extends SparkModel
 			$themeSlugOrID = 0;
 		}
 					
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = "{{$table}}.{$nameCol}=?";
 		$bind[] = $name;
@@ -2330,7 +2330,7 @@ class _PublishContentModel extends SparkModel
 			return $asset;
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$selectAll = ($select === '*');
 		$select .= ',theme_id AS asset_theme_id,branch_status AS asset_branch_status';
@@ -2414,7 +2414,7 @@ class _PublishContentModel extends SparkModel
 			$lineage[] = 0;
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = $this->buildThemeSearchWhere($db, $table, $nameCol, NULL, $lineage, $branch, $bind);
 		$sql = $db->buildSelect($table, $select, NULL, $where, 'theme_id DESC, branch DESC');
@@ -2474,7 +2474,7 @@ class _PublishContentModel extends SparkModel
 		
 		$rows = array();
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = $this->buildThemeSearchWhere($db, $table, $nameCol, $name, $lineage, $branch, $bind);
 		$sql = $db->buildSelect($table, $select, $joins, $where, "theme_id ASC, {{$table}}.branch DESC");
@@ -2535,14 +2535,14 @@ class _PublishContentModel extends SparkModel
 			{
 				if (($object->{$user} = @$this->_cache['user'][$object->{$user.'_id'}]) === NULL)
 				{
-					$db = $this->loadDB();
+					$db = $this->loadDBWithPerm();
 					$row = $db->selectRow('user', '*', 'id=?', $object->{$user.'_id'});
 					$object->{$user} = $this->_cache['user'][$object->{$user.'_id'}] = ($row ? $this->factory->manufacture('User', $row) : false);
 				}
 			}
 			else
 			{
-				$db = $this->loadDB();
+				$db = $this->loadDBWithPerm();
 				$joins[] = array('table'=>'user', 'conditions'=>array(array('leftField'=>"{$user}_id", 'rightField'=>'id', 'joinOp'=>'=')));
 				$row = $db->selectJoinRow($table, '{user}.*', $joins, "{{$table}}.id=?", $object->id);
 				$object->{$user.'_id'} = $row ? $row['id'] : 0;
@@ -2567,7 +2567,7 @@ class _PublishContentModel extends SparkModel
 				return $object->meta = $meta;
 			}
 	
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			if ($rows = $db->selectRows("{$objType}_meta", 'name, data', "{$objType}_id=?", $object->id))
 			{
@@ -2636,7 +2636,7 @@ class _PublishContentModel extends SparkModel
 			return array('uri' => $page->uri(), 'id'=>$page->id, 'level'=>$page->level);
 		}
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		if (!$row = $db->selectRow('page', 'level', 'id=?', $id))
 		{
 			return false;

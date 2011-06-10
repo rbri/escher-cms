@@ -28,7 +28,7 @@ if (!defined('escher'))
 
 //------------------------------------------------------------------------------
 
-class _EscherSchemaModel extends SparkModel
+class _EscherSchemaModel extends EscherModel
 {
 	public function create($params = NULL)
 	{
@@ -2377,7 +2377,7 @@ class _EscherSchemaModel extends SparkModel
 	{
 		try
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 
 			if (!$row = $db->selectRow('pref', 'val', 'name="schema"'))
 			{
@@ -2398,7 +2398,7 @@ class _EscherSchemaModel extends SparkModel
 	{
 		try
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 
 			if (!$row = $db->selectRow('user', 'id', 'id=1'))
 			{

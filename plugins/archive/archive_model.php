@@ -28,7 +28,7 @@ if (!defined('escher'))
 
 //------------------------------------------------------------------------------
 
-class _ArchiveModel extends SparkModel
+class _ArchiveModel extends EscherModel
 {
 	//---------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ class _ArchiveModel extends SparkModel
 	
 	public function fetchArchiveIndexPage($publishModel, $parent, $slug, $type)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 	
 		if (!$row = $db->selectRow('page', '*', 'parent_id=? AND type=?', array($parent->id, $type)))
 		{

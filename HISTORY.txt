@@ -3,6 +3,7 @@ Escher CMS Change History
 
 Version 0.9.2 [TBD]
 	integrated branch management: production, staging and development branches
+	support for separate read/write databases
 
 Version 0.9.1 [not released]
 	miscellaneous bug fixes

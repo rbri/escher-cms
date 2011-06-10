@@ -55,7 +55,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addCategory($category)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$row = array
 		(
@@ -95,7 +95,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateCategory($category)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$row = array
 		(
@@ -112,7 +112,7 @@ class _AdminContentModel extends _PublishContentModel
 	{
 		// delete a category and optionally delete its children as well
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -152,7 +152,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchAllCategories($sort = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		
 		// we make the assumption that a child category may not be defined before its parent
 		
@@ -194,7 +194,7 @@ class _AdminContentModel extends _PublishContentModel
 		
 		else
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 			
 			$names = array();
 			foreach ($db->selectRows('category', 'id,title') as $row)
@@ -234,7 +234,7 @@ class _AdminContentModel extends _PublishContentModel
 		
 		if (!$db)
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 		}
 		
 		$result = $db->query($db->buildSelect('category', 'id, title', NULL, 'parent_id=?', 'title ASC'), $parent->id);
@@ -253,7 +253,7 @@ class _AdminContentModel extends _PublishContentModel
 	{
 		$cache =& $this->_cache['category'];
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = $db->buildFieldIn('category', 'id', $ids);
 		$bind = $ids;
@@ -285,7 +285,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addModel($pageModel)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -324,7 +324,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateModel($pageModel, $updateCategories = true)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 		
 		// need an efficient way to update publication date if being published for first time
@@ -367,7 +367,7 @@ class _AdminContentModel extends _PublishContentModel
 	{
 		// delete a model and all related objects (page metadata, parts, and categories)
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -391,7 +391,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchAllModels($sort = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$models = array();
 		
@@ -407,7 +407,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchAllModelNames($sort = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$names = array();
 		foreach ($db->selectRows('model', 'id,name') as $row)
@@ -424,7 +424,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchModelByID($id)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (!$row = $db->selectRow('model', '*', 'id=?', $id))
 		{
@@ -438,7 +438,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchModelByName($name)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (!$row = $db->selectRow('model', '*', 'name=?', $name))
 		{
@@ -501,7 +501,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateModelCategories($pageModel)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -542,7 +542,7 @@ class _AdminContentModel extends _PublishContentModel
 		{
 			$pageModel->categories = array();
 			
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$joins = array();
 			$this->buildCategoriesJoin('model', $joins);
@@ -574,7 +574,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateModelPart($part)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 
 		$part->name = strtolower($part->name);
 
@@ -610,7 +610,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function deleteModelParts($modelID, $names)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 
 		$bind = array_merge(array($modelID), $names);
 
@@ -621,7 +621,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchAllModelPartNames($pageModel)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$partNames = array();
 		
@@ -639,7 +639,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchAllModelParts($pageModel)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$parts = array();
 		
@@ -669,7 +669,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addPage($page)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 		$never = self::never();
 	
@@ -724,7 +724,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updatePage($page, $updateCategories = true)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 		$never = self::never();
 		
@@ -778,7 +778,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updatePageDates($page, $dates)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$row = array();
 	
 		foreach (array('created', 'edited', 'published') as $for)
@@ -799,7 +799,7 @@ class _AdminContentModel extends _PublishContentModel
 		// delete a page and all related objects (page metadata, parts, and categories)
 		// optionally do the same for all its children
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -837,7 +837,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchSimplePageByID($id)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if (!$row = $db->selectRow('page', '*', 'id=?', $id))
 		{
@@ -855,7 +855,7 @@ class _AdminContentModel extends _PublishContentModel
 		
 		if (!$db)
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 		}
 		
 		$result = $db->query($db->buildSelect('page', 'id, title, type', NULL, 'parent_id=?', 'position, created DESC'), $parent->id);
@@ -907,7 +907,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchAllPageCategoryIDs($page)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$categoryIDs = array();
 		
@@ -923,7 +923,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function deletePageCategories($pageID, $ids)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 
 		$bind = array_merge(array($pageID), $ids);
 
@@ -934,7 +934,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updatePageCategories($page)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -975,7 +975,7 @@ class _AdminContentModel extends _PublishContentModel
 		{
 			$page->categories = array();
 			
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$joins = array();
 			$this->buildCategoriesJoin('page', $joins);
@@ -1071,7 +1071,7 @@ class _AdminContentModel extends _PublishContentModel
 
 	public function fetchChildPageID($parentID, $slug)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->selectRow('page', 'id', 'parent_id=? AND slug=?', array($parentID, $slug));
 		return isset($row['id']) ? $row['id'] : NULL;
 	}
@@ -1087,7 +1087,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function rootPageExists()
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		return ($db->countRows('page', 'parent_id=0') != 0);
 	}
 
@@ -1095,7 +1095,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addPagePart($part)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$part->name = strtolower($part->name);
 		
@@ -1133,7 +1133,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updatePagePart($part)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 
 		$part->name = strtolower($part->name);
 
@@ -1169,7 +1169,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function deletePageParts($pageID, $names)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 
 		$bind = array_merge(array($pageID), $names);
 
@@ -1180,7 +1180,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchAllPageParts($page)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$parts = array();
 		
@@ -1196,7 +1196,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchAllPagePartNames($page)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$partNames = array();
 		
@@ -1229,7 +1229,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addBlock($block)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -1266,7 +1266,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateBlock($block, $updateCategories = true)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -1302,7 +1302,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function deleteBlockByID($blockID)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -1324,7 +1324,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchBlockNames()
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$names = array();
 		foreach ($db->selectRows('block', 'id,name') as $row)
@@ -1345,7 +1345,7 @@ class _AdminContentModel extends _PublishContentModel
 		{
 			$block->categories = array();
 			
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$joins = array();
 			$this->buildCategoriesJoin('block', $joins);
@@ -1377,7 +1377,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateBlockCategories($block)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -1428,7 +1428,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addImage($image)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -1474,7 +1474,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateImage($image, $updateCategories = true)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 
 		$row = array
@@ -1520,7 +1520,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function deleteImageByID($imageID)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -1563,7 +1563,7 @@ class _AdminContentModel extends _PublishContentModel
 		
 		if (!$delete && ($newID != $image->id))
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 			if ($rows = $db->selectRows('image_meta', 'name, data', 'image_id=?', $image->id))
 			{
 				foreach ($rows as $row)
@@ -1634,7 +1634,7 @@ class _AdminContentModel extends _PublishContentModel
 		{
 			$image->categories = array();
 			
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$joins = array();
 			$this->buildCategoriesJoin('image', $joins);
@@ -1666,7 +1666,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateImageCategories($image)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -1717,7 +1717,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addFile($file)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -1758,7 +1758,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateFile($file, $updateCategories = true)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -1805,7 +1805,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function deleteFileByID($fileID)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -1827,7 +1827,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchFileNames()
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$names = array();
 		foreach ($db->selectRows('file', 'id,slug') as $row)
@@ -1883,7 +1883,7 @@ class _AdminContentModel extends _PublishContentModel
 		{
 			$file->categories = array();
 			
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$joins = array();
 			$this->buildCategoriesJoin('file', $joins);
@@ -1915,7 +1915,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateFileCategories($file)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -1966,7 +1966,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addLink($link)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -2002,7 +2002,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateLink($link, $updateCategories = true)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -2038,7 +2038,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function deleteLinkByID($linkID)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -2060,7 +2060,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchLinkNames()
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$names = array();
 		foreach ($db->selectRows('link', 'id,name') as $row)
@@ -2116,7 +2116,7 @@ class _AdminContentModel extends _PublishContentModel
 		{
 			$link->categories = array();
 			
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 	
 			$joins = array();
 			$this->buildCategoriesJoin('link', $joins);
@@ -2148,7 +2148,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateLinkCategories($link)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -2199,7 +2199,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addTheme($theme)
 	{	
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 
 		$row = array
@@ -2229,7 +2229,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateTheme($theme)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -2253,7 +2253,7 @@ class _AdminContentModel extends _PublishContentModel
 		// delete a theme and all related objects (templates, snippets, tags, styles, scripts, and images)
 		// optionally do the same for all its children
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$db->begin();
 
@@ -2581,7 +2581,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchAllThemes($sort = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		
 		// we make the assumption that a child theme may not be defined before its parent
 		
@@ -2624,7 +2624,7 @@ class _AdminContentModel extends _PublishContentModel
 		
 		else
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 			
 			$names = array();
 			foreach ($db->selectRows('theme', 'id,title') as $row)
@@ -2645,7 +2645,7 @@ class _AdminContentModel extends _PublishContentModel
 		
 		if (!$db)
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 		}
 		
 		$result = $db->query($db->buildSelect('theme', 'id, title', NULL, 'parent_id=?', 'title ASC'), $parent->id);
@@ -2669,7 +2669,7 @@ class _AdminContentModel extends _PublishContentModel
 
 	public function themeExists($slug)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->selectRow('theme', 'id', 'slug=?', $slug);
 		return isset($row['id']) ? true : false;
 	}
@@ -2720,7 +2720,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addTemplate($template)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -2746,7 +2746,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateTemplate($template)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -2820,7 +2820,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addSnippet($snippet)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 		
 		$row = array
@@ -2908,7 +2908,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addTag($tag)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -2996,7 +2996,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addStyle($style)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -3023,7 +3023,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateStyle($style)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -3099,7 +3099,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function addScript($script)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -3126,7 +3126,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateScript($script)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -3206,7 +3206,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 		if (!$db)
 		{
-			$db = $this->loadDB();
+			$db = $this->loadDBWithPerm();
 		}
 		
 		$ids = array();
@@ -3227,7 +3227,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function updateDesignAssetContent($table, $asset)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -3244,7 +3244,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function deleteDesignAssetByID($table, $assetID)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$db->deleteRows($table, 'id=?', $assetID);
 	}
@@ -3253,7 +3253,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function markDesignAssetDeletedByID($table, $assetID)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$row = array
 		(
@@ -3268,7 +3268,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function undeleteDesignAsset($table, $asset)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		$now = self::now();
 	
 		$row = array
@@ -3288,7 +3288,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function copyDesignAssetToBranch($table, $nameCol, $name, $themeID, $branch, $delete = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 		
 		$row = $db->query($db->buildSelect($table, '*', NULL, "{$nameCol}=? AND theme_id=? AND branch<=?", 'branch DESC', 1), array($name, $themeID, $branch))->row();
 		if (empty($row))
@@ -3329,7 +3329,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function designAssetExists($table, $nameCol, $name, $themeID, $branch, &$info)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 		$row = $db->query($db->buildSelect($table, 'id,branch,branch_status', NULL, "{$nameCol}=? AND theme_id=? AND branch<=?", 'branch DESC', 1), array($name, $themeID, $branch))->row();
 		if (isset($row['id']))
 		{
@@ -3344,7 +3344,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	public function fetchDesignAssetNames($table, $nameColumn, $themeID, $branch, $searchAncestorThemes = false)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		if ($searchAncestorThemes && $themeID && ($theme = $this->fetchTheme((int) $themeID)))
 		{
@@ -3385,7 +3385,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	protected function addObjectMeta($objType, $id, $meta)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$rows = array();
 		foreach ($meta as $key=>$val)
@@ -3401,7 +3401,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	protected function updateObjectMeta($objType, $id, $meta)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		foreach ($meta as $key=>$val)
 		{
@@ -3414,7 +3414,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	protected function deleteObjectMeta($objType, $id, $names)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 
 		$bind = array_merge(array($id), $names);
 
@@ -3425,7 +3425,7 @@ class _AdminContentModel extends _PublishContentModel
 	
 	protected function fetchAllObjectMetaNames($objType, $obj)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$metaNames = array();
 		

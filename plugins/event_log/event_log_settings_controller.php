@@ -173,7 +173,7 @@ class EventLogSettingsController extends SettingsController
 			
 			catch (Exception $e)
 			{
-				$vars['errors']['install'] = $e->getMessage();
+				$vars['errors']['clear'] = $e->getMessage();
 			}
 		}
 		$this->app->view()->pushViewDir($this->_plugDir . '/views');

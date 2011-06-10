@@ -28,7 +28,7 @@ if (!defined('escher'))
 
 //------------------------------------------------------------------------------
 
-class _PreferencesModel extends SparkModel
+class _PreferencesModel extends EscherModel
 {
 	
 	//---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ class _PreferencesModel extends SparkModel
 	
 	public function addPref($pref)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$row = array
 		(
@@ -86,7 +86,7 @@ class _PreferencesModel extends SparkModel
 	
 	public function updatePrefs($prefs, $userID = 0)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		foreach ($prefs as $pref)
 		{
@@ -103,7 +103,7 @@ class _PreferencesModel extends SparkModel
 	
 	public function fetchPref($name, $userID = 0)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$row = $db->selectRow('pref', '*', 'user_id=? AND name=?', array($userID, $name));
 
@@ -114,7 +114,7 @@ class _PreferencesModel extends SparkModel
 	
 	public function fetchPrefVal($name, $userID = 0)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$row = $db->selectRow('pref', 'val', 'user_id=? AND name=?', array($userID, $name));
 
@@ -125,7 +125,7 @@ class _PreferencesModel extends SparkModel
 	
 	public function fetchPrefs($userID = 0, $groupName = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = 'user_id=?';
 		$bind[] = $userID;
@@ -143,7 +143,7 @@ class _PreferencesModel extends SparkModel
 	
 	public function fetchPrefVals($userID = 0, $groupName = NULL)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = 'user_id=?';
 		$bind[] = $userID;

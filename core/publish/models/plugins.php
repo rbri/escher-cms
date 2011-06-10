@@ -28,7 +28,7 @@ if (!defined('escher'))
 
 //------------------------------------------------------------------------------
 
-class _PluginsModel extends SparkModel
+class _PluginsModel extends EscherModel
 {
 	const PluginState_uninstalled = 0;
 	const PluginStates_installed = 1;
@@ -50,7 +50,7 @@ class _PluginsModel extends SparkModel
 	
 	public function addPlugin($plugin)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm(false);
 	
 		$row = array
 		(
@@ -73,7 +73,7 @@ class _PluginsModel extends SparkModel
 	{
 		$states = (array)$states;
 
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$where = $db->buildFieldIn('plugin', 'state', $states) . ' AND (runs_where & ?)';
 		$bind = $states;
@@ -92,7 +92,7 @@ class _PluginsModel extends SparkModel
 	
 	public function fetchPluginCode($pluginName)
 	{
-		$db = $this->loadDB();
+		$db = $this->loadDBWithPerm();
 
 		$row = $db->selectRow('plugin', 'code', 'name=?', $pluginName);
 		return $row['code'];
