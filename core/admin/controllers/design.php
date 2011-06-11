@@ -757,17 +757,11 @@ class _DesignController extends EscherAdminController
 
 	protected function templates_add($params)
 	{
-		if (!$themeID = $this->getSelectedTheme($params))
-		{
-			if (!$themeID = @$params[0])
-			{
-				$themeID = 0;
-			}
-		}
-
 		$branch = $this->getWorkingBranch();
-
 		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
 		
 		$template = $this->factory->manufacture('Template', array('theme_id'=>$themeID, 'branch'=>$branch));
 
@@ -818,7 +812,7 @@ class _DesignController extends EscherAdminController
 		$vars['selected_subtab'] = 'templates';
 		$vars['action'] = 'add';
 		$vars['template'] = $template;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -836,10 +830,14 @@ class _DesignController extends EscherAdminController
 
 	protected function templates_edit($params)
 	{
+		$branch = $this->getWorkingBranch();
+		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
+
 		$template = NULL;
 		
-		$themeID = $this->getSelectedTheme($params);
-
 		if (!$templateID = @$params['pv']['selected_template_id'])
 		{
 			$templateID = @$params[0];
@@ -847,37 +845,17 @@ class _DesignController extends EscherAdminController
 
 		$targetTemplateID = $templateID;
 
-		$branch = $this->getWorkingBranch();
-
-		$model = $this->newAdminContentModel();
-		
-		// if a theme was specified, we only show templates for that theme
-		
-		if (isset($themeID))
+		$templateNames = $model->fetchTemplateNames($themeID, $branch);
+		if (!isset($templateNames[$templateID]))
 		{
-			$templateNames = $model->fetchTemplateNames($themeID, $branch);
-			if (!isset($templateNames[$templateID]))
-			{
-				$templateID = 0;
-			}
+			$templateID = 0;
 		}
-		else
+	
+		if (!$templateID && $first = each($templateNames))
 		{
-			if ($templateID)
-			{
-				$template = $model->fetchTemplate(intval($templateID));
-			}
-			$templateNames = $model->fetchTemplateNames($themeID = $template ? $template->theme_id : 0, $branch);
+			$templateID = $first[0];
 		}
-		
-		if (!$template)
-		{
-			if (!$templateID && $first = each($templateNames))
-			{
-				$templateID = $first[0];
-			}
-			$template = $model->fetchTemplate(intval($templateID));
-		}
+		$template = $model->fetchTemplate(intval($templateID));
 
 		if ($template)
 		{
@@ -969,7 +947,7 @@ class _DesignController extends EscherAdminController
 		$vars['templates'] = $templateNames;
 		$vars['template'] = $template;
 		$vars['selected_template_id'] = $templateID;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -996,7 +974,6 @@ class _DesignController extends EscherAdminController
 		}
 
 		$branch = $this->getWorkingBranch();
-
 		$model = $this->newAdminContentModel();
 
 		if (!$template = $model->fetchTemplate(intval($templateID)))
@@ -1048,17 +1025,11 @@ class _DesignController extends EscherAdminController
 
 	protected function snippets_add($params)
 	{
-		if (!$themeID = $this->getSelectedTheme($params))
-		{
-			if (!$themeID = @$params[0])
-			{
-				$themeID = 0;
-			}
-		}
-		
 		$branch = $this->getWorkingBranch();
-		
 		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
 		
 		$snippet = $this->factory->manufacture('Snippet', array('theme_id'=>$themeID, 'branch'=>$branch));
 
@@ -1109,7 +1080,7 @@ class _DesignController extends EscherAdminController
 		$vars['selected_subtab'] = 'snippets';
 		$vars['action'] = 'add';
 		$vars['snippet'] = $snippet;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -1127,10 +1098,14 @@ class _DesignController extends EscherAdminController
 
 	protected function snippets_edit($params)
 	{
+		$branch = $this->getWorkingBranch();
+		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
+		
 		$snippet = NULL;
 		
-		$themeID = $this->getSelectedTheme($params);
-
 		if (!$snippetID = @$params['pv']['selected_snippet_id'])
 		{
 			$snippetID = @$params[0];
@@ -1138,37 +1113,17 @@ class _DesignController extends EscherAdminController
 
 		$targetSnippetID = $snippetID;
 
-		$branch = $this->getWorkingBranch();
-
-		$model = $this->newAdminContentModel();
-		
-		// if a theme was specified, we only show snippets for that theme
-		
-		if (isset($themeID))
+		$snippetNames = $model->fetchSnippetNames($themeID, $branch);
+		if (!isset($snippetNames[$snippetID]))
 		{
-			$snippetNames = $model->fetchSnippetNames($themeID, $branch);
-			if (!isset($snippetNames[$snippetID]))
-			{
-				$snippetID = 0;
-			}
-		}
-		else
-		{
-			if ($snippetID)
-			{
-				$snippet = $model->fetchSnippet(intval($snippetID));
-			}
-			$snippetNames = $model->fetchSnippetNames($themeID = $snippet ? $snippet->theme_id : 0, $branch);
+			$snippetID = 0;
 		}
 		
-		if (!$snippet)
+		if (!$snippetID && $first = each($snippetNames))
 		{
-			if (!$snippetID && $first = each($snippetNames))
-			{
-				$snippetID = $first[0];
-			}
-			$snippet = $model->fetchSnippet(intval($snippetID));
+			$snippetID = $first[0];
 		}
+		$snippet = $model->fetchSnippet(intval($snippetID));
 
 		if ($snippet)
 		{
@@ -1262,7 +1217,7 @@ class _DesignController extends EscherAdminController
 		$vars['snippets'] = $snippetNames;
 		$vars['snippet'] = $snippet;
 		$vars['selected_snippet_id'] = $snippetID;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -1289,7 +1244,6 @@ class _DesignController extends EscherAdminController
 		}
 
 		$branch = $this->getWorkingBranch();
-
 		$model = $this->newAdminContentModel();
 
 		if (!$snippet = $model->fetchSnippet(intval($snippetID)))
@@ -1341,18 +1295,12 @@ class _DesignController extends EscherAdminController
 
 	protected function tags_add($params)
 	{
-		if (!$themeID = $this->getSelectedTheme($params))
-		{
-			if (!$themeID = @$params[0])
-			{
-				$themeID = 0;
-			}
-		}
-		
 		$branch = $this->getWorkingBranch();
-		
 		$model = $this->newAdminContentModel();
 		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
+
 		$tag = $this->factory->manufacture('Tag', array('theme_id'=>$themeID, 'branch'=>$branch));
 
 		$this->getCommonVars($vars);
@@ -1410,7 +1358,7 @@ class _DesignController extends EscherAdminController
 		$vars['selected_subtab'] = 'tags';
 		$vars['action'] = 'add';
 		$vars['tag'] = $tag;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -1428,10 +1376,14 @@ class _DesignController extends EscherAdminController
 
 	protected function tags_edit($params)
 	{
+		$branch = $this->getWorkingBranch();
+		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
+
 		$tag = NULL;
 		
-		$themeID = $this->getSelectedTheme($params);
-
 		if (!$tagID = @$params['pv']['selected_tag_id'])
 		{
 			$tagID = @$params[0];
@@ -1439,37 +1391,17 @@ class _DesignController extends EscherAdminController
 
 		$targetTagID = $tagID;
 
-		$branch = $this->getWorkingBranch();
+		$tagNames = $model->fetchTagNames($themeID, $branch);
+		if (!isset($tagNames[$tagID]))
+		{
+			$tagID = 0;
+		}
 
-		$model = $this->newAdminContentModel();
-		
-		// if a theme was specified, we only show tags for that theme
-		
-		if (isset($themeID))
+		if (!$tagID && $first = each($tagNames))
 		{
-			$tagNames = $model->fetchTagNames($themeID, $branch);
-			if (!isset($tagNames[$tagID]))
-			{
-				$tagID = 0;
-			}
+			$tagID = $first[0];
 		}
-		else
-		{
-			if ($tagID)
-			{
-				$tag = $model->fetchTag(intval($tagID));
-			}
-			$tagNames = $model->fetchTagNames($themeID = $tag ? $tag->theme_id : 0, $branch);
-		}
-		
-		if (!$tag)
-		{
-			if (!$tagID && $first = each($tagNames))
-			{
-				$tagID = $first[0];
-			}
-			$tag = $model->fetchTag(intval($tagID));
-		}
+		$tag = $model->fetchTag(intval($tagID));
 
 		if ($tag)
 		{
@@ -1571,7 +1503,7 @@ class _DesignController extends EscherAdminController
 		$vars['tags'] = $tagNames;
 		$vars['tag'] = $tag;
 		$vars['selected_tag_id'] = $tagID;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -1598,7 +1530,6 @@ class _DesignController extends EscherAdminController
 		}
 
 		$branch = $this->getWorkingBranch();
-
 		$model = $this->newAdminContentModel();
 
 		if (!$tag = $model->fetchTag(intval($tagID)))
@@ -1658,17 +1589,11 @@ class _DesignController extends EscherAdminController
 
 	protected function styles_add($params)
 	{
-		if (!$themeID = $this->getSelectedTheme($params))
-		{
-			if (!$themeID = @$params[0])
-			{
-				$themeID = 0;
-			}
-		}
-		
 		$branch = $this->getWorkingBranch();
-		
 		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
 		
 		$style = $this->factory->manufacture('Style', array('theme_id'=>$themeID, 'branch'=>$branch));
 
@@ -1720,7 +1645,7 @@ class _DesignController extends EscherAdminController
 		$vars['selected_subtab'] = 'styles';
 		$vars['action'] = 'add';
 		$vars['style'] = $style;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -1738,10 +1663,14 @@ class _DesignController extends EscherAdminController
 
 	protected function styles_edit($params)
 	{
+		$branch = $this->getWorkingBranch();
+		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
+
 		$style = NULL;
 		
-		$themeID = $this->getSelectedTheme($params);
-
 		if (!$styleID = @$params['pv']['selected_style_id'])
 		{
 			$styleID = @$params[0];
@@ -1749,37 +1678,17 @@ class _DesignController extends EscherAdminController
 
 		$targetStyleID = $styleID;
 
-		$branch = $this->getWorkingBranch();
+		$styleNames = $model->fetchStyleNames($themeID, $branch);
+		if (!isset($styleNames[$styleID]))
+		{
+			$styleID = 0;
+		}
 
-		$model = $this->newAdminContentModel();
-		
-		// if a theme was specified, we only show styles for that theme
-		
-		if (isset($themeID))
+		if (!$styleID && $first = each($styleNames))
 		{
-			$styleNames = $model->fetchStyleNames($themeID, $branch);
-			if (!isset($styleNames[$styleID]))
-			{
-				$styleID = 0;
-			}
+			$styleID = $first[0];
 		}
-		else
-		{
-			if ($styleID)
-			{
-				$style = $model->fetchStyle(intval($styleID));
-			}
-			$styleNames = $model->fetchStyleNames($themeID = $style ? $style->theme_id : 0, $branch);
-		}
-		
-		if (!$style)
-		{
-			if (!$styleID && $first = each($styleNames))
-			{
-				$styleID = $first[0];
-			}
-			$style = $model->fetchStyle(intval($styleID));
-		}
+		$style = $model->fetchStyle(intval($styleID));
 
 		if ($style)
 		{
@@ -1873,7 +1782,7 @@ class _DesignController extends EscherAdminController
 		$vars['styles'] = $styleNames;
 		$vars['style'] = $style;
 		$vars['selected_style_id'] = $styleID;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -1900,7 +1809,6 @@ class _DesignController extends EscherAdminController
 		}
 
 		$branch = $this->getWorkingBranch();
-
 		$model = $this->newAdminContentModel();
 
 		if (!$style = $model->fetchStyle(intval($styleID)))
@@ -1952,17 +1860,11 @@ class _DesignController extends EscherAdminController
 
 	protected function scripts_add($params)
 	{
-		if (!$themeID = $this->getSelectedTheme($params))
-		{
-			if (!$themeID = @$params[0])
-			{
-				$themeID = 0;
-			}
-		}
-		
 		$branch = $this->getWorkingBranch();
-		
 		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
 		
 		$script = $this->factory->manufacture('Script', array('theme_id'=>$themeID, 'branch'=>$branch));
 
@@ -2014,7 +1916,7 @@ class _DesignController extends EscherAdminController
 		$vars['selected_subtab'] = 'scripts';
 		$vars['action'] = 'add';
 		$vars['script'] = $script;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -2032,10 +1934,14 @@ class _DesignController extends EscherAdminController
 
 	protected function scripts_edit($params)
 	{
+		$branch = $this->getWorkingBranch();
+		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
+
 		$script = NULL;
 		
-		$themeID = $this->getSelectedTheme($params);
-
 		if (!$scriptID = @$params['pv']['selected_script_id'])
 		{
 			$scriptID = @$params[0];
@@ -2043,37 +1949,17 @@ class _DesignController extends EscherAdminController
 
 		$targetScriptID = $scriptID;
 
-		$branch = $this->getWorkingBranch();
+		$scriptNames = $model->fetchScriptNames($themeID, $branch);
+		if (!isset($scriptNames[$scriptID]))
+		{
+			$scriptID = 0;
+		}
 
-		$model = $this->newAdminContentModel();
-		
-		// if a theme was specified, we only show scripts for that theme
-		
-		if (isset($themeID))
+		if (!$scriptID && $first = each($scriptNames))
 		{
-			$scriptNames = $model->fetchScriptNames($themeID, $branch);
-			if (!isset($scriptNames[$scriptID]))
-			{
-				$scriptID = 0;
-			}
+			$scriptID = $first[0];
 		}
-		else
-		{
-			if ($scriptID)
-			{
-				$script = $model->fetchScript(intval($scriptID));
-			}
-			$scriptNames = $model->fetchScriptNames($themeID = $script ? $script->theme_id : 0, $branch);
-		}
-		
-		if (!$script)
-		{
-			if (!$scriptID && $first = each($scriptNames))
-			{
-				$scriptID = $first[0];
-			}
-			$script = $model->fetchScript(intval($scriptID));
-		}
+		$script = $model->fetchScript(intval($scriptID));
 
 		if ($script)
 		{
@@ -2167,7 +2053,7 @@ class _DesignController extends EscherAdminController
 		$vars['scripts'] = $scriptNames;
 		$vars['script'] = $script;
 		$vars['selected_script_id'] = $scriptID;
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -2194,7 +2080,6 @@ class _DesignController extends EscherAdminController
 		}
 
 		$branch = $this->getWorkingBranch();
-
 		$model = $this->newAdminContentModel();
 
 		if (!$script = $model->fetchScript(intval($scriptID)))
@@ -2246,18 +2131,12 @@ class _DesignController extends EscherAdminController
 
 	protected function images_add($params)
 	{
-		if (!$themeID = $this->getSelectedTheme($params))
-		{
-			if (!$themeID = @$params[0])
-			{
-				$themeID = 0;
-			}
-		}
-		
 		$branch = $this->getWorkingBranch();
-		
 		$model = $this->newAdminContentModel();
 		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
+
 		$image = $this->factory->manufacture('Image', array('theme_id'=>$themeID, 'branch'=>$branch));
 
 		$curUser = $this->app->get_user();
@@ -2330,7 +2209,7 @@ class _DesignController extends EscherAdminController
 		$vars['action'] = 'add';
 		$vars['image'] = $image;
 		$vars['max_upload_size'] = $this->app->get_pref('max_upload_size');
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -2348,10 +2227,14 @@ class _DesignController extends EscherAdminController
 
 	protected function images_edit($params)
 	{
+		$branch = $this->getWorkingBranch();
+		$model = $this->newAdminContentModel();
+		
+		$themes = $model->fetchThemeNames();
+		$themeID = $this->getSelectedTheme($params, $themes);
+
 		$image = NULL;
 		
-		$themeID = $this->getSelectedTheme($params);
-
 		if (!$imageID = @$params['pv']['selected_image_id'])
 		{
 			$imageID = @$params[0];
@@ -2359,37 +2242,17 @@ class _DesignController extends EscherAdminController
 
 		$targetImageID = $imageID;
 
-		$branch = $this->getWorkingBranch();
+		$imageNames = $model->fetchImageNames($themeID, $branch);
+		if (!isset($imageNames[$imageID]))
+		{
+			$imageID = 0;
+		}
 
-		$model = $this->newAdminContentModel();
-		
-		// if a theme was specified, we only show images for that theme
-		
-		if (isset($themeID))
+		if (!$imageID && $first = each($imageNames))
 		{
-			$imageNames = $model->fetchImageNames($themeID, $branch);
-			if (!isset($imageNames[$imageID]))
-			{
-				$imageID = 0;
-			}
+			$imageID = $first[0];
 		}
-		else
-		{
-			if ($imageID)
-			{
-				$image = $model->fetchImage(intval($imageID), NULL, NULL, false);
-			}
-			$imageNames = $model->fetchImageNames($themeID = $image ? $image->theme_id : 0, $branch);
-		}
-		
-		if (!$image)
-		{
-			if (!$imageID && $first = each($imageNames))
-			{
-				$imageID = $first[0];
-			}
-			$image = $model->fetchImage(intval($imageID), NULL, NULL, false);
-		}
+		$image = $model->fetchImage(intval($imageID), NULL, NULL, false);
 
 		if ($image)
 		{
@@ -2530,7 +2393,7 @@ class _DesignController extends EscherAdminController
 		$vars['image'] = $image;
 		$vars['selected_image_id'] = $imageID;
 		$vars['max_upload_size'] = $this->app->get_pref('max_upload_size');
-		$vars['themes'] = $model->fetchThemeNames();
+		$vars['themes'] = $themes;
 		$vars['selected_theme_id'] = $themeID;
 		$vars['branches'] = $model->fetchBranchNames();
 		$vars['selected_branch'] = $branch;
@@ -2557,7 +2420,6 @@ class _DesignController extends EscherAdminController
 		}
 
 		$branch = $this->getWorkingBranch();
-
 		$model = $this->newAdminContentModel();
 
 		if (!$image = $model->fetchImage(intval($imageID), NULL, NULL, false))
@@ -2877,16 +2739,31 @@ class _DesignController extends EscherAdminController
 
 	//---------------------------------------------------------------------------
 
-	protected function getSelectedTheme($params)
+	protected function getSelectedTheme($params, $themes)
 	{
+		if (empty($themes))
+		{
+			return 0;
+		}
+		
 		if (($themeID = @$params['pv']['selected_theme_id']) !== NULL)
 		{
+			if (!isset($themes[$themeID]))
+			{
+				$themeID = 0;
+			}
 			$this->session->set('selected_theme_id', intval($themeID));
+			return $themeID;
 		}
-		else
+
+		if ($themeID = $this->session->get('selected_theme_id', 0))
 		{
-			$themeID = $this->session->get('selected_theme_id', 0);
+			if (!isset($themes[$themeID]))
+			{
+				$themeID = 0;
+			}
 		}
+
 		return $themeID;
 	}
 	

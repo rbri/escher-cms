@@ -2442,6 +2442,19 @@ EOD;
 
 EOD;
 
+		$content->addTheme
+		(
+			$this->factory->manufacture
+			(
+				'Theme', array
+				(
+					'slug'=>'default', 'title'=>'Default',
+					'style_url'=>'', 'script_url'=>'', 'image_url'=>'',
+					'author_id'=>1, 'editor_id'=>1,
+				)
+			)
+		);
+
 		$content->addTemplate
 		(
 			$this->factory->manufacture
@@ -2482,6 +2495,82 @@ EOD;
 				)
 			)
 		);
+
+		$content->addPage
+		(
+			$this->factory->manufacture
+			(
+				'PageTheme', array
+				(
+					'slug'=>'themes', 'level'=>1, 'position'=>1,
+					'title'=>'Theme Page', 'breadcrumb'=>'',
+					'status'=>_Page::Status_published, 'magical'=>1, 'cacheable'=>_Page::Cacheable_yes, 'secure'=>_Page::Secure_inherit,
+					'parent_id'=>1, 'author_id'=>1, 'editor_id'=>1,
+					'template_name'=>'default',
+				)
+			)
+		);
+
+		$content->addPage
+		(
+			$this->factory->manufacture
+			(
+				'PageStyle', array
+				(
+					'slug'=>'styles', 'level'=>2, 'position'=>1,
+					'title'=>'Styles Page', 'breadcrumb'=>'',
+					'status'=>_Page::Status_published, 'magical'=>1, 'cacheable'=>_Page::Cacheable_inherit, 'secure'=>_Page::Secure_inherit,
+					'parent_id'=>2, 'author_id'=>1, 'editor_id'=>1,
+					'template_name'=>'default',
+				)
+			)
+		);
+
+		$content->addPage
+		(
+			$this->factory->manufacture
+			(
+				'PageScript', array
+				(
+					'slug'=>'scripts', 'level'=>2, 'position'=>2,
+					'title'=>'Scripts Page', 'breadcrumb'=>'',
+					'status'=>_Page::Status_published, 'magical'=>1, 'cacheable'=>_Page::Cacheable_inherit, 'secure'=>_Page::Secure_inherit,
+					'parent_id'=>2, 'author_id'=>1, 'editor_id'=>1,
+					'template_name'=>'default',
+				)
+			)
+		);
+
+		$content->addPage
+		(
+			$this->factory->manufacture
+			(
+				'PageImage', array
+				(
+					'slug'=>'images', 'level'=>2, 'position'=>3,
+					'title'=>'Images Page', 'breadcrumb'=>'',
+					'status'=>_Page::Status_published, 'magical'=>1, 'cacheable'=>_Page::Cacheable_inherit, 'secure'=>_Page::Secure_inherit,
+					'parent_id'=>2, 'author_id'=>1, 'editor_id'=>1,
+					'template_name'=>'default',
+				)
+			)
+		);
+
+		$content->addPage
+		(
+			$this->factory->manufacture
+			(
+				'PageImage', array
+				(
+					'slug'=>'img', 'level'=>1, 'position'=>2,
+					'title'=>'Content Images', 'breadcrumb'=>'',
+					'status'=>_Page::Status_published, 'magical'=>1, 'cacheable'=>_Page::Cacheable_yes, 'secure'=>_Page::Secure_inherit,
+					'parent_id'=>1, 'author_id'=>1, 'editor_id'=>1,
+					'template_name'=>'default',
+				)
+			)
+		);
+
 	}
 	
 	//---------------------------------------------------------------------------
