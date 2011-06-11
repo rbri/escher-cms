@@ -4,9 +4,9 @@
 	}
 	$(document).ready(function(){
 		$("input:checkbox.master").click(function(event) {
-			checked = $(this).attr('checked');
+			checked = $(this).prop("checked");
 			$(this).parent().parent().parent().parent().find("input:checkbox").each(function() {
-				$(this).attr('checked', checked);
+				$(this).prop("checked", checked);
 			})
 		});
 	});

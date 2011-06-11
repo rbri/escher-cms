@@ -6,11 +6,11 @@
 		$("#toggle-checks").click(function(event){
 			event.preventDefault();
 			$("input:checkbox").each(function(){
-				$(this).attr('checked', !$(this).attr('checked'));
+				$(this).prop("checked", !$(this).prop("checked"));
 			})
 		});
 		$("input:checkbox").click(function(event) {
-			if ($(this).attr('checked'))
+			if ($(this).prop("checked"))
 			{
 				var name = "";
 				var splits = $(this).attr("name").split("_");
@@ -19,7 +19,7 @@
 					name = name + splits[part];
 					if (part != 0)
 					{
-						$('input:checkbox#'+name).attr('checked', true);
+						$("input:checkbox#"+name).prop("checked", true);
 					}
 					name = name + "_";
 				}
