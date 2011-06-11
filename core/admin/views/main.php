@@ -6,9 +6,9 @@
 <meta name="robots" content="noindex, nofollow" />
 <title>Escher Content Management System Administration</title>
 <link href="<?= $this->urlToStatic('/css/escher.css') ?>" media="screen" rel="stylesheet" type="text/css" />
-<link href="<?= $this->urlToStatic('/js/jquery/css/smoothness/jquery-ui-1.8.6.custom.css') ?>" media="screen" rel="stylesheet" type="text/css" />
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/jquery-ui.min.js" type="text/javascript"></script>
+<link href="<?= $this->urlToStatic('/js/jquery/css/smoothness/jquery-ui-1.8.13.custom.css') ?>" media="screen" rel="stylesheet" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js" type="text/javascript"></script>
 <script src="<?= $this->urlToStatic('/js/jquery_plugins.js') ?>" type="text/javascript"></script>
 <script src="<?= $this->urlToStatic('/js/escher_common.js') ?>" type="text/javascript"></script>
 <? if (!empty($head_elements)): ?>
