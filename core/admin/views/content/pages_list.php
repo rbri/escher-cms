@@ -1,14 +1,54 @@
+<? if ($can_move): ?>
+<script src="<?= $this->urlToStatic('/js/jquery.ui.nestedSortable.js') ?>" type="text/javascript"></script>
+<? endif; ?>
 <script type="text/javascript">
 	$(document).ready(function() {
-/*
-		$("#page-list").sortable({ 
-			items: "li",
+
+<? if ($can_move): ?>
+		$('ol.sortable').nestedSortable({
+			disableNesting: 'no-nest',
+			forcePlaceholderSize: true,
+			handle: 'div',
+			helper:	'clone',
+			items: 'li',
+			maxLevels: 0,
+			opacity: .6,
+			placeholder: 'placeholder',
+			revert: 250,
+			tabSize: 25,
+			tolerance: 'pointer',
+			toleranceElement: '> div',
+			listType: 'ol',
+			
 			update: function(event, ui) {
-				var order = $('#page-list').sortable('serialize'); 
-			}
-		});	
-*/
-		$("select.add_child").change(function(event) {
+				if(ui.item.parents('#page_1').is('li') === false)
+				{
+					$(this).nestedSortable('cancel');
+				}
+				else
+				{
+					var order = $(this).nestedSortable('serialize');
+
+					$.ajax({
+						async: false,
+						type: 'post',
+						url: '<?= $order_pages_url ?>',
+						data: order,
+						cache: false,
+						error: function(){
+							$('#page-list ol.sortable').nestedSortable('cancel');
+						},
+						success: function(){
+						//	window.location.reload(true);
+						},
+					});  
+				}
+			},
+			
+		});
+<? endif; ?>
+
+		$('select.add_child').change(function(event) {
 			var model_id = $(this).val();
 			var url = "<?= $this->urlTo('/content/pages/add', true, true) ?>/" + model_id;
 			if (model_id != 0)
@@ -107,7 +147,7 @@ EOD;
 			++$level;
 
 			$out .= <<<EOD
-			{$tabs}<ul class="level-{$level} collapsible{$childDisplayClass}">
+			{$tabs}<ol class="level-{$level} collapsible{$childDisplayClass}">
 
 EOD;
 			foreach ($children as $child)
@@ -115,7 +155,7 @@ EOD;
 				$out .= outputPages($child, $level, $self, $modelNames, $canAdd, $canEdit, $imageBase, $treeState);
 			}
 			$out .= <<<EOD
-			{$tabs}</ul>
+			{$tabs}</ol>
 
 EOD;
 		}
@@ -147,9 +187,9 @@ EOD;
 </div>
 
 <div id="page-list" class="hier-list persistent">
-	<ul class="level-0">
+	<ol class="level-0 sortable no-nest">
 <?= $root_page ? outputPages($root_page, 0, $this, $model_names, $can_add, $can_edit, $image_root, $tree_state) : '<li class="no-entries">No Pages</li>' ?>
-	</ul>
+	</ol>
 </div>
 
 <? if (!$root_page): ?>

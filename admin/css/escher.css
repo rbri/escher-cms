@@ -320,25 +320,29 @@ img.icon {
 	padding-right: 5px;
 }
 
-.hier-list ul.level-0 {
+.hier-list .placeholder {
+	background-color: #cfcfcf;
+}
+
+.hier-list ul.level-0, .hier-list ol.level-0 {
 	margin: 10px 0 0 0;
 }
 
-.hier-list ul {
+.hier-list ul, .hier-list ol {
 	list-style: none;
 	margin: 0;
 	padding-left: 1em;
 }
 
-.hier-list ul li {
+.hier-list ul li, .hier-list ol li {
 	clear: both;
 }
 
-.hier-list ul li img { 
+.hier-list ul li img, .hier-list ol li img { 
 	vertical-align: middle; 
 }
 
-.hier-list ul li.no-entries {
+.hier-list ul li.no-entries, .hier-list ol li.no-entries {
 	padding-top: 20px;
 	text-align: center;
 	color: #9eb3bf;
@@ -350,17 +354,17 @@ img.icon {
 	padding-left: 21px;
 }
 
-.hier-list ul li div.entry {
+.hier-list ul li div.entry, .hier-list ol li div.entry {
 	height: 30px;
 	margin-top: -5px;
 	padding-bottom: 10px;
 }
 	
-.hier-list ul li div.entry:hover {
+.hier-list ul li div.entry:hover, .hier-list ol li div.entry:hover {
 	background-color: #ffffb3;
 }
 	
-.hier-list ul li div.entry a {
+.hier-list ul li div.entry a, .hier-list ol li div.entry a {
 	text-decoration: none;
 }
 

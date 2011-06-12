@@ -77,7 +77,7 @@ class _EventLog extends EscherPlugin
 		{
 			$objName = implode(', ', $object);
 		}
-		else
+		elseif (is_object($object))
 		{
 			$objName = isset($object->name) ? $object->name : $object->slug;
 			
@@ -87,7 +87,7 @@ class _EventLog extends EscherPlugin
 			}
 		}
 
-		$message = $verb . ' ' . $objectKind . ' ' . '"'.$objName.'"';
+		$message = $verb . ' ' . $objectKind . ' ' . (isset($object) ? '"'.$objName.'"' : '');
 
 		if ($parent && ($parent instanceof Page))
 		{

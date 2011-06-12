@@ -59,15 +59,25 @@ class ContentObject extends EscherObject
 		switch ($for)
 		{
 			case 'created':
-				return $this->app->format_date($this->created . ' UTC', $format, 1);
+				$date = $this->created . ' UTC';
+				break;
 			case 'edited':
-				return $this->app->format_date($this->edited . ' UTC', $format, 1);
+				$date = $this->edited . ' UTC';
+				break;
 			case 'published':
-				return $this->app->format_date($this->published . ' UTC', $format, 1);
+				$date = $this->published . ' UTC';
+				break;
 			case 'now':
 			default:
-				return $this->app->format_date('now', $format, 1);
+				$date = $this->app->format_date('now', $format, 1);
 		}
+
+		if ($date === '0000-00-00 00:00:00 UTC')
+		{
+			$date = 'now';
+		}
+
+		return $this->app->format_date($date, $format, 1);
 	}
 
 	public function created($format = 'Y-m-d')

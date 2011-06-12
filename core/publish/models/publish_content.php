@@ -1003,6 +1003,48 @@ class _PublishContentModel extends EscherModel
 	}
 	
 	//---------------------------------------------------------------------------
+
+	private function appendChildOrder(&$treeOrder, $parentID, $parents, $levels)
+	{
+		foreach ($parents[$parentID] as $childID)
+		{
+			$treeOrder[$childID] = array('parent_id'=>$parentID, 'level'=>$levels[$childID]);
+			if (isset($parents[$childID]))
+			{
+				$this->appendChildOrder($treeOrder, $childID, $parents, $levels);
+			}
+		}
+	}
+
+	public function fetchPageOrder(&$pageOrder, &$parents)
+	{
+		$pageOrder = array();
+		$parents = array();
+		$levels = array();
+	
+		$db = $this->loadDBWithPerm(EscherModel::PermRead);
+		
+		$sql = $db->buildSelect('page', 'id, parent_id, level', NULL, NULL, $this->buildOrderBy('level, position', 'ASC, DESC', 'filterPageColumn'));
+		$rows = $db->query($sql)->rows();
+
+		// create parents array and levels array
+		
+		foreach ($rows as $row)
+		{
+			$id = $row['id'];
+			$parentID = $row['parent_id'];
+			$parents[$parentID][] = $id;
+			$levels[$id] = $row['level'];
+		}
+
+		unset($rows);
+
+		// create list in flattened hierarchy order
+		
+		$this->appendChildOrder($pageOrder, 0, $parents, $levels);
+	}
+
+	//---------------------------------------------------------------------------
 	
 	public function countPages($parentPage, $ids = NULL, $categories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
 										$limit = NULL, $offset = NULL)

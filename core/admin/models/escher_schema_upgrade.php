@@ -68,7 +68,7 @@ class _EscherSchemaUpgradeModel extends EscherModel
 		return true;		// upgrade successful
 	}
 
-//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	private function delete_perms($db, $startID, $endID)
 	{
@@ -100,7 +100,7 @@ class _EscherSchemaUpgradeModel extends EscherModel
 		$db->commit();
 	}
 	
-//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	private function insert_perms($db, $startingID, $perms)
 	{
@@ -138,7 +138,7 @@ class _EscherSchemaUpgradeModel extends EscherModel
 		$db->commit();
 	}
 	
-//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	private function upgrade_2($db)
 	{
@@ -184,7 +184,7 @@ class _EscherSchemaUpgradeModel extends EscherModel
 		$db->commit();
 	}
 
-//------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	private function upgrade_3($db)
 	{
@@ -573,5 +573,131 @@ class _EscherSchemaUpgradeModel extends EscherModel
 		}
 	}
 
+	//---------------------------------------------------------------------------
+
+	private function upgrade_4($db)
+	{
+		$db->begin();
+
+		try
+		{
+			$di = $db->getFunction('drop_index');
+			$ci = $db->getFunction('create_index');
+
+			$di->table('page');
+			@$di->drop('page_position_parent');
+			try
+			{
+				@$db->query($di->compile());
+			}
+			catch(Exception $e)
+			{
+			}
+
+			$di->table('category');
+			@$di->drop('category_position_parent');
+			try
+			{
+				@$db->query($di->compile());
+			}
+			catch(Exception $e)
+			{
+			}
+			$ci->table('category');
+			$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeNormal, 'position', 'category_position');
+			$db->query($ci->compile());
+
+			$perms = array
+			(
+				array
+				(
+					'group_name' => 'content',
+					'name' => 'content:pages:move',
+				),
+					array
+					(
+						'group_name' => 'content',
+						'name' => 'content:pages:move:own',
+					),
+					array
+					(
+						'group_name' => 'content',
+						'name' => 'content:pages:move:any',
+					),
+			);
+			$this->insert_perms($db, 34, $perms);
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+		
+		// we allow role updates to fail because user may have deleted roles...
+
+		try
+		{
+			@$db->insertRows('role_perm', array
+				(
+					array
+					(
+						'role_id' => 2,
+						'perm_id' => 34,
+					),
+					array
+					(
+						'role_id' => 2,
+						'perm_id' => 35,
+					),
+					array
+					(
+						'role_id' => 2,
+						'perm_id' => 36,
+					),
+					array
+					(
+						'role_id' => 3,
+						'perm_id' => 34,
+					),
+					array
+					(
+						'role_id' => 3,
+						'perm_id' => 35,
+					),
+					array
+					(
+						'role_id' => 3,
+						'perm_id' => 36,
+					),
+					array
+					(
+						'role_id' => 4,
+						'perm_id' => 34,
+					),
+					array
+					(
+						'role_id' => 4,
+						'perm_id' => 35,
+					),
+					array
+					(
+						'role_id' => 5,
+						'perm_id' => 34,
+					),
+					array
+					(
+						'role_id' => 5,
+						'perm_id' => 35,
+					),
+				)
+			);
+		}
+		catch(Exception $e)
+		{
+		}
+	}
+	
 	//---------------------------------------------------------------------------
 }

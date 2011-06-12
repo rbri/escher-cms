@@ -793,6 +793,68 @@ class _AdminContentModel extends _PublishContentModel
 	}
 
 	//---------------------------------------------------------------------------
+
+	public function updatePageOrder($movedPage, $newParentID, $siblingPages, $parents, $levelDelta)
+	{
+		// Update the parentID of the moved page.
+		// Update the relative position of all siblings, based on the order of appearance in the $siblingPages array.
+		// Note that we arrange pages from bottom-to-top. 
+
+		$db = $this->loadDBWithPerm(EscherModel::PermWrite);
+		
+		$db->begin();
+
+		try
+		{
+			if ($levelDelta)
+			{
+				$levelFunction = $db->getFunction('literal')->literal('level+?');
+			}
+			
+			// update the moved page's parent
+
+			{
+				$row['parent_id'] = $newParentID;
+	
+				if ($levelDelta)
+				{
+					$row['level'] = $levelFunction;
+					$bind[] = $levelDelta;
+				}
+	
+				$bind[] = $movedPage;
+				
+				$db->updateRows('page', $row, 'id=?', $bind);
+			}
+			
+			// update positions of all the moved page's siblings
+
+			$position = count($siblingPages);
+			foreach ($siblingPages as $pageID)
+			{
+				$db->updateRows('page', array('position'=>$position--), 'id=? AND parent_id=?', array($pageID, $newParentID));
+			}
+
+			// If the moved page's level has changed by some amount delta, then all descendant page's of the moved
+			// page's parent must have their level adjusted by the same delta.
+			
+			if ($levelDelta && !empty($parents))
+			{
+				$bind = array_merge(array($levelDelta), $parents);
+				$db->updateRows('page', array('level'=>$levelFunction), $db->buildFieldIn('page', 'parent_id', $parents), $bind);
+			}
+
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+	}
+
+	//---------------------------------------------------------------------------
 	
 	public function deletePageByID($pageID, $deleteChildren = true)
 	{

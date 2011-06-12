@@ -33,7 +33,7 @@ require('util.php');
 class EscherVersion
 {
 	const CoreVersion = '0.9.2';
-	const SchemaVersion = 3;
+	const SchemaVersion = 4;
 	const RequiresSparkPlugVersion = '1.1.0';
 	
 	//---------------------------------------------------------------------------

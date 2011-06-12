@@ -175,6 +175,8 @@ class _ContentController extends EscherAdminController
 				return $this->pages_edit($this->dropParam($params));
 			case 'delete':
 				return $this->pages_delete($this->dropParam($params));
+			case 'move':
+				return $this->pages_move($this->dropParam($params));
 			default:
 				if (!$params['count'])
 				{
@@ -1084,11 +1086,144 @@ class _ContentController extends EscherAdminController
 		$vars['model_names'] = $model->fetchAllModelNames();
 		$vars['notice'] = $this->session->flashGet('notice');
 		$vars['tree_state'] = isset($params['cv']['escherpagelist']) ? json_decode($params['cv']['escherpagelist'], true) : NULL;
+		$vars['order_pages_url'] = $this->urlTo('/content/pages/move');
 
 		$this->observer->notify('escher:render:before:content:page:list', $rootPage);
 		$this->render('main', $vars);
 	}
 	
+	//---------------------------------------------------------------------------
+
+	protected function pages_move($params)
+	{
+		// move a page via ajax
+		
+		$this->getCommonVars($vars);	// needed to avoid errors on the 403 page that is rendered (but not displayed) for permissions errors
+		$this->getContentPerms($vars, 'pages', 'move');
+
+		if (!$vars['can_move'])
+		{
+			throw new SparkHTTPException_Forbidden(NULL, $vars);
+		}
+
+		$model = $this->newAdminContentModel();
+		
+		// Fetch the new tree order, represented as a hash of [page_id => parent_id] pairs.
+		// Note that we do not update the entire page tree to match this new page order.
+		// We honor only the first changed page. Therefore, this method does not allow
+		// reordering the entire page tree in one fell swoop. Only a single page may be moved at a time.
+		// This is a safer operation that allows us to more easily guarantee tree consistency.
+		
+		$newTree = @$params['pv']['page'];
+		$newTree[1] = 0;
+		
+		if (!empty($newTree))
+		{
+			// fetch our existing tree order
+			
+			$model->fetchPageOrder($oldTree, $parents);
+			
+			// walk through both trees, comparing pages IDs until we find a mismatch,
+			// at which point we have found the page that has been moved
+			
+			$movedPageID = $affectedParentID = 0;
+			while (list($newPageID, $newParentID) = each($newTree))
+			{
+				list($oldPageID, $oldParentInfo) = each($oldTree);
+				$oldParentID = $oldParentInfo['parent_id'];
+				if (($newPageID != $oldPageID) || ($newParentID != $oldParentID))
+				{
+					$movedPageID = $newPageID;
+					$affectedParentID = $newParentID;
+					
+					do
+					{
+						if ($newParentID != $oldTree[$newPageID]['parent_id'])
+						{
+							$movedPageID = $newPageID;
+							$affectedParentID = $newParentID;
+							break;
+						}
+					} while (list($newPageID, $newParentID) = each($newTree));
+					break;
+				}
+			}
+
+			// if the page's parent has changed, update it
+			// finally, update the position of each of the moved page's (possibly new) siblings
+	
+			if ($movedPageID)
+			{
+				// sanity-check the affected pages
+				
+				if (!isset($oldTree[$movedPageID]))
+				{
+					throw new SparkHTTPException_BadRequest(NULL, array('reason'=>'page does not exist'));
+				}
+				if (!isset($oldTree[$affectedParentID]))
+				{
+					throw new SparkHTTPException_BadRequest(NULL, array('reason'=>'new parent page does not exist'));
+				}
+				
+				// check that we have permission to make ordering changes under the affected parent page
+
+				$parentPage = $model->fetchPageByID($affectedParentID);
+				if ($parentPage)
+				{
+					$this->getContentPerms($vars, 'pages', 'move', $parentPage);
+				}
+				if (!$parentPage || !$vars['can_move'])
+				{
+					throw new SparkHTTPException_Forbidden(NULL, $vars);
+				}
+
+				// find all pages with this parent - these are the affected pages
+				
+				$affectedSiblings = array();
+				
+				foreach ($newTree as $pageID => $parentID)
+				{
+					if (!isset($oldTree[$pageID]))
+					{
+						throw new SparkHTTPException_BadRequest(NULL, array('reason'=>'sibling page does not exist'));
+					}
+					if ($parentID == $affectedParentID)
+					{
+						$affectedSiblings[] = $pageID;
+					}
+				}
+	
+				// if the page changed level, find all the parents of pages whose level needs updating
+				// change in level is equal to the difference in level of the original parent and the new parent
+
+				$parentIDs = array();
+				if ($levelDelta = $oldTree[$affectedParentID]['level'] - ($oldTree[$movedPageID]['level'] - 1))
+				{
+					$this->addParentID($parentIDs, $movedPageID, $parents);
+				}
+
+				$model->updatePageOrder($movedPageID, $affectedParentID, $affectedSiblings, $parentIDs, $levelDelta);
+				$this->observer->notify('escher:site_change:content:page:move', NULL);
+			}
+		}
+	}
+	
+	private function addParentID(&$pageIDs, $parentID, $parents)
+	{		
+		if (isset($parents[$parentID]))
+		{
+			$pageIDs[] = $parentID;
+	
+			foreach ($parents[$parentID] as $childID)
+			{
+				if (isset($parents[$childID]))
+				{
+					$this->addParentID($pageIDs, $childID, $parents);
+				}
+			}
+		}
+	}
+
 	//---------------------------------------------------------------------------
 
 	protected function pages_save($model, $page, $vars)
@@ -2764,6 +2899,7 @@ class _ContentController extends EscherAdminController
 		$vars['can_add'] = $curUser->allowed($prefix.'add');
 		$vars['can_edit'] = $curUser->allowed($prefix.'edit');
 		$vars['can_delete'] = $curUser->allowed($prefix.'delete');
+		$vars['can_move'] = $curUser->allowed($prefix.'move');
 				
 		if ($object)
 		{
@@ -2775,6 +2911,9 @@ class _ContentController extends EscherAdminController
 			if ($vars['can_delete'])
 			{
 				$vars['can_delete'] = $curUser->allowed($prefix.'delete'.$suffix);
+			}
+			{
+				$vars['can_move'] = $curUser->allowed($prefix.'move'.$suffix);
 			}
 			
 			// categories
