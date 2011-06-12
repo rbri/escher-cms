@@ -1165,16 +1165,29 @@ class _ContentController extends EscherAdminController
 					throw new SparkHTTPException_BadRequest(NULL, array('reason'=>'new parent page does not exist'));
 				}
 				
-				// check that we have permission to make ordering changes under the affected parent page
+				// check that we have permission to make ordering changes under the affected parent pages
 
-				$parentPage = $model->fetchPageByID($affectedParentID);
-				if ($parentPage)
+				if ($parentPage = $model->fetchPageByID($affectedParentID))
 				{
 					$this->getContentPerms($vars, 'pages', 'move', $parentPage);
 				}
 				if (!$parentPage || !$vars['can_move'])
 				{
 					throw new SparkHTTPException_Forbidden(NULL, $vars);
+				}
+				
+				// are we moving page from one parent to a different parent?
+				
+				if (($oldParent = $oldTree[$movedPageID]['parent_id']) != $affectedParentID)
+				{
+					if ($parentPage = $model->fetchPageByID($oldParent))
+					{
+						$this->getContentPerms($vars, 'pages', 'move', $parentPage);
+					}
+					if (!$parentPage || !$vars['can_move'])
+					{
+						throw new SparkHTTPException_Forbidden(NULL, $vars);
+					}
 				}
 
 				// find all pages with this parent - these are the affected pages
