@@ -2,7 +2,7 @@
 
 <div class="title">
 <? if ($mode === 'edit'): ?>
-	Edit Page: <?= $page->uri() ?>
+	Edit Page: <a href="<?= (($page->isSecure() && !empty($secure_site_url)) ? $secure_site_url : $site_url) . $page->uri() ?>" target="_blank"><?= $page->uri() ?></a>
 <? else: ?>
 	Add Page
 <? endif; ?>

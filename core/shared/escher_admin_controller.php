@@ -150,6 +150,7 @@ class EscherAdminController extends SparkController
 			$this->_vars = array
 			(
 				'site_url' => $this->app->get_pref('site_url'),
+				'secure_site_url' => $this->app->get_pref('secure_site_url'),
 				'escher_version' => EscherVersion::CoreVersion,
 				'tabs' => $this->app->get_tabs(),
 				'image_root' => $this->urlToStatic('/img/'),
