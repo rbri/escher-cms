@@ -2437,11 +2437,11 @@ class _EscherSchemaModel extends EscherModel
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<et:meta:description />
-<et:meta:keywords />
-<et:meta:distribution />
-<et:meta:author />
-<et:meta:robots />
+<et:meta name="description" />
+<et:meta name="keywords" />
+<et:meta name="distribution" />
+<et:meta name="author" />
+<et:meta name="robots" />
 <title><et:title /></title>
 </head>
 <body>
