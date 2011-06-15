@@ -675,6 +675,16 @@ class _EscherSchemaModel extends EscherModel
 			),
 			array
 			(
+				'name' => 'admin_url',
+				'group_name' => 'basic',
+				'section_name' => '0site_info',
+				'position' => 0,
+				'type' => 'hidden',
+				'validation' => '',
+				'val' => '',
+			),
+			array
+			(
 				'name' => 'site_url',
 				'group_name' => 'basic',
 				'section_name' => '0site_info',
@@ -2969,7 +2979,7 @@ EOD;
 				(
 					'Page', array
 					(
-						'slug'=>'default', 'title'=>'Error', 'breadcrumb'=>'', 'status'=>_Page::Status_hidden,
+						'slug'=>'default', 'title'=>'Default Error Page', 'breadcrumb'=>'', 'status'=>_Page::Status_hidden,
 						'level'=>2, 'cacheable'=>_Page::Cacheable_inherit, 'secure'=>_Page::Secure_inherit,
 						'template_name'=>'',
 						'parent_id'=>2, 'author_id'=>1,

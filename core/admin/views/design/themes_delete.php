@@ -16,9 +16,9 @@
 EOD;
 		if (!empty($theme->children))
 		{
-			$expand_collpase = ($level > 0) ? 'expand' : 'collapse';
+			$expand_collapse = ($level > 0) ? 'expand' : 'collapse';
 			$out .= <<<EOD
-						{$tabs}<a class="{$expand_collpase}" href=""></a>
+						{$tabs}<a class="{$expand_collapse}" href=""></a>
 
 EOD;
 		}

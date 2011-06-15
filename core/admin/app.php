@@ -322,6 +322,9 @@ class _EscherAdmin extends SparkApplication
 	public function fetchExternalWebPage($url)
 	{
 		$page = false;
+		
+		$userAgent = 'Escher CMS '. EscherVersion::CoreVersion . '/' . EscherVersion::SchemaVersion;
+		$referrer = SparkUtil::self_url();
 
 		if (ini_get('allow_url_fopen'))
 		{
@@ -332,8 +335,8 @@ class _EscherAdmin extends SparkApplication
 					'http'=>array
 					(
 						'method'=>'GET',
-						'header'=>"Accept: text/html,application/xhtml+xml,application/xml\r\n",
-						'user_agent'=>'Escher CMS '. EscherVersion::CoreVersion . '/' . EscherVersion::SchemaVersion,
+						'header'=>"Accept: text/html,application/xhtml+xml,application/xml\r\nReferer: {$referrer}\r\n",
+						'user_agent'=>$userAgent,
 						'timeout'=>5
 					)
 				)
@@ -346,7 +349,7 @@ class _EscherAdmin extends SparkApplication
 			$ch = curl_init();
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 				curl_setopt($ch, CURLOPT_URL, $url);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent: Escher CMS'));
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array("User-Agent: {$userAgent}, Referer: {$referrer}"));
 				$page = curl_exec($ch);
 				if (($status = curl_getinfo($ch, CURLINFO_HTTP_CODE)) != 200)
 				{
@@ -412,6 +415,13 @@ class _EscherAdmin extends SparkApplication
 	public function get_pref($key, $default = NULL)
 	{
 		return isset($this->_prefs[$key]) ? $this->_prefs[$key] : $default;
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function put_pref($pref)
+	{
+		$this->_prefsModel->updatePrefs(array($pref));
 	}
 
 	//---------------------------------------------------------------------------

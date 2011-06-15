@@ -40,6 +40,7 @@
 						},
 						success: function(){
 						//	window.location.reload(true);
+						//	ui.item.parent().parent().children('div.entry').filter(':first').children('div.column.first').children('span').children('a.expander').addClass('collapse');
 						},
 					});  
 				}
@@ -82,11 +83,17 @@
 					{$tabs}<span>
 
 EOD;
-		if (!empty($page->children))
 		{
-			$expand_collpase = isset($treeState[$pageID]) ? ($treeState[$pageID] ? 'expand' : 'collapse') : (($level > 0) ? 'expand' : 'collapse');
+			if (empty($page->children))
+			{
+				$expand_collapse = '';
+			}
+			else
+			{
+				$expand_collapse = isset($treeState[$pageID]) ? ($treeState[$pageID] ? ' expand' : ' collapse') : (($level > 0) ? ' expand' : ' collapse');
+			}
 			$out .= <<<EOD
-						{$tabs}<a class="{$expand_collpase}" href=""></a>
+						{$tabs}<a class="expander{$expand_collapse}" href=""></a>
 
 EOD;
 		}

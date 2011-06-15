@@ -100,6 +100,14 @@ class EscherAdminController extends SparkController
 			}
 		}
 
+		// check that the admin URL is up to date in the prefs
+		
+		$adminURL = $this->urlTo('', true, true);
+		if ($adminURL !== $this->app->get_pref('admin_url'))
+		{
+			$this->app->put_pref(array('name'=>'admin_url', 'val'=>$adminURL));
+		}
+		
 		$curUser = $this->app->get_user();
 
 		$subTab = str_replace('action_', '', $method);

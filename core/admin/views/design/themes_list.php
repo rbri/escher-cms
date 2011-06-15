@@ -21,9 +21,9 @@
 EOD;
 		if (!empty($theme->children))
 		{
-			$expand_collpase = isset($treeState[$themeID]) ? ($treeState[$themeID] ? 'expand' : 'collapse') : (($level > 0) ? 'expand' : 'collapse');
+			$expand_collapse = isset($treeState[$themeID]) ? ($treeState[$themeID] ? 'expand' : 'collapse') : (($level > 0) ? 'expand' : 'collapse');
 			$out .= <<<EOD
-						{$tabs}<a class="{$expand_collpase}" href=""></a>
+						{$tabs}<a class="{$expand_collapse}" href=""></a>
 
 EOD;
 		}

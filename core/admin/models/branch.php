@@ -40,15 +40,15 @@ class Branch extends EscherObject
 class _BranchModel extends EscherModel
 {
 	private static $_assetBranchInfo = array
-		(
-			'theme' => 'slug',
-			'template' => 'name',
-			'snippet' => 'name',
-			'tag' => 'name',
-			'style' => 'slug',
-			'script' => 'slug',
-			'image' => 'slug',
-		);
+	(
+		'theme' => 'slug',
+		'template' => 'name',
+		'snippet' => 'name',
+		'tag' => 'name',
+		'style' => 'slug',
+		'script' => 'slug',
+		'image' => 'slug',
+	);
 	
 	//---------------------------------------------------------------------------
 

@@ -697,6 +697,21 @@ class _EscherSchemaUpgradeModel extends EscherModel
 		catch(Exception $e)
 		{
 		}
+
+		$db->insertRows('pref', array
+			(
+				array
+				(
+					'name' => 'admin_url',
+					'group_name' => 'basic',
+					'section_name' => '0site_info',
+					'position' => 0,
+					'type' => 'hidden',
+					'validation' => '',
+					'val' => '',
+				)
+			)
+		);
 	}
 	
 	//---------------------------------------------------------------------------

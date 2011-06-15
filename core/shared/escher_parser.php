@@ -977,6 +977,13 @@ class _EscherParser extends CoreTagParser
 	
 	//---------------------------------------------------------------------------
 	
+	protected function _tag_core_admin_url($atts)
+	{
+		return $this->prefs['admin_url'];
+	}
+	
+	//---------------------------------------------------------------------------
+	
 	protected function _tag_core_site_url($atts)
 	{
 		extract($this->gatts(array(
