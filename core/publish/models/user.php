@@ -478,8 +478,6 @@ class _UserModel extends EscherModel
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
-		$roles = array();
-		
 		foreach ($db->query($db->buildSelect('user', '*', NULL, 'id != 0', 'name'))->rows() as $row)
 		{
 			$user = $this->factory->manufacture('User', $row);
@@ -517,9 +515,14 @@ class _UserModel extends EscherModel
 			$joins = array();
 			$this->buildRolesJoin('user', $joins);
 	
-			foreach ($db->selectJoinRows('user', '{role}.id,{role}.name', $joins, '{user}.id=?', $user->id) as $row)
+			foreach ($db->selectJoinRows('user', '{role}.*', $joins, '{user}.id=?', $user->id) as $row)
 			{
-				$user->roles[$row['id']] = $row['name'];
+				$role = $this->factory->manufacture('Role', $row);
+				if ($user->id == 1)
+				{
+					$role->isAdmin = true;
+				}
+				$user->roles[$role->id] = $this->factory->manufacture('Role', $role);
 			}
 		}
 

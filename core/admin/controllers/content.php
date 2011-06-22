@@ -1299,6 +1299,8 @@ class _ContentController extends EscherAdminController
 		{
 			$model->savePageMeta($page, $vars);
 		}
+
+		$this->observer->notify('escher:site_change:content:page:save', $page);
 	}
 	
 	//---------------------------------------------------------------------------

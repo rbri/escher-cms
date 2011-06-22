@@ -130,11 +130,14 @@ class _Theme extends ContentObject
 
 	public $slug;
 	public $title;
+	public $family;
 	public $lineage;
 	public $style_url;
 	public $script_url;
 	public $image_url;
 	public $parent_id;
+	public $uuid;
+	public $parent_uuid;
 	public $branch;
 	public $deleted;
 

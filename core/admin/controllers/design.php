@@ -638,6 +638,7 @@ class _DesignController extends EscherAdminController
 			// build theme object from form data
 			
 			$oldSlug = $theme->slug;
+			$params['pv']['theme_family'] = $theme->family;	// fill in for disabled fields (family cannot be edited)
 			$this->buildTheme($params['pv'], $theme);
 			
 			if (!$vars['can_save'])
@@ -2500,6 +2501,7 @@ class _DesignController extends EscherAdminController
 		// build theme object
 
 		$theme->title = $params['theme_title'];
+		$theme->family = $params['theme_family'];
 		$theme->slug = $params['theme_slug'];
 		$theme->style_url = $params['theme_style_url'];
 		$theme->script_url = $params['theme_script_url'];
@@ -2515,6 +2517,11 @@ class _DesignController extends EscherAdminController
 		if (empty($params['theme_title']))
 		{
 			$errors['theme_title'] = 'Theme title is required.';
+		}
+
+		if (empty($params['theme_family']))
+		{
+			$errors['theme_family'] = 'Theme family is required.';
 		}
 
 		if (!empty($params['theme_slug']))

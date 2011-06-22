@@ -90,7 +90,7 @@ if (!empty($collapsed) && !empty($metadata))
 				<a class="meta_delete_link" name="<?= $name ?>" href="" title="Delete Meta"><img alt="minus" src="<?= $image_root.'minus.png' ?>" /></a>
 <? endif; ?>
 <? endif; ?>
-<? if ($can_edit_meta): ?>
+<? if ($can_edit_meta && (!isset($disabled) || (is_array($disabled) && !in_array($name, $disabled)))): ?>
 				<input class="textbox" id="<?= $prefix.'_'.$name ?>" maxlength="255" name="<?= $prefix.'_'.$name ?>" size="255" type="text" value="<?= $this->escape($data) ?>" />
 				<?= isset($errors[$prefix.'_'.$name]) ? "<div class=\"clear error\">{$this->escape($errors[$prefix.'_'.$name])}</div>" : '' ?>
 <? else: ?>

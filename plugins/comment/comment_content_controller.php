@@ -53,7 +53,7 @@ class CommentContentController extends ContentController
 	{
 		$myInfo = $this->factory->getPlug('CommentContentController');
 		$this->_plugDir = dirname($myInfo['file']);
-		$this->_model = $this->newModel('Comment');
+		$this->_model = $this->factory->manufacture('CommentModel');
 
 		if (!$this->_model->installed())
 		{

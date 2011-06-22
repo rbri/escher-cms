@@ -21,7 +21,11 @@
 			</div>
 		</div>
 
-<? $this->render('metadata_builder', array('metadata'=>array('theme'=>array('slug'=>$theme->slug)))); ?>
+<? if ($mode === 'edit'): ?>
+<? $this->render('metadata_builder', array('metadata'=>array('theme'=>array('family'=>$theme->family, 'slug'=>$theme->slug)), 'disabled'=>array('family'))); ?>
+<? else: ?>
+<? $this->render('metadata_builder', array('metadata'=>array('theme'=>array('family'=>$theme->family, 'slug'=>$theme->slug)))); ?>
+<? endif; ?>
 <? $this->render('metadata_builder', array('meta_id'=>'ourls', 'title'=>'Override URLs', 'collapsed'=>false, 'titles'=>array('style_url'=>'Style URL','script_url'=>'Script URL','image_url'=>'Image URL'), 'metadata'=>array('theme'=>array('style_url'=>$theme->style_url,'script_url'=>$theme->script_url,'image_url'=>$theme->image_url)))); ?>
 
 		<? if ($mode === 'edit'): ?>

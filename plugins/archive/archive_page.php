@@ -38,7 +38,7 @@ class _ArchivePage extends Page
 	{
 		parent::__construct($params);
 
-		$this->_model = $this->newModel('Archive');
+		$this->_model = $this->factory->manufacture('ArchiveModel');
 	}
 
 	//---------------------------------------------------------------------------

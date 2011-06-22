@@ -38,7 +38,7 @@ class CommentTags extends EscherParser
 	public function __construct($params, $cacher, $content, $currentURI)
 	{
 		parent::__construct($params, $cacher, $content, $currentURI);
-		$this->_model = $this->newModel('Comment');
+		$this->_model = $this->factory->manufacture('CommentModel');
 		$this->_comment_stack = array();
 	}
 	

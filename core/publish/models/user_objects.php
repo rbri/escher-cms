@@ -65,6 +65,19 @@ class _User extends EscherObject
 	public $roles;
 	public $permissions;
 	
+	public function roleNames()
+	{
+		$names = array();
+		if (!empty($this->roles))
+		{
+			foreach ($this->roles as $id => $role)
+			{
+				$names[$id] = $role->name;
+			}
+		}
+		return $names;
+	}
+
 	public function allowed($perm)
 	{
 		return $this->isAdmin || isset($this->permissions[$perm]);

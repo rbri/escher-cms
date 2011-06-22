@@ -137,7 +137,7 @@ class _EventLogModel extends EscherModel
 	
 	private function installPerms()
 	{
-		$userModel = $this->newModel('user');
+		$userModel = $this->newModel('User');
 		
 		$userModel->addPerms(
 			array

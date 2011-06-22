@@ -48,6 +48,8 @@ $sites['<?= $site_id ?>'] = array
 		'Cookie',
 		'Form',
 		'Pagination',
+		'Query',
 		'Recaptcha',
+		'Search',
 	),
 );

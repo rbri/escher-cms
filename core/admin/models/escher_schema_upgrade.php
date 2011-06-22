@@ -715,4 +715,62 @@ class _EscherSchemaUpgradeModel extends EscherModel
 	}
 	
 	//---------------------------------------------------------------------------
+
+	private function upgrade_5($db)
+	{
+		$db->begin();
+
+		try
+		{
+			$at = $db->getFunction('alter_table');
+			$ci = $db->getFunction('create_index');
+
+			$at->table('theme');
+			$at->field('family', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
+			$db->query($at->compile());
+
+			$at->table('theme');
+			$at->field('uuid', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 32);
+			$db->query($at->compile());
+
+			$at->table('theme');
+			$at->field('parent_uuid', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 32);
+			$db->query($at->compile());
+			
+			// create family, UUIDs for all installed themes
+			
+			foreach ($db->selectRows('theme', 'slug') as $row)
+			{
+				$db->updateRows('theme', array('family'=>'Default', 'uuid'=>SparkUtil::make_uuid()), 'slug=?', $row['slug']);
+			}
+
+			// update parent_uuid for all installed themes
+
+			$info = array();
+			foreach ($db->selectRows('theme', 'id, uuid, parent_id') as $row)
+			{
+				$info[$row['id']] = $row;
+			}
+			foreach ($info as $id => $row)
+			{
+				if ($parentID = $row['parent_id'])
+				{
+					$db->updateRows('theme', array('parent_uuid'=>$info[$parentID]['uuid']), 'id=?', $id);
+				}
+			}
+			
+			$ci->table('theme');
+			$ci->index(iSparkDBQueryFunctionCreateIndex::kIndexTypeUnique, 'uuid, branch', 'theme_uuid_branch');
+			$db->query($ci->compile());
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+	}
+
+	//---------------------------------------------------------------------------
 }

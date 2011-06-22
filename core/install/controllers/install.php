@@ -380,20 +380,22 @@ class _InstallController extends SparkController
 				{
 					try
 					{
+						$schema = $this->newModel('EscherSchema');
 						switch ($params['pv']['content_option'])
 						{
 							case 1:
+								$schema->installEmptySite();
 								break;
 							
 							case 2:
-								$schema = $this->newModel('EscherSchema');
-								$schema->installWelcomePage();
+								$schema->installDefaultSite();
 								break;
 
 							case 3:
-								$schema = $this->newModel('EscherSchema');
-								$schema->installExampleSite();
+								$schema->installDemoSite();
 								break;
+							default:
+								throw new SparkException('Invalid option.');
 						}
 						
 						$this->session->clear();

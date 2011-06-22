@@ -53,7 +53,7 @@ class EventLogSettingsController extends SettingsController
 	{
 		$myInfo = $this->factory->getPlug('EventLogSettingsController');
 		$this->_plugDir = dirname($myInfo['file']);
-		$this->_model = $this->newModel('EventLog');
+		$this->_model = $this->factory->manufacture('EventLogModel');
 
 		if (!$this->_model->installed())
 		{

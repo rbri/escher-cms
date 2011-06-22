@@ -57,21 +57,33 @@ class QueryTags extends EscherParser
 		extract($this->gatts(array(
 			'name' => '',
 			'value' => NULL,
+			'get' => true,
+			'post' => false,
 		),$atts));
 
 		if ($name === '')
 		{
-			return $this->input->hasGetVars();
+			return ($get && $this->input->hasGetVars()) || ($post && $this->input->hasPostVars());
 		}
 
-		$val = $this->input->get($name);
+		$val = NULL;
 
-		if (isset($value) && $value !== NULL)
+		if ($this->truthy($post))
+		{
+			$val = $this->input->post($name);
+
+		}
+		if (!isset($val) && ($this->truthy($get)))
+		{
+			$val = $this->input->get($name);
+		}
+
+		if (isset($value))
 		{
 			return $value === $val;
 		}
 
-		return $value !== NULL;
+		return $val !== NULL;
 	}
 		
 	//---------------------------------------------------------------------------
@@ -81,11 +93,22 @@ class QueryTags extends EscherParser
 		extract($this->gatts(array(
 			'name' => '',
 			'escape' => false,
+			'get' => true,
+			'post' => false,
 		),$atts));
 
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'query:var')));
 		
-		$val = $this->input->get($name);
+		$val = NULL;
+		
+		if ($this->truthy($post))
+		{
+			$val = $this->input->post($name);
+		}
+		if (!isset($val) && ($this->truthy($get)))
+		{
+			$val = $this->input->get($name);
+		}
 
 		return ($val !== NULL) ? ($this->truthy($escape) ? $this->output->escape($val) : $val) : '';
 	}

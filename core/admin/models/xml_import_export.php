@@ -172,17 +172,40 @@ class _XMLImportExportModel extends EscherModel
 			
 			// now we can insert the new rows...
 			
+			$xmlUpdates = $xml->{'escher-cms-updates'};
+
 			foreach ($tables as $tableName) 
 			{
 				$container = $tableName.'s';
 				
 				if (array_key_exists($container, $xml) && (count($xml->$container->$tableName) > 0))
 				{
-					foreach ($xml->$container->$tableName as $element)
+					$iter = $xml->$container;
+					$update = false;
+				}
+				elseif (array_key_exists($container, $xmlUpdates) && (count($xmlUpdates->$container->$tableName) > 0))
+				{
+					$iter = $xmlUpdates->$container;
+					$update = true;
+				}
+				else
+				{
+					$iter = NULL;
+				}
+				if ($iter)
+				{
+					foreach ($iter->$tableName as $element)
 					{
 						$element = get_object_vars($element);
+						
+						unset($key);	// assumption: single primary key exists and is first column
+
 						foreach ($element as $column => &$value)
 						{
+							if (!isset($key))
+							{
+								$key = $column;
+							}
 							if (is_object($value))
 							{
 								$value = (string)$value;
@@ -197,15 +220,22 @@ class _XMLImportExportModel extends EscherModel
 							}
 						}
 						
-						$db->insertRow($tableName, $element);
-						
-						// fixup for mysql auto-increment columns
-						
-						if (isset($element['id']) && ($element['id'] === '0'))
+						if ($update)
 						{
-							if (($rowID = $db->lastInsertID()) != 0)
+							$db->upsertRow($tableName, $element, $key);
+						}
+						else
+						{
+							$db->insertRow($tableName, $element);
+							
+							// fixup for mysql auto-increment columns
+							
+							if (isset($element['id']) && ($element['id'] === '0'))
 							{
-								$db->updateRows($tableName, array('id'=>0), 'id=?', $rowID);
+								if (($rowID = $db->lastInsertID()) != 0)
+								{
+									$db->updateRows($tableName, array('id'=>0), 'id=?', $rowID);
+								}
 							}
 						}
 					}
@@ -235,7 +265,7 @@ class _XMLImportExportModel extends EscherModel
 		$includeTables = array_intersect($includeTables, $allTables);
 		if (empty($onlyTables))
 		{
-			$tables = array_merge($includeTables, array_diff($allTables, $includeTables, $excludeTables));
+			$tables = array_diff(array_merge($includeTables, array_diff($allTables, $includeTables)), $excludeTables);
 		}
 		else
 		{

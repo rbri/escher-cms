@@ -258,7 +258,7 @@ class _CommentModel extends EscherModel
 	
 	private function installPerms()
 	{
-		$userModel = $this->newModel('user');
+		$userModel = $this->newModel('User');
 		
 		$userModel->addPerms(
 			array

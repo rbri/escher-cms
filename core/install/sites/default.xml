@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<escher-cms version="4">
+  <themes>
+    <theme>
+      <id>1</id>
+      <slug>default</slug>
+      <title>Default</title>
+      <family>Default</family>
+      <lineage>0</lineage>
+      <style_url/>
+      <script_url/>
+      <image_url/>
+      <created>2011-06-15 23:17:29</created>
+      <edited>2011-06-15 23:17:29</edited>
+      <author_id>1</author_id>
+      <editor_id>1</editor_id>
+      <parent_id>0</parent_id>
+      <uuid>99d6f5ec-6bf2-4a11-8fa2-b5929e2b41ef</uuid>
+      <parent_uuid></parent_uuid>
+      <branch>1</branch>
+      <branch_status>0</branch_status>
+    </theme>
+  </themes>
+  <templates>
+    <template>
+      <id>1</id>
+      <name>default</name>
+      <ctype>text/html</ctype>
+      <content><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<et:meta name="description" />
+<et:meta name="keywords" />
+<et:meta name="distribution" />
+<et:meta name="author" />
+<et:meta name="robots" />
+<title><et:title /></title>
+</head>
+<body>
+</et:content />
+</body>
+</html>]]></content>
+      <created>2011-06-15 23:17:29</created>
+      <edited>2011-06-15 23:17:29</edited>
+      <author_id>1</author_id>
+      <editor_id>1</editor_id>
+      <theme_id>0</theme_id>
+      <branch>1</branch>
+      <branch_status>1</branch_status>
+    </template>
+  </templates>
+  <pages>
+    <page>
+      <id>1</id>
+      <slug/>
+      <level>0</level>
+      <position>1</position>
+      <title>Welcome to Escher!</title>
+      <breadcrumb>Welcome</breadcrumb>
+      <type>Page</type>
+      <status>3</status>
+      <magical>0</magical>
+      <cacheable>1</cacheable>
+      <secure>0</secure>
+      <template_name>default</template_name>
+      <created>2011-06-15 23:17:29</created>
+      <edited>2011-06-15 23:17:29</edited>
+      <published>2011-06-15 23:17:29</published>
+      <author_id>1</author_id>
+      <editor_id>1</editor_id>
+      <parent_id>0</parent_id>
+      <model_id>0</model_id>
+      <priority>0</priority>
+    </page>
+    <page>
+      <id>2</id>
+      <slug>themes</slug>
+      <level>1</level>
+      <position>1</position>
+      <title>Theme Page</title>
+      <breadcrumb/>
+      <type>PageTheme</type>
+      <status>3</status>
+      <magical>1</magical>
+      <cacheable>1</cacheable>
+      <secure>-1</secure>
+      <template_name>default</template_name>
+      <created>2011-06-15 23:17:29</created>
+      <edited>2011-06-15 23:17:29</edited>
+      <published>2011-06-15 23:17:29</published>
+      <author_id>1</author_id>
+      <editor_id>1</editor_id>
+      <parent_id>1</parent_id>
+      <model_id>0</model_id>
+      <priority>0</priority>
+    </page>
+    <page>
+      <id>3</id>
+      <slug>styles</slug>
+      <level>2</level>
+      <position>1</position>
+      <title>Styles Page</title>
+      <breadcrumb/>
+      <type>PageStyle</type>
+      <status>3</status>
+      <magical>1</magical>
+      <cacheable>-1</cacheable>
+      <secure>-1</secure>
+      <template_name>default</template_name>
+      <created>2011-06-15 23:17:29</created>
+      <edited>2011-06-15 23:17:29</edited>
+      <published>2011-06-15 23:17:29</published>
+      <author_id>1</author_id>
+      <editor_id>1</editor_id>
+      <parent_id>2</parent_id>
+      <model_id>0</model_id>
+      <priority>0</priority>
+    </page>
+    <page>
+      <id>4</id>
+      <slug>scripts</slug>
+      <level>2</level>
+      <position>2</position>
+      <title>Scripts Page</title>
+      <breadcrumb/>
+      <type>PageScript</type>
+      <status>3</status>
+      <magical>1</magical>
+      <cacheable>-1</cacheable>
+      <secure>-1</secure>
+      <template_name>default</template_name>
+      <created>2011-06-15 23:17:29</created>
+      <edited>2011-06-15 23:17:29</edited>
+      <published>2011-06-15 23:17:29</published>
+      <author_id>1</author_id>
+      <editor_id>1</editor_id>
+      <parent_id>2</parent_id>
+      <model_id>0</model_id>
+      <priority>0</priority>
+    </page>
+    <page>
+      <id>5</id>
+      <slug>images</slug>
+      <level>2</level>
+      <position>3</position>
+      <title>Images Page</title>
+      <breadcrumb/>
+      <type>PageImage</type>
+      <status>3</status>
+      <magical>1</magical>
+      <cacheable>-1</cacheable>
+      <secure>-1</secure>
+      <template_name>default</template_name>
+      <created>2011-06-15 23:17:29</created>
+      <edited>2011-06-15 23:17:29</edited>
+      <published>2011-06-15 23:17:29</published>
+      <author_id>1</author_id>
+      <editor_id>1</editor_id>
+      <parent_id>2</parent_id>
+      <model_id>0</model_id>
+      <priority>0</priority>
+    </page>
+    <page>
+      <id>6</id>
+      <slug>img</slug>
+      <level>1</level>
+      <position>2</position>
+      <title>Content Images</title>
+      <breadcrumb/>
+      <type>PageImage</type>
+      <status>3</status>
+      <magical>1</magical>
+      <cacheable>1</cacheable>
+      <secure>-1</secure>
+      <template_name>default</template_name>
+      <created>2011-06-15 23:17:29</created>
+      <edited>2011-06-15 23:17:29</edited>
+      <published>2011-06-15 23:17:29</published>
+      <author_id>1</author_id>
+      <editor_id>1</editor_id>
+      <parent_id>1</parent_id>
+      <model_id>0</model_id>
+      <priority>0</priority>
+    </page>
+  </pages>
+  <page_parts>
+    <page_part>
+      <page_id>1</page_id>
+      <name>body</name>
+      <position>0</position>
+      <type>textarea</type>
+      <validation/>
+      <content><![CDATA[<h1>Welcome to Escher!</h1>
+]]></content>
+      <content_html><![CDATA[<h1>Welcome to Escher!</h1>
+]]></content_html>
+      <filter_id>0</filter_id>
+    </page_part>
+  </page_parts>
+</escher-cms>

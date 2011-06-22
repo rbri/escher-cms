@@ -36,7 +36,7 @@
 					<span class="title"><?= $this->escape($user->login) ?></span>
 				</div>
 				<div class="column roles">
-					<span class="title"><?= $this->escape(implode(', ', $user->roles)) ?></span>
+					<span class="title"><?= $this->escape(implode(', ', $user->roleNames())) ?></span>
 				</div>
 			</div>
 		</li>

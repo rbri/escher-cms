@@ -1559,6 +1559,13 @@ class _EscherParser extends CoreTagParser
 		
 	//---------------------------------------------------------------------------
 	
+	protected function _tag_pages_id($atts)
+	{
+		return $this->output->escape($this->currentPageContext()->id);
+	}
+
+	//---------------------------------------------------------------------------
+	
 	protected function _tag_pages_slug($atts)
 	{
 		extract($this->gatts(array(
@@ -2379,6 +2386,13 @@ class _EscherParser extends CoreTagParser
 		}
 
 		return $this->content->pageHasCategories($this->currentPageContext(), $name);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_pages_if_category_list($atts)
+	{
+		return $this->isCategoryPage();
 	}
 	
 	//---------------------------------------------------------------------------
@@ -3579,6 +3593,7 @@ class _EscherParser extends CoreTagParser
 			$here = rtrim($this->pageURL(), ' /');
 			return ($url === $here);
 		}
+		return false;
 	}
 	
 	//---------------------------------------------------------------------------
@@ -3591,6 +3606,7 @@ class _EscherParser extends CoreTagParser
 			$here = rtrim($this->pageURL(), ' /') . '/';
 			return strncmp($url, $here, strlen($url)) === 0;
 		}
+		return false;
 	}
 	
 	//---------------------------------------------------------------------------
@@ -3825,6 +3841,7 @@ class _EscherParser extends CoreTagParser
 				return ($url === $here);
 			}
 		}
+		return false;
 	}
 	
 	//---------------------------------------------------------------------------
@@ -3840,6 +3857,7 @@ class _EscherParser extends CoreTagParser
 				return strncmp($url, $here, strlen($url)) === 0;
 			}
 		}
+		return false;
 	}
 			
 	//---------------------------------------------------------------------------

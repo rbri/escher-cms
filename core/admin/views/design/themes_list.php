@@ -9,6 +9,8 @@
 		$tabs = str_repeat("\t", $level);
 		$themeID = $theme->id;
 		$themeTitle = SparkView::escape_html($theme->title);
+		$themeFamily = SparkView::escape_html($theme->family);
+		$themeAuthor = SparkView::escape_html($theme->author_name);
 		$themeClass = empty($theme->children) ? ' no-children' : '';
 		$childDisplayClass = isset($treeState[$themeID]) ? ($treeState[$themeID] ? ' hidden' : '') : (($level > 0) ? ' hidden' : '');
 
@@ -64,8 +66,9 @@ EOD;
 }
 			$out .= <<<EOD
 			{$tabs}</div>
-			{$tabs}<div class="column author">{$theme->author_name}</div>
+			{$tabs}<div class="column author">{$themeAuthor}</div>
 			{$tabs}<div class="column created">{$theme->getDate('created')}</div>
+			{$tabs}<div class="column family">{$themeFamily}</div>
 		{$tabs}</div>
 
 EOD;
@@ -108,6 +111,7 @@ EOD;
 		<li class="action">Action</li>
 		<li class="author">Author</li>
 		<li class="created">Created</li>
+		<li class="family">Family</li>
 	</ul>
 </div>
 <div id="theme-list" class="hier-list persistent">

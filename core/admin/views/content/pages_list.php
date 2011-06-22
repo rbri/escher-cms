@@ -73,6 +73,7 @@
 		$tabs = str_repeat("\t", $level);
 		$pageID = $page->id;
 		$pageTitle = SparkView::escape_html($page->title);
+		$pageAuthor = SparkView::escape_html($page->author_name);
 		$pageClass = empty($page->children) ? ' no-children' : '';
 		$childDisplayClass = isset($treeState[$pageID]) ? ($treeState[$pageID] ? ' hidden' : '') : (($level > 0) ? ' hidden' : '');
 
@@ -143,7 +144,7 @@ EOD;
 endif;
 			$out .= <<<EOD
 				{$tabs}<div class="column status {$statusClass}">{$page->statusText()}</div>
-				{$tabs}<div class="column author">{$page->author_name}</div>
+				{$tabs}<div class="column author">{$pageAuthor}</div>
 				{$tabs}<div class="column created">{$page->getDate('created')}</div>
 			{$tabs}</div>
 

@@ -44,7 +44,7 @@ class _EventLog extends EscherPlugin
 			$myInfo = $this->factory->getPlug('EventLog');
 			$this->_plugDir = dirname($myInfo['file']);
 
-			$this->_model = $this->newModel('EventLog');
+			$this->_model = $this->factory->manufacture('EventLogModel');
 	
 			if ($this->_model->installed())
 			{

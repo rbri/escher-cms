@@ -47,28 +47,37 @@ class FormTags extends EscherParser
 	// Form Helpers
 	//---------------------------------------------------------------------------
 
-	final protected function fsub()
+	final protected function fsub($id = NULL)
 	{
-		return ($submitted = $this->input->post('esc_submitted')) && ($submitted == $this->tag_form_id);
+		if ($id === NULL)
+		{
+			$id = @$this->tag_form_id;
+		}
+		return ($submitted = $this->input->post('esc_submitted')) && isset($id) && ($submitted == $id);
 	}
 
 	//---------------------------------------------------------------------------
 
-	final protected function gfvar($name, $default = NULL)
+	final protected function gfvar($name, $default = NULL, $id = NULL)
 	{
-		return $this->fsub() ? $this->input->post($name, $default) : NULL;
+		return $this->fsub($id) ? $this->input->post($name, $default) : NULL;
 	}
 
 	//---------------------------------------------------------------------------
 
-	final protected function gfvaralt($name, $default = NULL)
+	final protected function gfvaralt($name, $default = NULL, $id = NULL)
 	{
-		if (($val = $this->gfvar($name)) === NULL)
+		if (($val = $this->gfvar($name, NULL, $id)) === NULL)
 		{
 			return $default;
 		}
 
-		if (($alt = @$this->form_data[$this->tag_form_id]['options'][$name][$val]) === NULL)
+		if ($id === NULL)
+		{
+			$id = @$this->tag_form_id;
+		}
+
+		if (($alt = @$this->form_data[$id]['options'][$name][$val]) === NULL)
 		{
 			return $val;
 		}
@@ -78,9 +87,9 @@ class FormTags extends EscherParser
 
 	//---------------------------------------------------------------------------
 
-	final protected function gfval($name, $alt = false, $default = NULL)
+	final protected function gfval($name, $alt = false, $default = NULL, $id = NULL)
 	{
-		$val = $alt ? $this->gfvaralt($name, $default) : $this->gfvar($name, $default);
+		$val = $alt ? $this->gfvaralt($name, $default, $id) : $this->gfvar($name, $default, $id);
 
 		if (is_array($val))
 		{
@@ -311,6 +320,7 @@ class FormTags extends EscherParser
 	protected function _tag_form_value($atts)
 	{
 		extract($this->gatts(array(
+			'id' => '',
 			'name' => '',
 			'alt' => false,
 			'escape' => false,
@@ -320,10 +330,10 @@ class FormTags extends EscherParser
 		
 		if ($this->truthy($escape))
 		{
-			return $this->gfval($name, $this->truthy($alt));
+			return $this->gfval($name, $this->truthy($alt), NULL, $id);
 		}
 
-		return $this->truthy($alt) ? $this->gfvaralt($name) : $this->gfvar($name);
+		return $this->truthy($alt) ? $this->gfvaralt($name, NULL, $id) : $this->gfvar($name, NULL, $id);
 	}
 		
 	//---------------------------------------------------------------------------
@@ -331,6 +341,7 @@ class FormTags extends EscherParser
 	protected function _tag_form_if_value($atts)
 	{
 		extract($this->gatts(array(
+			'id' => '',
 			'name' => '',
 			'alt' => false,
 			'value' => '',
@@ -338,7 +349,7 @@ class FormTags extends EscherParser
 		
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:if_value')));
 
-		$val = $this->truthy($alt) ? $this->gfvaralt($name) : $this->gfvar($name);
+		$val = $this->truthy($alt) ? $this->gfvaralt($name, NULL, $id) : $this->gfvar($name, NULL, $id);
 
 		if ($value === '')
 		{
@@ -435,6 +446,7 @@ class FormTags extends EscherParser
 			'maxlength' => '',
 			'rule' => '',
 			'type' => 'text',
+			'placeholder' => '',
 		),$atts));
 
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:text')));
@@ -461,7 +473,7 @@ class FormTags extends EscherParser
 			$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['error_class'];
 		}
 		
-		$atts = $this->matts(compact('type', 'name', 'value', 'size', 'maxlength', 'style'), true);
+		$atts = $this->matts(compact('type', 'name', 'value', 'size', 'maxlength', 'style', 'placeholder'), true);
 		return ($label && $id ? $this->output->label($label, $id, $class) : '') . $this->output->tag(NULL, 'input', $class, $id, $atts);
 	}
 	

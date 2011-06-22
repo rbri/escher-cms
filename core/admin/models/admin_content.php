@@ -603,7 +603,7 @@ class _AdminContentModel extends _PublishContentModel
 			unset($row['validation']);
 		}
 
-		$db->upsertRow('model_part', $row, 'name=? AND model_id=?', array($part->name, $part->model_id));
+		$db->upsertRow('model_part', $row, array('name', 'model_id'));
 	}
 
 	//---------------------------------------------------------------------------
@@ -1224,7 +1224,7 @@ class _AdminContentModel extends _PublishContentModel
 			unset($row['validation']);
 		}
 
-		$db->upsertRow('page_part', $row, 'name=? AND page_id=?', array($part->name, $part->page_id));
+		$db->upsertRow('page_part', $row, array('name', 'page_id'));
 	}
 
 	//---------------------------------------------------------------------------
@@ -2268,6 +2268,7 @@ class _AdminContentModel extends _PublishContentModel
 		(
 			'slug' => strtolower($theme->slug),
 			'title' => $theme->title,
+			'family' => $theme->family,
 			'style_url' => $theme->style_url,
 			'script_url' => $theme->script_url,
 			'image_url' => $theme->image_url,
@@ -2275,10 +2276,13 @@ class _AdminContentModel extends _PublishContentModel
 			'edited' => $now,
 			'author_id' => $theme->author_id,
 			'editor_id' => $theme->editor_id ? $theme->editor_id : $theme->author_id,
+			'uuid' => SparkUtil::make_uuid(),
 		);
 		
-		if ($theme->parent_id && $parent = $db->selectRow('theme', 'lineage', 'id=?', $theme->parent_id))
+		if ($theme->parent_id && $parent = $db->selectRow('theme', 'family, uuid, lineage', 'id=?', $theme->parent_id))
 		{
+			$row['family'] = $parent['family'];
+			$row['parent_uuid'] = $parent['uuid'];
 			$row['lineage'] = $parent['lineage'] . ',' . $theme->parent_id;
 			$row['parent_id'] = $theme->parent_id;
 		}
@@ -3468,7 +3472,7 @@ class _AdminContentModel extends _PublishContentModel
 		foreach ($meta as $key=>$val)
 		{
 			$key = strtolower(preg_replace('/\s+/', '_', trim($key)));
-			$db->upsertRow("{$objType}_meta", array("{$objType}_id"=>$id, 'name'=>$key, 'data'=>trim($val)), "{$objType}_id=? AND name=?", array($id, $key));
+			$db->upsertRow("{$objType}_meta", array("{$objType}_id"=>$id, 'name'=>$key, 'data'=>trim($val)), array("{$objType}_id", 'name'));
 		}
 	}
 

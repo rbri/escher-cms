@@ -4,9 +4,11 @@ Escher CMS Change History
 Version 0.9.2 [TBD]
 	integrated branch management: production, staging and development branches
 	support for separate read/write databases
+	drag & drop ordering of pages
 
 Version 0.9.1 [not released]
 	miscellaneous bug fixes
+	enhanced password security (PHPass integrated)
 	added query plugin
 	added "private" attribute to <et:core:scope> tag
 	synced to changes in Spark/Plug's authentication model (using SparkHasher)
