@@ -86,7 +86,7 @@ class ArchiveTags extends EscherParser
 			'category' => '',
 			'status' => 'published,sticky',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 		),$atts));
 
 		$page = $this->currentPageContext();
@@ -102,7 +102,40 @@ class ArchiveTags extends EscherParser
 		
 		$parent = $this->findNonVirtualParent($page);
 
+		$offset = (max(1, $start) - 1) * $limit;
 		return $this->content->countPages($parent, NULL, $category, $status, $startDate, $endDate, $limit, $offset);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_archives_if_any($atts)
+	{
+		return ($this->_tag_archives_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_archives_if_any_before($atts)
+	{
+		extract($this->gatts(array(
+			'category' => '',
+			'status' => 'published,sticky',
+			'limit' => '0',
+			'start' => '1',
+		),$atts));
+
+		$offset = (max(1, $start) - 1) * $limit;
+		$atts['limit'] = 1;
+		$atts['start'] = 1;
+		return ($offset > 0) && ($this->_tag_archives_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_archives_if_any_after($atts)
+	{
+		++$atts['start'];
+		return ($this->_tag_archives_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -112,8 +145,8 @@ class ArchiveTags extends EscherParser
 		extract($this->gatts(array(
 			'category' => '',
 			'status' => 'published,sticky',
-			'limit' => '1',
-			'offset' => '0',
+			'limit' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -132,6 +165,7 @@ class ArchiveTags extends EscherParser
 		$parent = $this->findNonVirtualParent($page);
 		$baseURI = $parent->uri();
 
+		$offset = (max(1, $start) - 1) * $limit;
 		$pages = $this->content->fetchPages($parent, NULL, $category, $status, $startDate, $endDate, 1, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[0])
@@ -171,7 +205,7 @@ class ArchiveTags extends EscherParser
 			'category' => '',
 			'status' => 'published,sticky',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -190,6 +224,7 @@ class ArchiveTags extends EscherParser
 		$parent = $this->findNonVirtualParent($page);
 		$baseURI = $parent->uri();
 
+		$offset = (max(1, $start) - 1) * $limit;
 		$pages = $this->content->fetchPages($parent, NULL, $category, $status, $startDate, $endDate, $limit, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[count($pages)-1])
@@ -229,7 +264,7 @@ class ArchiveTags extends EscherParser
 			'category' => '',
 			'status' => 'published,sticky',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -254,6 +289,7 @@ class ArchiveTags extends EscherParser
 		$baseURI = $parent->uri();
 		$published = $this->factory->manufacture('SparkDateTime');
 
+		$offset = (max(1, $start) - 1) * $limit;
 		if ($pages = $this->content->fetchPages($parent, NULL, $category, $status, $startDate, $endDate, $limit, $offset, $sort, $order))
 		{
 			$content = $this->getParsable();
@@ -330,7 +366,7 @@ class ArchiveTags extends EscherParser
 			'category' => '',
 			'status' => 'published,sticky',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 			'format' => '%Y-%m-%d',
@@ -351,6 +387,7 @@ class ArchiveTags extends EscherParser
 		
 		$parent = $this->findNonVirtualParent($page);
 
+		$offset = (max(1, $start) - 1) * $limit;
 		$rows = $this->content->fetchPageRows($parent, NULL, $category, $status, $startDate, $endDate, $limit, $offset, $sort, $order);
 		if (!empty($rows))
 		{

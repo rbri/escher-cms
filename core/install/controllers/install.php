@@ -372,7 +372,7 @@ class _InstallController extends SparkController
 		{
 			// set default values
 			
-			$vars['content_option'] = 2;
+			$vars['content_option'] = 1;
 			
 			if (isset($params['pv']['continue']))
 			{
@@ -384,16 +384,21 @@ class _InstallController extends SparkController
 						switch ($params['pv']['content_option'])
 						{
 							case 1:
-								$schema->installEmptySite();
+								$schema->installDefaultSite();
 								break;
 							
 							case 2:
-								$schema->installDefaultSite();
+								$schema->installDemoSite();
 								break;
 
 							case 3:
-								$schema->installDemoSite();
+								$schema->installWelcomeSite();
 								break;
+
+							case 4:
+								$schema->installEmptySite();
+								break;
+
 							default:
 								throw new SparkException('Invalid option.');
 						}

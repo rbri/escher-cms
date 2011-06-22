@@ -23,15 +23,19 @@
 			<div class="form-area">
 				<div class="field">
 					<input type="radio" name="content_option" value="1" <?= $content_option == 1 ? 'checked="checked"' : '' ?> />
-					<label for="content_option">No thanks! Just an empty site, please.</label>
+					<label for="content_option">The default Escher CMS theme, suitable for a personal site with blog.</label>
 				</div>
 				<div class="field">
 					<input type="radio" name="content_option" value="2" <?= $content_option == 2 ? 'checked="checked"' : '' ?> />
-					<label for="content_option">A simple welcome page.</label>
+					<label for="content_option">The Escher CMS demo site to explore.</label>
 				</div>
 				<div class="field">
 					<input type="radio" name="content_option" value="3" <?= $content_option == 3 ? 'checked="checked"' : '' ?> />
-					<label for="content_option">A sample site to explore.</label>
+					<label for="content_option">A simple welcome page.</label>
+				</div>
+				<div class="field">
+					<input type="radio" name="content_option" value="4" <?= $content_option == 4 ? 'checked="checked"' : '' ?> />
+					<label for="content_option">No thanks! Just an empty site, please.</label>
 				</div>
 			</div>
 		</fieldset>

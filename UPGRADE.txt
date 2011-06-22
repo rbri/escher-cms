@@ -13,10 +13,11 @@ specific upgrade tasks that need to be performed.
 
 ================================================================================
 
-2. Save Configuration Files
+2. Save Configuration and Database Files
 
 If you are using the standard Escher CMS installation layout, move your /config
-directory to a safe location so that it will not be overwritten.
+directory to a safe location so that it will not be overwritten. Likewise, if
+you are using SQLite, be sure you do not overwrite your database file!
 
 ================================================================================
 

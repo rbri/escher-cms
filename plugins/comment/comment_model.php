@@ -142,26 +142,32 @@ class _CommentModel extends EscherModel
 
 	//---------------------------------------------------------------------------
 	
-	public function countComments($pageID = NULL, $approved = NULL)
+	public function countComments($pageID = NULL, $approved = NULL, $limit = 0, $offset = 0)
 	{
-		$where = $bind = NULL;
-		
-		if ($approved !== NULL)
+		if (empty($limit) && empty($offset))
 		{
-			$where[] = 'approved=?';
-			$bind[] = $approved;
-		}
-		if ($pageID)
-		{
-			$where[] = 'page_id=?';
-			$bind[] = $pageID;
-		}
-		if ($where)
-		{
-			$where = implode(' AND ', $where);
+			$where = $bind = NULL;
+			
+			if ($approved !== NULL)
+			{
+				$where[] = 'approved=?';
+				$bind[] = $approved;
+			}
+			if ($pageID)
+			{
+				$where[] = 'page_id=?';
+				$bind[] = $pageID;
+			}
+			if ($where)
+			{
+				$where = implode(' AND ', $where);
+			}
+
+			return $this->loadDBWithPerm(EscherModel::PermRead)->countRows('comment', $where, $bind);
 		}
 
-		return $this->loadDBWithPerm(EscherModel::PermRead)->countRows('comment', $where, $bind);
+		$comments = $this->fetchComments($pageID, $approved, $limit, $offset);
+		return count($comments);
 	}
 
 	//---------------------------------------------------------------------------

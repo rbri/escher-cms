@@ -2039,10 +2039,44 @@ class _EscherParser extends CoreTagParser
 			'category' => '',
 			'status' => 'published',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 		),$atts));
 
+		$offset = (max(1, $start) - 1) * $limit;
 		return $this->content->countPages(NULL, $id, $category, $status, NULL, NULL, $limit, $offset);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_pages_if_any($atts)
+	{
+		return ($this->_tag_pages_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_pages_if_any_before($atts)
+	{
+		extract($this->gatts(array(
+			'id' => '',
+			'category' => '',
+			'status' => 'published',
+			'limit' => '0',
+			'start' => '1',
+		),$atts));
+
+		$offset = (max(1, $start) - 1) * $limit;
+		$atts['limit'] = 1;
+		$atts['start'] = 1;
+		return ($offset > 0) && ($this->_tag_pages_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_pages_if_any_after($atts)
+	{
+		++$atts['start'];
+		return ($this->_tag_pages_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -2053,12 +2087,13 @@ class _EscherParser extends CoreTagParser
 			'id' => '',
 			'category' => '',
 			'status' => 'published',
-			'limit' => '1',
-			'offset' => '0',
+			'limit' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
 
+		$offset = (max(1, $start) - 1) * $limit;
 		$pages = $this->content->fetchPages(NULL, $id, $category, $status, NULL, NULL, 1, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[0])
@@ -2091,11 +2126,12 @@ class _EscherParser extends CoreTagParser
 			'category' => '',
 			'status' => 'published',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
 
+		$offset = (max(1, $start) - 1) * $limit;
 		$pages = $this->content->fetchPages(NULL, $id, $category, $status, NULL, NULL, $limit, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[count($pages)-1])
@@ -2128,7 +2164,7 @@ class _EscherParser extends CoreTagParser
 			'category' => '',
 			'status' => 'published',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -2137,6 +2173,7 @@ class _EscherParser extends CoreTagParser
 
 		$out = '';
 
+		$offset = (max(1, $start) - 1) * $limit;
 		if ($pages = $this->content->fetchPages(NULL, $id, $category, $status, NULL, NULL, $limit, $offset, $sort, $order))
 		{
 			$content = $this->getParsable();
@@ -2418,10 +2455,43 @@ class _EscherParser extends CoreTagParser
 			'category' => '',
 			'status' => 'published',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 		),$atts));
 
+		$offset = (max(1, $start) - 1) * $limit;
 		return $this->content->countPages($this->currentPageContext(), NULL, $category, $status, NULL, NULL, $limit, $offset);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_children_if_any($atts)
+	{
+		return ($this->_tag_children_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_children_if_any_before($atts)
+	{
+		extract($this->gatts(array(
+			'category' => '',
+			'status' => 'published',
+			'limit' => '0',
+			'start' => '1',
+		),$atts));
+
+		$offset = (max(1, $start) - 1) * $limit;
+		$atts['limit'] = 1;
+		$atts['start'] = 1;
+		return ($offset > 0) && ($this->_tag_children_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_children_if_any_after($atts)
+	{
+		++$atts['start'];
+		return ($this->_tag_children_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -2431,12 +2501,13 @@ class _EscherParser extends CoreTagParser
 		extract($this->gatts(array(
 			'category' => '',
 			'status' => 'published',
-			'limit' => '1',
-			'offset' => '0',
+			'limit' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
 
+		$offset = (max(1, $start) - 1) * $limit;
 		$pages = $this->content->fetchPages($this->currentPageContext(), NULL, $category, $status, NULL, NULL, 1, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[0])
@@ -2468,11 +2539,12 @@ class _EscherParser extends CoreTagParser
 			'category' => '',
 			'status' => 'published',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
 
+		$offset = (max(1, $start) - 1) * $limit;
 		$pages = $this->content->fetchPages($this->currentPageContext(), NULL, $category, $status, NULL, NULL, $limit, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[count($pages)-1])
@@ -2504,7 +2576,7 @@ class _EscherParser extends CoreTagParser
 			'category' => '',
 			'status' => 'published',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -2513,6 +2585,7 @@ class _EscherParser extends CoreTagParser
 
 		$out = '';
 
+		$offset = (max(1, $start) - 1) * $limit;
 		if ($pages = $this->content->fetchPages($this->currentPageContext(), NULL, $category, $status, NULL, NULL, $limit, $offset, $sort, $order))
 		{
 			$content = $this->getParsable();
@@ -2595,11 +2668,44 @@ class _EscherParser extends CoreTagParser
 			'category' => '',
 			'status' => 'published',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 		),$atts));
 
+		$offset = (max(1, $start) - 1) * $limit;
 		$count =  $this->content->countPages($this->currentPageContext()->parent(), NULL, $category, $status, NULL, NULL, $limit, $offset) - 1;
 		return max(0, $count);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_siblings_if_any($atts)
+	{
+		return ($this->_tag_siblings_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_siblings_if_any_before($atts)
+	{
+		extract($this->gatts(array(
+			'category' => '',
+			'status' => 'published',
+			'limit' => '0',
+			'start' => '1',
+		),$atts));
+
+		$offset = (max(1, $start) - 1) * $limit;
+		$atts['limit'] = 1;
+		$atts['start'] = 1;
+		return ($offset > 0) && ($this->_tag_siblings_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_siblings_if_any_after($atts)
+	{
+		++$atts['start'];
+		return ($this->_tag_siblings_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -2673,8 +2779,8 @@ class _EscherParser extends CoreTagParser
 		extract($this->gatts(array(
 			'category' => '',
 			'status' => 'published',
-			'limit' => '',
-			'offset' => '',
+			'limit' => '0',
+			'start' => '1',
 			'sort' => '',
 			'order' => '',
 			'which' => 'all',
@@ -2697,6 +2803,7 @@ class _EscherParser extends CoreTagParser
 				break;
 		}
 
+		$offset = (max(1, $start) - 1) * $limit;
 		if ($pages = $this->content->fetchPageSiblings($this->currentPageContext(), $category, $status, $limit, $offset, $sort, $order, $which))
 		{
 			$content = $this->getParsable();
@@ -3305,10 +3412,44 @@ class _EscherParser extends CoreTagParser
 			'category' => '',
 			'status' => 'published',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 		),$atts));
 
+		$offset = (max(1, $start) - 1) * $limit;
 		return $this->content->countFiles($id, $category, $status, $limit, $offset);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_files_if_any($atts)
+	{
+		return ($this->_tag_files_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_files_if_any_before($atts)
+	{
+		extract($this->gatts(array(
+			'id' => '',
+			'category' => '',
+			'status' => 'published',
+			'limit' => '0',
+			'start' => '1',
+		),$atts));
+
+		$offset = (max(1, $start) - 1) * $limit;
+		$atts['limit'] = 1;
+		$atts['start'] = 1;
+		return ($offset > 0) && ($this->_tag_files_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_files_if_any_after($atts)
+	{
+		++$atts['start'];
+		return ($this->_tag_files_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -3320,7 +3461,7 @@ class _EscherParser extends CoreTagParser
 			'category' => '',
 			'status' => 'published',
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 			'sort' => 'created',
 			'order' => 'desc',
 		),$atts));
@@ -3329,6 +3470,7 @@ class _EscherParser extends CoreTagParser
 
 		$out = '';
 
+		$offset = (max(1, $start) - 1) * $limit;
 		if ($files = $this->content->fetchFiles(false, $id, $category, $status, $limit, $offset, $sort, $order))
 		{
 			$content = $this->getParsable();

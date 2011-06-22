@@ -871,13 +871,6 @@ class _EscherSchemaModel extends EscherModel
 	
 	//---------------------------------------------------------------------------
 
-	public function installEmptySite()
-	{
-		$this->installSite('empty.xml');
-	}
-	
-	//---------------------------------------------------------------------------
-
 	public function installDefaultSite()
 	{
 		$this->installSite('default.xml', 'empty.xml');
@@ -888,6 +881,20 @@ class _EscherSchemaModel extends EscherModel
 	public function installDemoSite()
 	{
 		$this->installSite('creamery.xml', 'empty.xml', false);
+	}
+	
+	//---------------------------------------------------------------------------
+
+	public function installWelcomeSite()
+	{
+		$this->installSite('welcome.xml', 'empty.xml');
+	}
+	
+	//---------------------------------------------------------------------------
+
+	public function installEmptySite()
+	{
+		$this->installSite('empty.xml');
 	}
 	
 	//---------------------------------------------------------------------------

@@ -20,11 +20,45 @@ ownership and permissions as your existing cache/code directory:
 	cache/code.staging
 	cache/code.dev
 
+--
+
 Specifying snippets by ID when using escher tags such as <et:design:snippet> is
 now deprecated and support will be dropped in the next release. Fetch snippets
 by name instead.
 
 --
+
+The "offset" attribute used by several tags has been replaced with the "start"
+attribute, which has different semantics. Whereas the "offset" attribute was a
+zero-based absolute index into the resulting object list, the "start" attribute
+is a one-based index that takes paging (i.e. the value of the "limit" attribute)
+into account. For example, with limit=10 and start=2, the first returned object
+would be the 11th object in the list. The followng tags are affected by this
+change:
+
+	<et:pages:count>, <et:pages:first>, <et:pages:last>, <et:pages:each>
+	<et:children:count>, <et:children:first>, <et:children:last>, <et:children:each>
+	<et:siblings:count>, <et:siblings:each>
+	<et:files:count>, <et:files:each>
+	<et:comments:count>, <et:comments:each>
+	<et:archives:count>, <et:archives:first>, <et:archives:last>, <et:archives:each>, <et:archives:dates_each>
+
+--
+
+New tags have been added to assist with generation of next/previous links in
+concert with the pagination plugin.
+
+	<et:pages:if_any>, <et:pages:if_any_before>, <et:pages:if_any_after>
+	<et:children:if_any>, <et:children:if_any_before>, <et:children:if_any_after>
+	<et:siblings:if_any>, <et:siblings:if_any_before>, <et:siblings:if_any_after>
+	<et:files:if_any>, <et:files:if_any_before>, <et:files:if_any_after>
+	<et:archives:if_any>, <et:archives:if_any_before>, <et:archives:if_any_after>
+	<et:comments:if_any>, <et:comments:if_any_before>, <et:comments:if_any_after>
+
+Note that the <et:comments:if_comments> tag has been removed. Use <et:comments:if_any> instead.
+
+--
+
 ================================================================================
 
 Release 0.9.1

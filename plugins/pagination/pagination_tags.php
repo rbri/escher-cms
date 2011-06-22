@@ -101,6 +101,7 @@ class PaginationTags extends EscherParser
 			'var' => 'p',
 			'page' => '',
 			'title' => 'Next',
+			'max' => '',
 		),$atts, false));
 
 
@@ -109,6 +110,10 @@ class PaginationTags extends EscherParser
 		if ($page === '')
 		{
 			$page = $this->pageNum($var) + 1;
+		}
+		if (!empty($max))
+		{
+			$page = min($max, $page);
 		}
 		$page = max(1, $page);
 		

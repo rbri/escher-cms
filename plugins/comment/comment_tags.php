@@ -64,24 +64,47 @@ class CommentTags extends EscherParser
 	
 	//---------------------------------------------------------------------------
 	
-	protected function _tag_comments_if_comments($atts)
-	{
-		extract($this->gatts(array(
-			'page' => NULL,
-		),$atts));
-		
-		return ($this->_model->countComments($page ? $page : $this->currentPageContext()->id, true) !== 0);
-	}
-	
-	//---------------------------------------------------------------------------
-	
 	protected function _tag_comments_count($atts)
 	{
 		extract($this->gatts(array(
 			'page' => NULL,
+			'limit' => '0',
+			'start' => '1',
 		),$atts));
 		
-		return $this->_model->countComments($page ? $page : $this->currentPageContext()->id, true);
+		$offset = (max(1, $start) - 1) * $limit;
+		return $this->_model->countComments($page ? $page : $this->currentPageContext()->id, true, $limit, $offset);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_comments_if_any($atts)
+	{
+		return ($this->_tag_comments_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_comments_if_any_before($atts)
+	{
+		extract($this->gatts(array(
+			'page' => NULL,
+			'limit' => '0',
+			'start' => '1',
+		),$atts));
+
+		$offset = (max(1, $start) - 1) * $limit;
+		$atts['limit'] = 1;
+		$atts['start'] = 1;
+		return ($offset > 0) && ($this->_tag_comments_count($atts) > 0);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_comments_if_any_after($atts)
+	{
+		++$atts['start'];
+		return ($this->_tag_comments_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -91,7 +114,7 @@ class CommentTags extends EscherParser
 		extract($this->gatts(array(
 			'page' => NULL,
 			'limit' => '0',
-			'offset' => '0',
+			'start' => '1',
 			'order' => 'asc',
 		),$atts));
 
@@ -99,6 +122,7 @@ class CommentTags extends EscherParser
 
 		$out = '';
 
+		$offset = (max(1, $start) - 1) * $limit;
 		if ($comments = $this->_model->fetchComments($page ? $page : $this->currentPageContext()->id, true, $limit, $offset, $order))
 		{
 			$content = $this->getParsable();
