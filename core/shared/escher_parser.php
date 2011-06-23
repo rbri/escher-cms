@@ -32,9 +32,20 @@ require('core_tag_parser.php');
 
 class _EscherParser extends CoreTagParser
 {
+	private static $_default_iter = array
+	(
+		'page' => NULL,
+		'id' => '',
+		'category' => '',
+		'status' => 'published',
+		'limit' => '0',
+		'start' => '1',
+	);
+	
 	private $_cacheID;
 
 	private $_indexes;
+	private $_iter_stack;
 	private $_yield_stack;
 	private $_snippet_parse_stack;
 	private $_block_parse_stack;
@@ -71,6 +82,7 @@ class _EscherParser extends CoreTagParser
 
 		$this->_cacheID = 0;
 		$this->_indexes = array();
+		$this->_iter_stack = array();
 		$this->_yield_stack = array();
 		$this->_snippet_parse_stack = array();
 		$this->_block_parse_stack = array();
@@ -372,6 +384,27 @@ class _EscherParser extends CoreTagParser
 	protected final function popIndex()
 	{
 		array_pop($this->_indexes);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected final function pushIter($iter)
+	{
+		$this->_iter_stack[] = $iter;
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected final function popIter()
+	{
+		array_pop($this->_iter_stack);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected final function currentIter()
+	{
+		return empty($this->_iter_stack) ? self::$_default_iter : end($this->_iter_stack);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -752,6 +785,20 @@ class _EscherParser extends CoreTagParser
 		}
 		
 		return $this->_indexes[$count-1];
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_core_iteration($atts)
+	{
+		extract($this->gatts(self::$_default_iter ,$atts));
+		$this->pushIter(compact(array_keys(self::$_default_iter)));
+		return true;
+	}
+	
+	protected function _xtag_core_iteration($atts)
+	{
+		$this->popIter();
 	}
 	
 	//---------------------------------------------------------------------------
@@ -2034,12 +2081,14 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_pages_count($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'id' => '',
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -2057,12 +2106,14 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_pages_if_any_before($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'id' => '',
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -2075,20 +2126,32 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_pages_if_any_after($atts)
 	{
-		++$atts['start'];
-		return ($this->_tag_pages_count($atts) > 0);
+		$curIter = $this->currentIter();
+		
+		extract($this->gatts(array(
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
+		),$atts));
+
+		$atts['start'] = $start + 1;
+		return ($limit > 0) && ($this->_tag_pages_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_pages_first($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'id' => '',
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -2121,12 +2184,14 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_pages_last($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'id' => '',
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -2159,12 +2224,14 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_pages_each($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'id' => '',
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -2451,11 +2518,13 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_children_count($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -2473,11 +2542,13 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_children_if_any_before($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -2490,19 +2561,30 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_children_if_any_after($atts)
 	{
-		++$atts['start'];
-		return ($this->_tag_children_count($atts) > 0);
+		$curIter = $this->currentIter();
+		
+		extract($this->gatts(array(
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
+		),$atts));
+
+		$atts['start'] = $start + 1;
+		return ($limit > 0) && ($this->_tag_children_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_children_first($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -2535,11 +2617,13 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_children_last($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -2572,11 +2656,13 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_children_each($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -2664,11 +2750,13 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_siblings_count($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -2687,11 +2775,13 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_siblings_if_any_before($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -2704,8 +2794,17 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_siblings_if_any_after($atts)
 	{
-		++$atts['start'];
-		return ($this->_tag_siblings_count($atts) > 0);
+		$curIter = $this->currentIter();
+		
+		extract($this->gatts(array(
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
+		),$atts));
+
+		$atts['start'] = $start + 1;
+		return ($limit > 0) && ($this->_tag_siblings_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -2776,11 +2875,13 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_siblings_each($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => '',
 			'order' => '',
 			'which' => 'all',
@@ -3407,12 +3508,14 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_files_count($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'id' => '',
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -3430,12 +3533,14 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_files_if_any_before($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'id' => '',
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -3448,20 +3553,32 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_files_if_any_after($atts)
 	{
-		++$atts['start'];
-		return ($this->_tag_files_count($atts) > 0);
+		$curIter = $this->currentIter();
+		
+		extract($this->gatts(array(
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
+		),$atts));
+
+		$atts['start'] = $start + 1;
+		return ($limit > 0) && ($this->_tag_files_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_files_each($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'id' => '',
-			'category' => '',
-			'status' => 'published',
-			'limit' => '0',
-			'start' => '1',
+			'id' => $curIter['id'],
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'created',
 			'order' => 'desc',
 		),$atts));

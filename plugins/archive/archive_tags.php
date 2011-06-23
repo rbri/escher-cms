@@ -82,11 +82,13 @@ class ArchiveTags extends EscherParser
 	
 	protected function _tag_archives_count($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published,sticky',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$page = $this->currentPageContext();
@@ -117,11 +119,13 @@ class ArchiveTags extends EscherParser
 	
 	protected function _tag_archives_if_any_before($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published,sticky',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -134,19 +138,30 @@ class ArchiveTags extends EscherParser
 	
 	protected function _tag_archives_if_any_after($atts)
 	{
-		++$atts['start'];
-		return ($this->_tag_archives_count($atts) > 0);
+		$curIter = $this->currentIter();
+		
+		extract($this->gatts(array(
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
+		),$atts));
+
+		$atts['start'] = $start + 1;
+		return ($limit > 0) && ($this->_tag_archives_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_archives_first($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published,sticky',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -201,11 +216,13 @@ class ArchiveTags extends EscherParser
 	
 	protected function _tag_archives_last($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published,sticky',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -260,11 +277,13 @@ class ArchiveTags extends EscherParser
 	
 	protected function _tag_archives_each($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published,sticky',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 		),$atts));
@@ -362,11 +381,13 @@ class ArchiveTags extends EscherParser
 	
 	protected function _tag_archives_dates_each($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'category' => '',
-			'status' => 'published,sticky',
-			'limit' => '0',
-			'start' => '1',
+			'category' => $curIter['category'],
+			'status' => $curIter['status'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'sort' => 'published',
 			'order' => 'desc',
 			'format' => '%Y-%m-%d',

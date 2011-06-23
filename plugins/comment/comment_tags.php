@@ -66,10 +66,12 @@ class CommentTags extends EscherParser
 	
 	protected function _tag_comments_count($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'page' => NULL,
-			'limit' => '0',
-			'start' => '1',
+			'page' => $curIter['page'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 		
 		$offset = (max(1, $start) - 1) * $limit;
@@ -87,10 +89,12 @@ class CommentTags extends EscherParser
 	
 	protected function _tag_comments_if_any_before($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'page' => NULL,
-			'limit' => '0',
-			'start' => '1',
+			'page' => $curIter['page'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
@@ -103,18 +107,28 @@ class CommentTags extends EscherParser
 	
 	protected function _tag_comments_if_any_after($atts)
 	{
-		++$atts['start'];
-		return ($this->_tag_comments_count($atts) > 0);
+		$curIter = $this->currentIter();
+		
+		extract($this->gatts(array(
+			'page' => $curIter['page'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
+		),$atts));
+
+		$atts['start'] = $start + 1;
+		return ($limit > 0) && ($this->_tag_comments_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_comments_each($atts)
 	{
+		$curIter = $this->currentIter();
+		
 		extract($this->gatts(array(
-			'page' => NULL,
-			'limit' => '0',
-			'start' => '1',
+			'page' => $curIter['page'],
+			'limit' => $curIter['limit'],
+			'start' => $curIter['start'],
 			'order' => 'asc',
 		),$atts));
 
