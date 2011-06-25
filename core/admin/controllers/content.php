@@ -1117,6 +1117,8 @@ class _ContentController extends EscherAdminController
 		$newTree = @$params['pv']['page'];
 		$newTree[1] = 0;
 		
+		$changedParent = false;
+
 		if (!empty($newTree))
 		{
 			// fetch our existing tree order
@@ -1188,6 +1190,8 @@ class _ContentController extends EscherAdminController
 					{
 						throw new SparkHTTPException_Forbidden(NULL, $vars);
 					}
+					
+					$changedParent = true;
 				}
 
 				// find all pages with this parent - these are the affected pages
@@ -1219,10 +1223,12 @@ class _ContentController extends EscherAdminController
 				$this->observer->notify('escher:site_change:content:page:move', NULL);
 			}
 		}
+		
+		$this->display($this->render('json', array('data'=>array('new_parent'=>$changedParent)), true), 'application/json');
 	}
 	
 	private function addParentID(&$pageIDs, $parentID, $parents)
-	{		
+	{
 		if (isset($parents[$parentID]))
 		{
 			$pageIDs[] = $parentID;

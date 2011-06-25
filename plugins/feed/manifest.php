@@ -36,6 +36,6 @@ $plug['author'] = 'Sam Weiss';
 $plug['version'] = '1.0.0';
 $plug['license'] = 'GPL3';
 
-$plug['plugs'][] = array('name'=>'Search', 'runs_where'=>1, 'auto_load'=>true);
-$plug['plugs'][] = array('name'=>'SearchTags', 'extends'=>'EscherParser', 'runs_where'=>2);
-$plug['plugs'][] = array('name'=>'SearchModel', 'extends'=>'PublishContentModel', 'runs_where'=>2);
+$plug['plugs'][] = array('name'=>'Feed', 'runs_where'=>1, 'auto_load'=>true);
+$plug['plugs'][] = array('name'=>'FeedTags', 'extends'=>'EscherParser', 'runs_where'=>2);
+$plug['plugs'][] = array('name'=>'FeedModel', 'extends'=>'AdminContentModel', 'runs_where'=>1);

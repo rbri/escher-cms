@@ -43,69 +43,123 @@ class SearchModel extends PublishContentModel
     * Search page titles and/or parts for a text string.
     *
     * @param string $find Text to search for
+    * @param int $parentID If provided, only search pages with that are children of this page
+    * @param string $status Status of pages to include in search
     * @param bool $searchTitles (true|false) whether to search in page titles
     * @param bool|string|array $searchParts (true|false|array) whether to search in page parts, optionally a part name (or array of part names) to search
-    * @return array: list of page IDs with matching text
+    * @param int $limit Limits number of pages returned in search
+    * @param int $offset Offset for paginating result set (CURRENTLY NOT IMPLEMENTED)
+    * @param string $sort Optional comma-separated list of columns to sort by
+    * @param string $order Optional sort direction, corresponding to $sort param
+    * @return array: list of [page_ID=>part_ID] with matching text
     */
 
-	public function searchPages($find, $parentID = NULL, $searchTitles = true, $searchParts = true)
+	public function searchPages($find, $parentID = NULL, $status = NULL, $searchTitles = true, $searchParts = true, $limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
-		$joins[] = array('type'=>'left', 'table'=>'page_part', 'conditions'=>array(array('leftField'=>'id', 'rightField'=>'page_id', 'joinOp'=>'=')));
-		$where = array();
-		$bind = array();
+		if (!SparkUtil::valid_int($limit))
+		{
+			$limit = NULL;
+		}
 		
+		if (!SparkUtil::valid_int($offset))
+		{
+			$offset = NULL;
+		}
+				
+		if (!empty($sort))
+		{
+			$orderBy = $this->buildOrderBy($sort, $order, 'filterPageColumn');
+		}
+		if (empty($orderBy))
+		{
+			$orderBy = '{page}.published DESC';
+		}
+		if ($orderBy !== 'RAND')
+		{
+			$orderBy .= ', {page}.id';		// ensure consistency if dates are the same
+		}
+
+		$result = array();
+
+		if (!empty($status) && ($status !== 'any'))
+		{
+			$where[] = $this->buildStatusIn($db, 'page', $status);
+			$bind = $status;
+		}
+		
+		if (is_int($parentID))
+		{
+			$where[] = '{page}.parent_id = ?';
+			$bind[] = $parentID;
+		}
+		
+		// TODO
+		// We should be using a SQL UNION statement so that orderby, limit and offset are correctly honored.
+		// Instead, we are splicing the results of two separate queries, which doesn't produce exactly
+		// what we want.
+		
+		$offset = NULL;	// ignored until we switch to UNION
+
 		if ($searchTitles)
 		{
 			$where[] = '{page}.title LIKE ?';
 			$bind[] = "%{$find}%";
+
+			$sql = $db->buildSelect('page', 'id', NULL, implode(' AND ', $where), $orderBy, $limit, $offset, true);
+			foreach($db->query($sql, $bind)->rows() as $row)
+			{
+				$result[$row['id']][] = NULL;
+			}
+
+			array_pop($where);
+			array_pop($bind);
 		}
-		
+
 		if ($searchParts)
 		{
-			$clause = '{page_part}.content LIKE ?';
-			$bind[] = "%{$find}%";
-			
+			$joinConds[] = array('leftField'=>'id', 'rightField'=>'page_id');
+
 			if (is_string($searchParts))
 			{
-				$clause = '(' . $clause . ' AND {page_part}.name = ?)';
-				$bind[] = $searchParts;
+				$joinConds[] = array('rightField'=>'name', 'value'=>'?');
+				$bind = array_merge(array($searchParts), $bind);
 			}
 
 			elseif (is_array($searchParts))
 			{
-				$clause = '(' . $clause . ' AND ' . $db->buildFieldIn('page_part', 'name', $searchParts) . ')';
-				$bind = array_merge($bind, $searchParts);
+				$db->makeList($searchParts);
+				$markers = '('.$db->buildMarkers(count($searchParts)).')';
+				$joinConds[] = array('rightField'=>'name', 'joinOp'=>'IN', 'value'=>$markers);
+				$bind = array_merge($searchParts, $bind);
 			}
 
-			$where[] = $clause;
-		}
-		
-		$where = '(' . implode(' OR ', $where) . ')';
+			$joins[] = array('table'=>'page_part', 'conditions'=>$joinConds);
 
-		$status = array('published', 'sticky');
-		{
-			$where .= ' AND ' . $this->buildStatusIn($db, 'page', $status);
-			$bind = array_merge($bind, $status);
-		}
+			$where[] = '{page_part}.content LIKE ?';
+			$bind[] = "%{$find}%";
 		
-		// if a parent page is specified, only return children of that parent page (non-recursively)
-		
-		if (is_int($parentID))
-		{
-			$where .= ' AND {page}.parent_id = ?';
-			$bind[] = $parentID;
-		}
+			$sql = $db->buildSelect('page', '{page}.id, {page_part}.name', $joins, implode(' AND ', $where), $orderBy, $limit, $offset, true);
 
-		$rows = array();
+			foreach($db->query($sql, $bind)->rows() as $row)
+			{
+				$result[$row['id']][] = $row['name'];
+			}
+		}
 		
-		foreach($db->selectJoinRows('page', '{page}.id', $joins, $where, $bind, true) as $row)
+		// TODO
+		// Following hack not necessary once we switch to UNION
+
+		if ($limit)
 		{
-			$rows[] = $row['id'];
+			while (count($result) > $limit)
+			{
+				array_pop($result);
+			}
 		}
 
-		return $rows;
+		return $result;
 	}
 
 	//---------------------------------------------------------------------------

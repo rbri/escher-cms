@@ -41,6 +41,7 @@ $lang['parse'] = array
 	'link_not_found' => 'Link not found: %1$s',
 	'template_not_found' => 'Template not found: %1$s',
 	'snippet_not_found' => 'Snippet not found: %1$s',
+	'undefined_parameter' => 'Undefined parameter: %1$s',
 	'snippet_recursion_limit' => 'Snippet recursion limit reached: %1$s',
 	'block_recursion_limit' => 'Blocks may not reference themselves: %1$s',
 	'part_recursion_limit' => 'Page parts may not reference themselves: %1$s',

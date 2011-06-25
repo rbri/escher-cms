@@ -69,6 +69,7 @@ class PaginationTags extends EscherParser
 			'var' => 'p',
 			'page' => '',
 			'title' => 'Previous',
+			'qsa' => '',
 		),$atts, false));
 
 		// determine previous page number
@@ -83,6 +84,19 @@ class PaginationTags extends EscherParser
 		
 		$vars = $this->input->getVars();
 		$vars[$var] = $page;
+		
+		// we also append any requested post vars to the query string
+		
+		if ($qsa !== '')
+		{
+			foreach (array_map('trim', explode(',', $qsa)) as $key)
+			{
+				if ($val = $this->input->post($key))
+				{
+					$vars[$key] = $val;
+				}
+			}
+		}
 		
 		unset($atts['var']);
 		unset($atts['page']);
@@ -101,6 +115,7 @@ class PaginationTags extends EscherParser
 			'var' => 'p',
 			'page' => '',
 			'title' => 'Next',
+			'qsa' => '',
 			'max' => '',
 		),$atts, false));
 
@@ -121,6 +136,19 @@ class PaginationTags extends EscherParser
 		
 		$vars = $this->input->getVars();
 		$vars[$var] = $page;
+		
+		// we also append any requested post vars to the query string
+		
+		if ($qsa !== '')
+		{
+			foreach (array_map('trim', explode(',', $qsa)) as $key)
+			{
+				if ($val = $this->input->post($key))
+				{
+					$vars[$key] = $val;
+				}
+			}
+		}
 		
 		unset($atts['var']);
 		unset($atts['page']);

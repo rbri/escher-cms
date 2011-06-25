@@ -896,16 +896,16 @@ class _PublishContentModel extends EscherModel
 	//---------------------------------------------------------------------------
 
 	public function fetchPageRows($parentPage, $ids = NULL, $categories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
-										$limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
+											$limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 		
-		if (!is_numeric($limit))
+		if (!SparkUtil::valid_int($limit))
 		{
 			$limit = NULL;
 		}
 		
-		if (!is_numeric($offset))
+		if (!SparkUtil::valid_int($offset))
 		{
 			$offset = NULL;
 		}
@@ -1074,12 +1074,12 @@ class _PublishContentModel extends EscherModel
 
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 		
-		if (!is_numeric($limit))
+		if (!SparkUtil::valid_int($limit))
 		{
 			$limit = NULL;
 		}
 		
-		if (!is_numeric($offset))
+		if (!SparkUtil::valid_int($offset))
 		{
 			$offset = NULL;
 		}
@@ -1661,12 +1661,12 @@ class _PublishContentModel extends EscherModel
 		$bind = array();
 		$joins = array();
 		
-		if (!is_numeric($limit))
+		if (!SparkUtil::valid_int($limit))
 		{
 			$limit = NULL;
 		}
 		
-		if (!is_numeric($offset))
+		if (!SparkUtil::valid_int($offset))
 		{
 			$offset = NULL;
 		}
@@ -2666,7 +2666,7 @@ class _PublishContentModel extends EscherModel
 
 		// direct uri (not a permlink)
 		
-		if (!isset($slugs[0]) || !is_numeric($slugs[0]))
+		if (!isset($slugs[0]) || !SparkUtil::valid_int($slugs[0]))
 		{
 			return array('uri' => $uri, 'slugs' => $slugs);
 		}
@@ -2685,9 +2685,9 @@ class _PublishContentModel extends EscherModel
 		}
 		$pageSpec = array('id'=>$id, 'level'=>$row['level']);
 
-		// permlink: /pageID | /pageID/title
+		// permlink: /page_id | /page_id/page_slug
 		
-		if (!isset($slugs[1]) || !is_numeric($slugs[1]))
+		if (!isset($slugs[1]) || !SparkUtil::valid_int($slugs[1]))
 		{
 			if (count($slugs) > 2)
 			{
@@ -2707,7 +2707,7 @@ class _PublishContentModel extends EscherModel
 			return $pageSpec;
 		}
 		
-		// permlink to category page: pageID/categoryID | pageID/categoryID/cat_slug/title
+		// permlink to category page: page_id/category_id | page_id/category_id/category_trigger/category_slug
 
 		$c = count($slugs);
 

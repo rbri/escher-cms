@@ -46,6 +46,7 @@ $sites['<?= $site_id ?>'] = array
 		'CacheMonitor',
 		'Comment',
 		'Cookie',
+		'Feed',
 		'Form',
 		'Pagination',
 		'Query',

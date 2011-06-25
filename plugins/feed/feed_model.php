@@ -26,16 +26,38 @@ if (!defined('escher'))
 	exit('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>403 Forbidden</title></head><body><h1>Forbidden</h1><p>You don\'t have permission to access the requested resource on this server.</p></body></html>');
 }
 
-/*
-|-------------------------------------------------------------------------------
-| Plug Manifest
-|-------------------------------------------------------------------------------
-*/
+//------------------------------------------------------------------------------
 
-$plug['author'] = 'Sam Weiss';
-$plug['version'] = '1.0.0';
-$plug['license'] = 'GPL3';
+class FeedModel extends AdminContentModel
+{
+	//---------------------------------------------------------------------------
 
-$plug['plugs'][] = array('name'=>'Search', 'runs_where'=>1, 'auto_load'=>true);
-$plug['plugs'][] = array('name'=>'SearchTags', 'extends'=>'EscherParser', 'runs_where'=>2);
-$plug['plugs'][] = array('name'=>'SearchModel', 'extends'=>'PublishContentModel', 'runs_where'=>2);
+	public function __construct($params = NULL)
+	{
+		parent::__construct($params);
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function addPage($page)
+	{
+		$db = $this->loadDBWithPerm(EscherModel::PermWrite);
+
+		$db->begin();
+
+		try
+		{
+			parent::addPage($page);
+			$this->addPageMeta($page->id, array('uuid' => $page->meta['uuid'] = SparkUtil::make_uuid()));
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+	}
+
+	//---------------------------------------------------------------------------
+}

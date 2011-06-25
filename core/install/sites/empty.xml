@@ -3406,7 +3406,7 @@
       <att/>
       <data>a:4:{i:0;s:11:"Maintenance";i:3;s:11:"Development";i:2;s:7:"Staging";i:1;s:10:"Production";}</data>
       <validation/>
-      <val>1</val>
+      <val>3</val>
     </pref>
     <pref>
       <name>debug_level</name>

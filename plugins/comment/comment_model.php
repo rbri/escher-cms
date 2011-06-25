@@ -333,12 +333,12 @@ class _CommentModel extends EscherModel
 
 		$content = <<<EOD
 <et:ns:comments>
-	<et:if_comments>
+	<et:if_any>
 		<h2>Comments</h2>
 		<et:each>
 			<et:design:snippet name="comment" />
 		</et:each>
-	</et:if_comments>
+	</et:if_any>
 	<et:design:snippet name="comment-form" />
 </et:ns:comments>	
 EOD;

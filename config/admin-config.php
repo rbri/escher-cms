@@ -102,7 +102,9 @@ $config = array
 		'Comment',
 		'DesignEdit',
 		'EventLog',
+		'Feed',
 		'Markitup',
+		'Search',
 	),
 );
 unset($rootDir);

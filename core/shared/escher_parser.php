@@ -46,6 +46,7 @@ class _EscherParser extends CoreTagParser
 
 	private $_indexes;
 	private $_iter_stack;
+	private $_param_stack;
 	private $_yield_stack;
 	private $_snippet_parse_stack;
 	private $_block_parse_stack;
@@ -83,6 +84,7 @@ class _EscherParser extends CoreTagParser
 		$this->_cacheID = 0;
 		$this->_indexes = array();
 		$this->_iter_stack = array();
+		$this->_param_stack = array();
 		$this->_yield_stack = array();
 		$this->_snippet_parse_stack = array();
 		$this->_block_parse_stack = array();
@@ -283,7 +285,7 @@ class _EscherParser extends CoreTagParser
 	
 	//---------------------------------------------------------------------------
 	
-	protected final function parseSnippet($nameOrID)
+	protected final function parseSnippet($nameOrID, $params = NULL)
 	{
 		if (($snippet = $this->content->fetchSnippetContent($nameOrID, $this->theme, $this->branch)) === false)
 		{
@@ -297,6 +299,7 @@ class _EscherParser extends CoreTagParser
 			return;
 		}
 
+		$this->_param_stack[] = $params;
 		$this->_snippet_parse_stack[] = $nameOrID;
 
 		if ($this->debug_level > 2)
@@ -316,6 +319,7 @@ class _EscherParser extends CoreTagParser
 		}
 
 		array_pop($this->_snippet_parse_stack);
+		array_pop($this->_param_stack);
 
 		return $out;
 	}
@@ -1537,27 +1541,56 @@ class _EscherParser extends CoreTagParser
 
 	protected function _tag_design_snippet($atts)
 	{
-		extract($this->gatts(array(
-			'name' => '',
-			'id' => '',
-		),$atts));
+		!empty($atts['name']) || !empty($atts['id']) || check(!empty($atts['name']) || !empty($atts['id']), $this->output->escape(self::$lang->get('attribute_required', 'name|id', 'snippet')));
 
-		$name || $id || check($name || $id, $this->output->escape(self::$lang->get('attribute_required', 'name|id', 'snippet')));
+		$name = isset($atts['name']) ? $atts['name'] : '';
 
 		if ($name === '')
 		{
-			$name = (int) $id;
+			$name = (int) $atts['id'];
 		}
-
+		
 		if (SparkUtil::valid_int($name))
 		{
 			$this->reportError(self::$lang->get('fetch_by_id_deprecated', 'snippet', $name), E_USER_WARNING);
 		}
 		
+		unset($atts['name']);
+		unset($atts['id']);
+
 		$this->_yield_stack[] = $this->getContent();
-		$out = $this->parseSnippet($name);
+		$out = $this->parseSnippet($name, $atts);
 		array_pop($this->_yield_stack);
 		return $out;
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_design_param($atts)
+	{
+		extract($this->gatts(array(
+			'name' => '',
+			'default' => false,
+		),$atts));
+
+		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'param')));
+
+		$params = end($this->_param_stack);
+
+		if (!isset($params[$name]))
+		{
+			if ($default !== false)
+			{
+				return $default;
+			}
+			else
+			{
+				$this->reportError(self::$lang->get('undefined_parameter', $name), E_USER_WARNING);
+				return '';
+			}
+		}
+		
+		return $params[$name];
 	}
 	
 	//---------------------------------------------------------------------------
@@ -1575,10 +1608,11 @@ class _EscherParser extends CoreTagParser
 	{
 		extract($this->gatts(array(
 			'name' => '',
+			'default' => '',
 			'tag' => true,
 		),$atts));
 
-		$out = isset($meta[$name]) ? $this->output->escape($meta[$name]) : '';
+		$out = isset($meta[$name]) ? $this->output->escape($meta[$name]) : $default;
 		
 		if ($out !== '' && !$this->falsy($tag))
 		{
@@ -1896,6 +1930,44 @@ class _EscherParser extends CoreTagParser
 		}
 		
 		return $this->parsePart($part);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_pages_excerpt($atts)
+	{
+		extract($this->gatts(array(
+			'maxchars' => '500',
+			'endcap' => '…',
+		),$atts));
+
+		$page = $this->currentPageContext();
+		
+		// try for excerpt or summary part
+
+		foreach (array('excerpt', 'summary') as $name)
+		{
+			if (($part = $this->content->fetchPagePart($page, $name, false)) !== false)
+			{
+				return $this->parsePart($part);
+			}
+		}
+		
+		// fall back to body part
+		
+		if (($part = $this->content->fetchPagePart($page, 'body', false)) !== false)
+		{
+			if ($maxchars == 0)	// no limit, so just return entire body part
+			{
+				return $this->parsePart($part);
+			}
+			
+			// no 'excerpt' or 'summary' part, so generate one on the fly (with markup stripped)
+		
+			return SparkUtil::truncate(strip_tags($this->parsePart($part)), $maxchars, false, $endcap);
+		}
+		
+		return '';
 	}
 
 	//---------------------------------------------------------------------------
@@ -3121,6 +3193,7 @@ class _EscherParser extends CoreTagParser
 	{
 		extract($this->gatts(array(
 			'name' => '',
+			'default' => '',
 		),$atts));
 
 		$name !== '' || check($name !== '', $this->output->escape(self::$lang->get('attribute_required', 'name', 'images:meta')));
@@ -3132,7 +3205,7 @@ class _EscherParser extends CoreTagParser
 
 		$meta = $this->content->fetchImageMeta($image);
 
-		return isset($meta[$name]) ? $this->output->escape($meta[$name]) : '';
+		return isset($meta[$name]) ? $this->output->escape($meta[$name]) : $default;
 	}
 	
 	//---------------------------------------------------------------------------
@@ -3343,6 +3416,7 @@ class _EscherParser extends CoreTagParser
 	{
 		extract($this->gatts(array(
 			'name' => '',
+			'default' => '',
 		),$atts));
 
 		$name !== '' || check($name !== '', $this->output->escape(self::$lang->get('attribute_required', 'name', 'files:meta')));
@@ -3354,7 +3428,7 @@ class _EscherParser extends CoreTagParser
 
 		$meta = $this->content->fetchfileMeta($file);
 
-		return isset($meta[$name]) ? $this->output->escape($meta[$name]) : '';
+		return isset($meta[$name]) ? $this->output->escape($meta[$name]) : $default;
 	}
 	
 	//---------------------------------------------------------------------------
@@ -3676,6 +3750,7 @@ class _EscherParser extends CoreTagParser
 	{
 		extract($this->gatts(array(
 			'name' => '',
+			'default' => '',
 		),$atts));
 
 		$name !== '' || check($name !== '', $this->output->escape(self::$lang->get('attribute_required', 'name', 'links:meta')));
@@ -3687,7 +3762,7 @@ class _EscherParser extends CoreTagParser
 
 		$meta = $this->content->fetchlinkMeta($link);
 
-		return isset($meta[$name]) ? $this->output->escape($meta[$name]) : '';
+		return isset($meta[$name]) ? $this->output->escape($meta[$name]) : $default;
 	}
 	
 	//---------------------------------------------------------------------------

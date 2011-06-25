@@ -30,6 +30,7 @@
 					var order = $(this).nestedSortable('serialize');
 
 					$.ajax({
+						dataType: 'json',
 						async: false,
 						type: 'post',
 						url: '<?= $order_pages_url ?>',
@@ -38,9 +39,12 @@
 						error: function(){
 							$('#page-list ol.sortable').nestedSortable('cancel');
 						},
-						success: function(){
-						//	window.location.reload(true);
+						success: function(data, textStatus, jqXHR){
 						//	ui.item.parent().parent().children('div.entry').filter(':first').children('div.column.first').children('span').children('a.expander').addClass('collapse');
+							if (data['new_parent'])
+							{
+								window.location.reload(true);	// not terribly elegant, but the alternative is complicated and glitchy
+							}
 						},
 					});  
 				}
