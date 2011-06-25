@@ -113,7 +113,7 @@ EOD;
 				(
 					'name'=>'atom',
 					'content'=>$content,
-					'ctype'=>'text/xml',
+					'ctype'=>'application/atom+xml',
 					'author_id'=>$userID,
 					'theme_id'=>0,
 					'branch'=>1,
@@ -151,7 +151,7 @@ EOD;
 				(
 					'name'=>'rss',
 					'content'=>$content,
-					'ctype'=>'text/xml',
+					'ctype'=>'application/rss+xml',
 					'author_id'=>$userID,
 					'theme_id'=>0,
 					'branch'=>1,
