@@ -1224,7 +1224,10 @@ class _ContentController extends EscherAdminController
 			}
 		}
 		
-		$this->display($this->render('json', array('data'=>array('new_parent'=>$changedParent)), true), 'application/json');
+		if ($changedParent)
+		{
+			$this->app->setStatus('205 Reset Content');
+		}
 	}
 	
 	private function addParentID(&$pageIDs, $parentID, $parents)
