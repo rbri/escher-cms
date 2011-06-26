@@ -43,6 +43,7 @@ class SearchModel extends PublishContentModel
     * Search page titles and/or parts for a text string.
     *
     * @param string $find Text to search for
+    * @param string $mode Method used to match search terms ("exact", "any", "all")
     * @param int $parentID If provided, only search pages with that are children of this page
     * @param string $status Status of pages to include in search
     * @param bool $searchTitles (true|false) whether to search in page titles
@@ -54,9 +55,13 @@ class SearchModel extends PublishContentModel
     * @return array: list of [page_ID=>part_ID] with matching text
     */
 
-	public function searchPages($find, $parentID = NULL, $status = NULL, $searchTitles = true, $searchParts = true, $limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
+	public function searchPages($find, $mode, $parentID = NULL, $status = NULL, $searchTitles = true, $searchParts = true, $limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
+
+		// collapase multiple whitespace characters, escape SQL special characters, trim
+
+		$find = trim(str_replace(array('\\', '%', '_', '\''), array('\\\\', '\\%', '\\_', '\\\''), preg_replace('/\s+/', ' ', $find)));
 
 		if (!SparkUtil::valid_int($limit))
 		{
@@ -104,17 +109,31 @@ class SearchModel extends PublishContentModel
 
 		if ($searchTitles)
 		{
-			$where[] = '{page}.title LIKE ?';
-			$bind[] = "%{$find}%";
+			$titleBind = $bind;
+			if ($mode === 'exact')
+			{
+				$where[] = '{page}.title LIKE ?';
+				$titleBind[] = "%{$find}%";
+			}
+			else
+			{
+				$bool = ($mode === 'any') ? ' OR ' : ' AND ';
+				$like = array();
+				foreach (explode(' ', $find) as $term)
+				{
+					$like[] = '{page}.title LIKE ?';
+					$titleBind[] = "%{$term}%";
+				}
+				$where[] = '(' . implode($bool, $like) . ')';
+			}
 
 			$sql = $db->buildSelect('page', 'id', NULL, implode(' AND ', $where), $orderBy, $limit, $offset, true);
-			foreach($db->query($sql, $bind)->rows() as $row)
+			foreach($db->query($sql, $titleBind)->rows() as $row)
 			{
 				$result[$row['id']][] = NULL;
 			}
 
 			array_pop($where);
-			array_pop($bind);
 		}
 
 		if ($searchParts)
@@ -137,8 +156,22 @@ class SearchModel extends PublishContentModel
 
 			$joins[] = array('table'=>'page_part', 'conditions'=>$joinConds);
 
-			$where[] = '{page_part}.content LIKE ?';
-			$bind[] = "%{$find}%";
+			if ($mode === 'exact')
+			{
+				$where[] = '{page_part}.content LIKE ?';
+				$bind[] = "%{$find}%";
+			}
+			else
+			{
+				$bool = ($mode === 'any') ? ' OR ' : ' AND ';
+				$like = array();
+				foreach (explode(' ', $find) as $term)
+				{
+					$like[] = '{page_part}.content LIKE ?';
+					$bind[] = "%{$term}%";
+				}
+				$where[] = '(' . implode($bool, $like) . ')';
+			}
 		
 			$sql = $db->buildSelect('page', '{page}.id, {page_part}.name', $joins, implode(' AND ', $where), $orderBy, $limit, $offset, true);
 

@@ -94,7 +94,7 @@ EOD;
 		$content = <<<EOD
 <et:ns:search>
 	<et:iteration start='<et:pagination:page_num />' limit='<et:design:param name="limit" default="0" />' status='<et:design:param name="status" default="published,sticky" />'>
-		<et:if_found find='<et:query:var name="query" get="true" post="true" />' min='<et:design:param name="min" default="1" />' max='<et:design:param name="max" default="0" />' parent='<et:design:param name="parent" default="0" />' parts='<et:design:param name="parts" default="body" />'>
+		<et:if_found find='<et:query:var name="query" get="true" post="true" />' mode='<et:design:param name="mode" default="" />' min='<et:design:param name="min" default="1" />' max='<et:design:param name="max" default="0" />' parent='<et:design:param name="parent" default="0" />' parts='<et:design:param name="parts" default="body" />'>
 			<div class="search-results">
 				<p><et:anchor rel="bookmark" qs='query=<et:search:term />'>Bookmark This Search</et:anchor></p>
 				<et:each>

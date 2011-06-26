@@ -37,6 +37,8 @@ class Excerpt extends EscherObject
 class SearchTags extends EscherParser
 {
 	private $_search_term;
+	private $_mode;
+	private $_find;
 	private $_limit;
 	private $_start;
 	private $_results;
@@ -128,6 +130,7 @@ class SearchTags extends EscherParser
 
 		extract($this->gatts(array(
 			'find' => '',
+			'mode' => '',
 			'min' => 1,
 			'max' => 0,
 			'parent' => NULL,
@@ -138,6 +141,10 @@ class SearchTags extends EscherParser
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
 		),$atts));
+
+		$mode === '' || $mode === 'exact' || $mode === 'any' || $mode === 'all' || check($mode === '' || $mode === 'exact' || $mode === 'any' || $mode === 'all', $this->output->escape(self::$lang->get('unexpected_attribute_value', $mode, 'mode', 'search:if_found')));
+
+		$find = trim(preg_replace('/\s+/', ' ', $find));
 
 		$searchTitles = $this->truthy($intitle);
 		$searchParts = $this->truthy($inparts);
@@ -159,7 +166,17 @@ class SearchTags extends EscherParser
 		$this->_search_term = $find;
 		$this->_limit = $limit;
 		$this->_start = $start;
-		$this->_results = $this->content->searchPages($find, $parent, $status, $searchTitles, $searchParts);
+
+		if ($quoted = (($find[0] === '"') && ($find[strlen($find)-1] === '"')))
+		{
+			$find = trim(trim($find, '"'));
+		}
+
+		$mode = ($quoted || ($mode === '')) ? 'exact' : $mode;
+
+		$this->_mode = $mode;
+		$this->_find = $find;
+		$this->_results = $this->content->searchPages($find, $mode, $parent, $status, $searchTitles, $searchParts);
 		$this->_page_ids = array_keys($this->_results);
 		
 		return (count($this->_results) >= $min) && (!$max || count($this->_results) <= $max);
@@ -408,8 +425,18 @@ class SearchTags extends EscherParser
 		$excerpts = array();
 		$numExcerpts = 0;
 		
-		$regex_search = "/(?:\G|\s).{0,{$maxchars}}" . preg_quote($this->_search_term) . ".{0,{$maxchars}}(?:\s|$)/iu";
-		$regex_hilite = '/('.preg_quote($this->_search_term).')/i';
+		if ($this->_mode === 'exact')
+		{
+			$find = preg_quote($this->_find);
+			$regex_search = "/(?:\G|\s).{0,{$maxchars}}{$find}.{0,{$maxchars}}(?:\s|$)/iu";
+			$regex_hilite = "/({$find})/i";
+		}
+		else
+		{
+			$find = preg_replace('/\s+/', '|', preg_quote($this->_find));
+			$regex_search = "/(?:\G|\s).{0,{$maxchars}}({$find}).{0,{$maxchars}}(?:\s|$)/iu";
+			$regex_hilite = "/({$find})/i";
+		}
 		
 		foreach ($this->_results[$page->id] as $part)
 		{

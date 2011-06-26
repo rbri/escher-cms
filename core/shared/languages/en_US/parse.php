@@ -50,6 +50,7 @@ $lang['parse'] = array
 	'category_not_found' => 'Category not found: %1$s',
 	'unknown_attribute' => 'Unknown attribute: %1$s',
 	'attribute_required' => '"%1$s" attribute is required in tag: %2$s',
+	'unexpected_attribute_value' => 'unexpected attribute value: %1$s for attribute: %2$s in tag: %3$s',
 	'out_of_scope' => '"%1$s" is out of scope in tag: %2$s',
 	'redefined_err' => '%1$s=%2$s already defined in tag: %3$s',
 	'illegal_tag_nesting' => 'illegally nested tag: %1$s',
