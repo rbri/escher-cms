@@ -795,7 +795,7 @@ class FormTags extends EscherParser
 		return $this->output->wrap($checkboxes, $wraptag, $wrapclass, $wid, '', $breaktag, $breakclass);
 	}
 	
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	protected function _tag_form_button($atts)
 	{
@@ -994,7 +994,7 @@ class FormTags extends EscherParser
 		return $this->_tag_form_select($atts);
 	}
 	
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	protected static function makeInListRule($value)
 	{

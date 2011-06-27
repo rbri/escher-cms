@@ -37,7 +37,7 @@ class _Output extends SparkPlug
 		parent::__construct();
 	}
 
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	public function escape($content, $encodeAll = false, $charset = 'UTF-8')
 	{

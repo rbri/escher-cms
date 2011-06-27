@@ -71,7 +71,7 @@ class _Search extends EscherPlugin
 <et:form:open id="search" nonce="0" action='<et:design:param name="action" default=''<et:find url="/search"><et:url /></et:find>'' />'>
 	<p>
 		<label for="search-textbox">Search</label>
-		<et:form:text id="search-textbox" type="search" name="query" default='<et:query:var name="query" get="true" post="true" />' placeholder="Search My Site" /> <et:form:submit value="Go"/>
+		<et:form:text id="search-textbox" type="search" name="q" default='<et:query:var name="q" get="true" post="true" />' placeholder='Search <et:site_name />' /><et:form:submit value="Go"/>
 	</p>
 </et:form:open>
 EOD;
@@ -94,9 +94,9 @@ EOD;
 		$content = <<<EOD
 <et:ns:search>
 	<et:iteration start='<et:pagination:page_num />' limit='<et:design:param name="limit" default="0" />' status='<et:design:param name="status" default="published,sticky" />'>
-		<et:if_found find='<et:query:var name="query" get="true" post="true" />' mode='<et:design:param name="mode" default="" />' min='<et:design:param name="min" default="1" />' max='<et:design:param name="max" default="0" />' parent='<et:design:param name="parent" default="0" />' parts='<et:design:param name="parts" default="body" />'>
+		<et:if_found find='<et:query:var name="q" get="true" post="true" />' mode='<et:design:param name="mode" default="" />' min='<et:design:param name="min" default="1" />' max='<et:design:param name="max" default="0" />' parent='<et:design:param name="parent" default="0" />' parts='<et:design:param name="parts" default="body" />'>
 			<div class="search-results">
-				<p><et:anchor rel="bookmark" qs='query=<et:search:term />'>Bookmark This Search</et:anchor></p>
+				<p><et:anchor rel="bookmark" qs='q=<et:search:term />'>Bookmark This Search</et:anchor></p>
 				<et:each>
 					<h3><et:pages:anchor /></h3>
 					<p><et:date /></p>
@@ -107,8 +107,8 @@ EOD;
 			</div>
 			<p>Showing <et:count /> of <et:count start="1" limit="0" /> total results.</p>
 			<div id="page-navigation-links">
-				<et:if_any_after><et:pagination:next_link qsa="query">&larr; <span>Previous results</span></et:pagination:next_link></et:if_any_after>
-				<et:if_any_before><et:pagination:prev_link qsa="query"><span>Next results</span> &rarr;</et:pagination:prev_link></et:if_any_before>
+				<et:if_any_after><et:pagination:next_link qsa="q">&larr; <span>Previous results</span></et:pagination:next_link></et:if_any_after>
+				<et:if_any_before><et:pagination:prev_link qsa="q"><span>Next results</span> &rarr;</et:pagination:prev_link></et:if_any_before>
 			</div>
 		<et:else />
 			<div class="no-search-results">

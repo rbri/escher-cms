@@ -372,21 +372,21 @@ class _Input extends SparkPlug
 		return in_array($item, $param);
 	}
 	
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	public static function validate_name($item)
 	{
 		return preg_match('/^([a-z0-9_-])+$/i', $item) ? true : false;
 	}
 
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	public static function validate_currency($item)
 	{
 		return preg_match('/^\$?([0-9]{1,3}(,?[0-9]{3})*)(\.[0-9]{2})?$/', $item) ? true : false;
 	}
 
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	public static function validate_currency_min($item, $param)
 	{
@@ -404,7 +404,7 @@ class _Input extends SparkPlug
 		return ($amount >= $min);
 	}
 
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	public static function validate_currency_max($item, $param)
 	{
@@ -422,7 +422,7 @@ class _Input extends SparkPlug
 		return ($amount <= $max);
 	}
 
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	public static function validate_currency_range($item, $param)
 	{
@@ -450,7 +450,7 @@ class _Input extends SparkPlug
 		return ($min <= $amount) && ($amount <= $max);
 	}
 
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	public static function validate_username($item)
 	{
@@ -469,7 +469,7 @@ class _Input extends SparkPlug
 		return self::validate_alphanum($item);
 	}
 		
-	// --------------------------------------------------------------------
+	// --------------------------------------------------------------------------
 
 	public static function validate_password($item)
 	{
