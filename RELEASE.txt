@@ -55,7 +55,26 @@ concert with the pagination plugin.
 	<et:archives:if_any>, <et:archives:if_any_before>, <et:archives:if_any_after>
 	<et:comments:if_any>, <et:comments:if_any_before>, <et:comments:if_any_after>
 
-Note that the <et:comments:if_comments> tag has been removed. Use <et:comments:if_any> instead.
+--
+
+Comments Plugin
+
+	The <et:comments:if_comments> tag has been removed. Use <et:comments:if_any> instead.
+	
+	The default comment snippets have changed. These are **not** updated during an upgrade.
+
+	Backward-incompatible change in behavior: By default, comment processing (escaping of input, etc.)
+		now occurs prior to saving the comment to the database. Previously, processing was performed
+		dynamically during page view. The new method provides improved site performance. To continue
+		with the previous behavior, change your comment code to pass attributes as follows:
+
+		<et:comments:if_add_comment escape="false" nl2p="false" pretty="false" />
+		<et:comments:content escape="true" />
+
+		If you decide to use the new method of comment processing, be aware that any comments currently
+		stored in your site database may contain data that is unsafe to render. You should check
+		your existing comments and potentially escape the contents of the `message` column for each
+		existing comment before enabling the new behavior in your site.
 
 --
 

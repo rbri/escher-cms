@@ -164,25 +164,6 @@ class CommentTags extends EscherParser
 	
 	//---------------------------------------------------------------------------
 	
-	protected function _tag_comments_content($atts)
-	{
-		extract($this->gatts(array(
-			'escape' => true,
-		),$atts));
-		
-		if ($out = ($comment = $this->currentComment()) ? $comment->message : '')
-		{
-			if ($this->truthy($escape))
-			{
-				$out = $this->output->escape($out);
-			}
-		}
-		
-		return $out;
-	}
-	
-	//---------------------------------------------------------------------------
-	
 	protected function _tag_comments_author($atts)
 	{
 		return ($comment = $this->currentComment()) ? $this->output->escape($comment->author) : '';
@@ -243,6 +224,40 @@ class CommentTags extends EscherParser
 	
 	//---------------------------------------------------------------------------
 	
+	protected function _tag_comments_content($atts)
+	{
+		extract($this->gatts(array(
+			'escape' => false,
+			'nl2p' => false,
+			'pretty' => false,
+		),$atts));
+		
+		if ($out = ($comment = $this->currentComment()) ? $comment->message : '')
+		{
+			if ($this->truthy($escape))
+			{
+				$out = $this->output->escape($out);
+			}
+			if ($this->truthy($nl2p))
+			{
+				$out = '<p>' . preg_replace('#(<br\s*?/?>\s*?){2,}#', "</p>\n<p>", nl2br($out)) . '</p>';
+			}
+			if ($this->truthy($pretty))
+			{
+				static $smartypants;
+				if (!isset($smartypants))
+				{
+					$smartypants = $this->factory->manufacture('SmartyPantsFilter', array('smarty_pants_options'=>'qbdew'));
+				}
+				$out = $smartypants->filter($out);
+			}
+		}
+		
+		return $out;
+	}
+	
+	//---------------------------------------------------------------------------
+	
 	protected function _tag_comments_if_add_comment($atts)
 	{
 		extract($this->gatts(array(
@@ -250,8 +265,25 @@ class CommentTags extends EscherParser
 			'email' => '',
 			'web' => '',
 			'message' => '',
+			'escape' => true,
+			'nl2p' => true,
+			'pretty' => true,
 		),$atts));
-		
+	
+		if ($this->truthy($escape))
+		{
+			$message = $this->output->escape($message);
+		}
+		if ($this->truthy($nl2p))
+		{
+			$message = '<p>' . preg_replace('#(<br\s*?/?>\s*?){2,}#', "</p>\n<p>", nl2br($message)) . '</p>';
+		}
+		if ($this->truthy($pretty))
+		{
+			$smartypants = $this->factory->manufacture('SmartyPantsFilter', array('smarty_pants_options'=>'qbdew'));
+			$message = $smartypants->filter($message);
+		}
+
 		if ($comment = $this->_model->addComment($this->currentPageContext()->id, $message, $author, $email, $web, empty($this->prefs['comments_require_approval'])))
 		{
 			// send site changed notification

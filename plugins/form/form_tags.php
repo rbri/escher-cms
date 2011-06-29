@@ -320,7 +320,7 @@ class FormTags extends EscherParser
 	protected function _tag_form_value($atts)
 	{
 		extract($this->gatts(array(
-			'id' => '',
+			'id' => NULL,
 			'name' => '',
 			'alt' => false,
 			'escape' => false,
@@ -341,7 +341,7 @@ class FormTags extends EscherParser
 	protected function _tag_form_if_value($atts)
 	{
 		extract($this->gatts(array(
-			'id' => '',
+			'id' => NULL,
 			'name' => '',
 			'alt' => false,
 			'value' => '',
@@ -839,7 +839,7 @@ class FormTags extends EscherParser
 	
 	protected function _tag_form_email($atts)
 	{
-		$atts['type'] = 'text';
+		$atts['type'] = 'email';
 
 		if (empty($atts['rule']))
 		{
@@ -848,6 +848,24 @@ class FormTags extends EscherParser
 		elseif (strpos($atts['rule'], 'email') === false)
 		{
 			$atts['rule'] .= '|email';
+		}
+
+		return $this->_tag_form_text($atts);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_form_url($atts)
+	{
+		$atts['type'] = 'url';
+
+		if (empty($atts['rule']))
+		{
+			$atts['rule'] = 'url';
+		}
+		elseif (strpos($atts['rule'], 'url') === false)
+		{
+			$atts['rule'] .= '|url';
 		}
 
 		return $this->_tag_form_text($atts);

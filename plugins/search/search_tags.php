@@ -167,7 +167,7 @@ class SearchTags extends EscherParser
 		$this->_limit = $limit;
 		$this->_start = $start;
 
-		if ($quoted = (($find[0] === '"') && ($find[strlen($find)-1] === '"')))
+		if ($quoted = (($find !== '') && ($find[0] === '"') && ($find[strlen($find)-1] === '"')))
 		{
 			$find = trim(trim($find, '"'));
 		}

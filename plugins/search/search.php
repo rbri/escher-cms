@@ -71,7 +71,7 @@ class _Search extends EscherPlugin
 <et:form:open id="search" nonce="0" action='<et:design:param name="action" default=''<et:find url="/search"><et:url /></et:find>'' />'>
 	<p>
 		<label for="search-textbox">Search</label>
-		<et:form:text id="search-textbox" type="search" name="q" default='<et:query:var name="q" get="true" post="true" />' placeholder='Search <et:site_name />' /><et:form:submit value="Go"/>
+		<et:form:text id="search-textbox" type="search" name="q" default='<et:query:var name="q" get="true" post="true" />' placeholder='Search <et:site_name />' /><et:form:submit id="search-submit" value="Go"/>
 	</p>
 </et:form:open>
 EOD;
@@ -82,7 +82,7 @@ EOD;
 			(
 				'Snippet', array
 				(
-					'name'=>'default-search-form',
+					'name'=>'search-form',
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,
@@ -125,7 +125,7 @@ EOD;
 			(
 				'Snippet', array
 				(
-					'name'=>'default-search-results',
+					'name'=>'search-results',
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,

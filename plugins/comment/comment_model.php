@@ -334,13 +334,18 @@ class _CommentModel extends EscherModel
 		$content = <<<EOD
 <et:ns:comments>
 	<et:if_any>
-		<h2>Comments</h2>
-		<et:each>
-			<et:design:snippet name="comment" />
-		</et:each>
+		<div id="comments">
+			<h3>Comments</h3>
+			<ol id="comment-list">
+			<et:each>
+				<li id="comment-<et:index />">
+					<et:design:snippet name="comment-single" />
+				</li>
+			</et:each>
+			</ol>
+		</div>
 	</et:if_any>
-	<et:design:snippet name="comment-form" />
-</et:ns:comments>	
+</et:ns:comments>
 EOD;
 
 		$adminModel->addSnippet
@@ -349,7 +354,7 @@ EOD;
 			(
 				'Snippet', array
 				(
-					'name'=>'default-comments',
+					'name'=>'comment-list',
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,
@@ -361,13 +366,12 @@ EOD;
 		$content = <<<EOD
 <et:ns:comments>
 	<div class="comment">
-		<span class="number"><et:index />.</span>
-		<span class="by_line"><et:author /> wrote:</span>
+		<span class="byline"><span class="author"><et:author /></span> wrote:</span>
 		<div class="message">
 			<et:content />
 		</div>
 	</div>
-</et:ns:comments>	
+</et:ns:comments>
 EOD;
 
 		$adminModel->addSnippet
@@ -376,7 +380,7 @@ EOD;
 			(
 				'Snippet', array
 				(
-					'name'=>'default-comment',
+					'name'=>'comment-single',
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,
@@ -388,26 +392,28 @@ EOD;
 		$content = <<<EOD
 <et:ns:comments>
 	<et:if_enabled>
+		<div id="comment-form-wrapper">
 		<et:ns:form>
-			<et:if_open id="form_comments" error_wraptag="ul" error_breaktag="li" on_submit_do='comment-add'>
+			<et:if_open id="form-comments" action="#comment-form-wrapper" error_wraptag="ul" error_breaktag="li" on_submit_do="comment-add">
 				<fieldset>
-					<legend>Post a Comment</legend>
+					<legend>Add your comment</legend>
 					<ol>
-						<li><et:text id="author" name="author" label="Your Name" rule="required|length_max[50]" /></li>
-						<li><et:email id="email" name="email" label="Your Email Address" rule="required|length_max[100]" /></li>
-						<li><et:text id="web" name="web" label="Your Web Site" rule="url" /></li>
-						<li><et:textarea id="message" name="message" label="Your Message" rule="required|length_max[5000]" /></li>
+						<li><et:text id="comment-author" name="author" label="Your Name" rule="required|length_max[50]" /></li>
+						<li><et:email id="comment-email" name="email" label="Your Email Address" rule="required|length_max[100]" /></li>
+						<li><et:url id="comment-web" name="web" label="Your Web Site (optional)" rule="url" /></li>
+						<li><et:textarea id="comment-message" name="message" label="Your Message" rule="required|length_max[5000]" /></li>
 					</ol>
 				</fieldset>
 				<div class="buttons">
-					<et:submit id="submit" value="Post Comment" />
+					<et:submit id="comment-submit" value="Add Comment" />
 				</div>
 			<et:else />
 				<p>Thank you, your comments have been submitted for approval.</p>
 			</et:if_open>
 		</et:ns:form>
+		</div>
 	</et:if_enabled>
-</et:ns:comments>	
+</et:ns:comments>
 EOD;
 	
 		$adminModel->addSnippet
@@ -416,7 +422,7 @@ EOD;
 			(
 				'Snippet', array
 				(
-					'name'=>'default-comment-form',
+					'name'=>'comment-form',
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,
@@ -431,7 +437,7 @@ EOD;
 	<et:else />
 		<et:form:error name="*">We&rsquo;re sorry. There was a problem submitting your comments. Please try again later.</et:form:error>
 	</et:if_add_comment>
-</et:ns:comments>	
+</et:ns:comments>
 EOD;
 	
 		$adminModel->addSnippet
@@ -440,7 +446,7 @@ EOD;
 			(
 				'Snippet', array
 				(
-					'name'=>'default-comment-add',
+					'name'=>'comment-add',
 					'content'=>$content,
 					'author_id'=>$userID,
 					'theme_id'=>0,
