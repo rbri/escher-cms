@@ -47,7 +47,7 @@ class _PublishController extends SparkController
 		$prefs =& $this->app->get_prefs();
 
 		$params['prefs'] =& $prefs;
-		$params['category_trigger'] = @$prefs['category_trigger'];
+		$params['category_slug'] = @$prefs['category_slug'];
 				
 		switch ($params['production_status'] = $this->app->get_production_status())
 		{

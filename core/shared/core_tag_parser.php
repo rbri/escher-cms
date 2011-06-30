@@ -499,6 +499,13 @@ class CoreTagParser extends Parser
 
 	//---------------------------------------------------------------------------
 	
+	protected function _tag_core_escape_url($atts)
+	{
+		return urlencode($this->getContent());
+	}
+
+	//---------------------------------------------------------------------------
+	
 	protected function _tag_core_random($atts)
 	{
 		$this->_randoms[] = array();

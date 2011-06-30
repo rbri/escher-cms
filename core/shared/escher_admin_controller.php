@@ -211,9 +211,9 @@ class EscherAdminController extends SparkController
 
 	protected function newAdminContentModel($params = NULL)
 	{
-		if (!isset($params['category_trigger']))
+		if (!isset($params['category_slug']))
 		{
-			$params['category_trigger'] = $this->app->get_pref('category_trigger');
+			$params['category_slug'] = $this->app->get_pref('category_slug');
 		}
 		return $this->newModel('AdminContent', $params);
 	}

@@ -403,10 +403,10 @@ EOD;
 						<li><et:url id="comment-web" name="web" label="Your Web Site (optional)" rule="url" /></li>
 						<li><et:textarea id="comment-message" name="message" label="Your Message" rule="required|length_max[5000]" /></li>
 					</ol>
+					<div class="buttons">
+						<et:submit id="comment-submit" value="Add Comment" />
+					</div>
 				</fieldset>
-				<div class="buttons">
-					<et:submit id="comment-submit" value="Add Comment" />
-				</div>
 			<et:else />
 				<p>Thank you, your comments have been submitted for approval.</p>
 			</et:if_open>

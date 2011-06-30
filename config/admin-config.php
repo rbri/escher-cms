@@ -104,6 +104,7 @@ $config = array
 		'EventLog',
 		'Feed',
 		'Markitup',
+		'Recaptcha',
 		'Search',
 	),
 );

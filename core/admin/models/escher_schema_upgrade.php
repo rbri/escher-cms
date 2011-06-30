@@ -773,4 +773,25 @@ class _EscherSchemaUpgradeModel extends EscherModel
 	}
 
 	//---------------------------------------------------------------------------
+
+	private function upgrade_6($db)
+	{
+		$db->begin();
+
+		try
+		{
+			// update prefs
+			
+			$db->updateRows('pref', array('name'=>'category_slug'), 'name="category_trigger"');
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+	}
+
+	//---------------------------------------------------------------------------
 }

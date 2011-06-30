@@ -171,6 +171,11 @@ class SearchTags extends EscherParser
 		{
 			$find = trim(trim($find, '"'));
 		}
+		
+		if ($find === '')
+		{
+			return false;
+		}
 
 		$mode = ($quoted || ($mode === '')) ? 'exact' : $mode;
 
@@ -193,7 +198,11 @@ class SearchTags extends EscherParser
 	
 	protected function _tag_search_term($atts)
 	{
-		return $this->output->escape($this->_search_term);
+		extract($this->gatts(array(
+			'escape' => true,
+		),$atts));
+		
+		return $this->truthy($escape) ? $this->output->escape($this->_search_term) : $this->_search_term;
 	}
 	
 	//---------------------------------------------------------------------------
@@ -425,34 +434,40 @@ class SearchTags extends EscherParser
 		$excerpts = array();
 		$numExcerpts = 0;
 		
+		$find = SparkView::escape_html($this->_find);
 		if ($this->_mode === 'exact')
 		{
-			$find = preg_quote($this->_find);
+			$find = preg_quote($find);
 			$regex_search = "/(?:\G|\s).{0,{$maxchars}}{$find}.{0,{$maxchars}}(?:\s|$)/iu";
 			$regex_hilite = "/({$find})/i";
 		}
 		else
 		{
-			$find = preg_replace('/\s+/', '|', preg_quote($this->_find));
+			$find = preg_replace('/\s+/', '|', preg_quote($find));
 			$regex_search = "/(?:\G|\s).{0,{$maxchars}}({$find}).{0,{$maxchars}}(?:\s|$)/iu";
 			$regex_hilite = "/({$find})/i";
 		}
 		
 		foreach ($this->_results[$page->id] as $part)
 		{
-			if (empty($part))
+			if ($part === NULL)
 			{
 				continue;	// NULL part signifies match to page title (not a part)
 			}
 	
 			if (($part = $this->content->fetchPagePart($page, $part, false)) !== false)
 			{
-				$excerpt = preg_replace('/\s+/', ' ', strip_tags($this->parsePart($part)));
+				$excerpt = trim(preg_replace('/\s+/', ' ', strip_tags($this->parsePart($part))));
 
 				preg_match_all($regex_search, $excerpt, $matches);
 
 				foreach ($matches[0] as $match)
 				{
+					if ($match === '')
+					{
+						continue;
+					}
+					
 					$match = preg_replace('/^[^>]+?>/', '', $match);
 					$match = preg_replace($regex_hilite, "<{$hilight}>$1</{$hilight}>", $match);
 					$excerpts[] = $match . $separator;

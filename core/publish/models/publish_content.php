@@ -40,7 +40,7 @@ class _PublishContentModel extends EscherModel
 	private static $_firstLoad;
 
 	protected $_cache;
-	protected $_category_trigger;
+	protected $_category_slug;
 	protected $_drafts_are_published;
 	
 	//---------------------------------------------------------------------------
@@ -63,7 +63,7 @@ class _PublishContentModel extends EscherModel
 		}
 		
 		$this->_cache = array();
-		$this->_category_trigger = @$params['category_trigger'];
+		$this->_category_slug = @$params['category_slug'];
 		$this->_drafts_are_published = @$params['drafts_are_published'];
 	}
 
@@ -2707,7 +2707,7 @@ class _PublishContentModel extends EscherModel
 			return $pageSpec;
 		}
 		
-		// permlink to category page: page_id/category_id | page_id/category_id/category_trigger/category_slug
+		// permlink to category page: page_id/category_id | page_id/category_id/category_slug/category_slug
 
 		$c = count($slugs);
 
@@ -2728,7 +2728,7 @@ class _PublishContentModel extends EscherModel
 
 		if (isset($slugs[2]))		// we disallow incorrect or extra slugs to prevent DOS vulnerability on page cache
 		{
-			if ($slugs[2] != $this->_category_trigger)
+			if ($slugs[2] != $this->_category_slug)
 			{
 				return false;
 			}

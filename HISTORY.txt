@@ -10,6 +10,7 @@ Version 0.9.2 [TBD]
 	<et:design:snippet> now accepts arbitrary parameters passed to snippet
 	new tag: <et:design:param>, for accessing snippet parameters
 	new tag: <et:pages:excerpt>
+	new tag: <et:core:escape_url>
 	new tags to assist with navigation previous/next links when iterating items
 	new default template
 	comments plugin:

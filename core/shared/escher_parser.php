@@ -72,7 +72,7 @@ class _EscherParser extends CoreTagParser
 	protected $theme;
 	protected $branch;
 	protected $debug_level;
-	protected $category_trigger;
+	protected $category_slug;
 	protected $drafts_are_published;
 	
 	//---------------------------------------------------------------------------
@@ -109,7 +109,7 @@ class _EscherParser extends CoreTagParser
 		$this->theme = $params['theme'];
 		$this->branch = $this->_production_status;
 		$this->debug_level = $params['debug_level'];
-		$this->category_trigger = $this->getPref('category_trigger', 'category');
+		$this->category_slug = $this->getPref('category_slug', 'category');
 		$this->drafts_are_published = @$params['drafts_are_published'];
 
 		if (!$this->_current_page = $this->content->fetchPageByURI($currentURI))
@@ -710,7 +710,7 @@ class _EscherParser extends CoreTagParser
 		}
 		
 		$uri = $this->content->fetchCategoryURI($category);
-		return $this->siteURL($full) . '/' . $this->category_trigger . $uri;
+		return $this->siteURL($full) . '/' . $this->category_slug . $uri;
 	}
 	
 	//---------------------------------------------------------------------------
@@ -1861,7 +1861,7 @@ class _EscherParser extends CoreTagParser
 					if ($withtitle)
 					{
 						$categoryRootPage = $this->findNonVirtualParent($page);
-						$pageSlug = $categoryRootPage ? $categoryRootPage->slug : $this->category_trigger;
+						$pageSlug = $categoryRootPage ? $categoryRootPage->slug : $this->category_slug;
 						$url .= '/' . $categoryRootPage->slug . '/' . $category->slug;
 						$withtitle = false;
 					}

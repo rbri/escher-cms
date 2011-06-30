@@ -873,6 +873,13 @@ class _EscherSchemaModel extends EscherModel
 
 	public function installDefaultSite()
 	{
+		// default site requires the comment plugin to be pre-installed
+		
+		if ($model = $this->factory->manufacture('CommentModel'))
+		{
+			$model->install();
+		}
+		
 		$this->installSite('default.xml', 'empty.xml');
 	}
 	

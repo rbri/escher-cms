@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<escher-cms version="5">
+<escher-cms version="6">
   <perms>
     <perm>
       <id>1</id>
@@ -3421,7 +3421,7 @@
       <val>0</val>
     </pref>
     <pref>
-      <name>category_trigger</name>
+      <name>category_slug</name>
       <user_id>0</user_id>
       <group_name>basic</group_name>
       <section_name>1url_handling</section_name>
@@ -3958,7 +3958,7 @@
       <att/>
       <data/>
       <validation/>
-      <val>5</val>
+      <val>6</val>
     </pref>
     <pref>
       <name>last_update_version</name>

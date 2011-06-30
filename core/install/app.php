@@ -62,6 +62,13 @@ class _EscherInstaller extends SparkApplication
 	}
 
 	//---------------------------------------------------------------------------
+
+	public function get_user()
+	{
+		return $this->factory->manufacture('User', array('id'=>1));
+	}
+
+	//---------------------------------------------------------------------------
 }	
 
 // Instantiate the application object.

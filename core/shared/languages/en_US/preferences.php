@@ -37,7 +37,7 @@ $lang['prefs'] = array
 	'production_status' => NULL,
 	'debug_level' => 'Production Debug Lebel',
 	
-	'category_trigger' => NULL,
+	'category_slug' => NULL,
 	'permlink_titles' => NULL,
 	
 	'content_image_path' => NULL,
@@ -96,7 +96,7 @@ $lang['prefs'] = array
 	'production_status_help' => 'Determine which branch of your site is displayed to vistors to your Site URL. Live sites should operate in Production mode. Maintenance mode takes the site offline.',
 	'debug_level_help' => 'Debug level for your production branch. Higher debug levels will result in progressively more information being added to the source of generated pages. Select 0 to disable all debug messages. Select 9 to display errors and warnings on pages (not recommended for live sites).',
 	
-	'category_trigger_help' => 'Customize the word that invokes category pages when present in the URL.',
+	'category_slug_help' => 'Customize the slug that Escher uses to build URLs to your category pages.',
 	'permlink_titles_help' => 'Automatically append SEO-friendly page title to permlinks?',
 
 	'content_image_path_help' => 'Path component of URL to your content images page or directory. If Escher is managing your content images, this must match where your magic page for content images resides in your page hierarchy.',
