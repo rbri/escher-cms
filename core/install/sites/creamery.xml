@@ -114,25 +114,23 @@
       <name>rss</name>
       <ctype>text/xml</ctype>
       <content><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
-   <channel>
-      <title>Article RSS Feed</title>
-      <link><et:site_name /></link>
-      <language>en-us</language>
-      <ttl>40</ttl>
-      <description>The main blog feed for my Web site.</description>
-      <et:find url="/news">
-         <et:children:each limit="10" order="desc">
-            <item>
-               <title><et:title /></title>
-               <description><et:escape_html><et:content /></et:escape_html></description>
-               <pubDate><et:date format="rss" /></pubDate>
-               <guid><et:url full="true" /></guid>
-               <link><et:url full="true" /></link>
-            </item>
-         </et:children:each>
-      </et:find>
-   </channel>
+<rss version="2.0">
+	<channel>
+		<title><et:site_name /> Feed</title>
+		<pubDate><et:date for="published" format="rss" /></pubDate>
+		<description><et:site_slogan /></description>
+		<et:page id='<et:meta name="feed-root" default=''<et:pages:id />'' tag="false" />'><link><et:url /></link>
+			<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' order="desc">
+				<item>
+					<title><et:title /></title>
+					<description><et:escape_html><et:excerpt maxchars="0" /></et:escape_html></description>
+					<pubDate><et:date for="published" format="rss" /></pubDate>
+					<guid><et:feed:id /></guid>
+					<link><et:url /></link>
+				</item>
+			</et:children:each>
+		</et:page>
+	</channel>
 </rss>]]></content>
       <created>2011-06-15 23:02:21</created>
       <edited>2011-06-15 23:02:21</edited>
@@ -1765,6 +1763,13 @@ a img { border: none; }]]></content>
       <priority>0</priority>
     </page>
   </pages>
+  <page_metas>
+    <page_meta>
+      <page_id>9</page_id>
+      <name>feed-root</name>
+      <data>13</data>
+    </page_meta>
+  </page_metas>
   <page_categorys>
     <page_category>
       <page_id>1</page_id>
@@ -2252,7 +2257,7 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
       <name>spurrd</name>
       <title>Paul du Coudray</title>
       <description/>
-      <url>http://www.spurrd.com/</url>
+      <url>http://www.readymade.is/</url>
       <created>2011-06-15 23:02:21</created>
       <edited>2011-06-15 23:02:21</edited>
       <author_id>1</author_id>
@@ -2372,6 +2377,15 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 			<data/>
 			<validation/>
 			<val></val>
+		 </pref>
+		 <pref>
+			<name>feed_enabled</name>
+			<user_id>0</user_id>
+			<group_name>plugins</group_name>
+			<section_name>feed</section_name>
+			<position>0</position>
+			<type>hidden</type>
+			<val>1</val>
 		 </pref>
 	  </prefs>
 	</escher-cms-updates>

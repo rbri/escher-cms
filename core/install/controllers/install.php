@@ -722,7 +722,7 @@ class _InstallController extends SparkController
 
 	private function validateStep4($params, &$errors)
 	{
-		return ($params['content_option'] >= 1) && ($params['content_option'] <= 3);
+		return ($params['content_option'] >= 1) && ($params['content_option'] <= 4);
 	}
 	
 	//---------------------------------------------------------------------------
