@@ -580,7 +580,7 @@ class _InstallController extends SparkController
 			$problems[] = $errorMsg;
 		}
 		
-		foreach (array('date', 'dom', 'json', 'pdo', 'session', 'simplexml', 'xml') as $extension)
+		foreach (array('date', 'json', 'PDO', 'session', 'SimpleXML', 'xml') as $extension)
 		{
 			if (!extension_loaded($extension))
 			{

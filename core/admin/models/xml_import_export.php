@@ -109,7 +109,7 @@ class _XMLImportExportModel extends EscherModel
 		
 		$xml = $xml->asXML();
 		
-		if ($format)
+		if ($format && extension_loaded('dom'))
 		{
 			$doc = new DOMDocument();
 			$doc->preserveWhiteSpace = false;
