@@ -37,6 +37,7 @@ class _EscherParser extends CoreTagParser
 		'page' => NULL,
 		'id' => '',
 		'category' => '',
+		'notcategory' => '',
 		'status' => 'published',
 		'limit' => '0',
 		'start' => '1',
@@ -2158,13 +2159,14 @@ class _EscherParser extends CoreTagParser
 		extract($this->gatts(array(
 			'id' => $curIter['id'],
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
-		return $this->content->countPages(NULL, $id, $category, $status, NULL, NULL, $limit, $offset);
+		return $this->content->countPages(NULL, $id, $category, $notcategory, $status, NULL, NULL, $limit, $offset);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -2183,6 +2185,7 @@ class _EscherParser extends CoreTagParser
 		extract($this->gatts(array(
 			'id' => $curIter['id'],
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2203,6 +2206,7 @@ class _EscherParser extends CoreTagParser
 		extract($this->gatts(array(
 			'id' => $curIter['id'],
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2221,6 +2225,7 @@ class _EscherParser extends CoreTagParser
 		extract($this->gatts(array(
 			'id' => $curIter['id'],
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2229,7 +2234,7 @@ class _EscherParser extends CoreTagParser
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
-		$pages = $this->content->fetchPages(NULL, $id, $category, $status, NULL, NULL, 1, $offset, $sort, $order);
+		$pages = $this->content->fetchPages(NULL, $id, $category, $notcategory, $status, NULL, NULL, 1, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[0])
 		{
@@ -2261,6 +2266,7 @@ class _EscherParser extends CoreTagParser
 		extract($this->gatts(array(
 			'id' => $curIter['id'],
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2269,7 +2275,7 @@ class _EscherParser extends CoreTagParser
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
-		$pages = $this->content->fetchPages(NULL, $id, $category, $status, NULL, NULL, $limit, $offset, $sort, $order);
+		$pages = $this->content->fetchPages(NULL, $id, $category, $notcategory, $status, NULL, NULL, $limit, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[count($pages)-1])
 		{
@@ -2301,6 +2307,7 @@ class _EscherParser extends CoreTagParser
 		extract($this->gatts(array(
 			'id' => $curIter['id'],
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2313,7 +2320,7 @@ class _EscherParser extends CoreTagParser
 		$out = '';
 
 		$offset = (max(1, $start) - 1) * $limit;
-		if ($pages = $this->content->fetchPages(NULL, $id, $category, $status, NULL, NULL, $limit, $offset, $sort, $order))
+		if ($pages = $this->content->fetchPages(NULL, $id, $category, $notcategory, $status, NULL, NULL, $limit, $offset, $sort, $order))
 		{
 			$content = $this->getParsable();
 			
@@ -2486,10 +2493,11 @@ class _EscherParser extends CoreTagParser
 	{
 		extract($this->gatts(array(
 			'category' => '',
+			'notcategory' => '',
 			'status' => 'published',
 		),$atts));
 
-		return ($this->content->countPages($this->currentPageContext(), NULL, $category, $status) > 0);
+		return ($this->content->countPages($this->currentPageContext(), NULL, $category, $notcategory, $status) > 0);
 	}
 
 	//---------------------------------------------------------------------------
@@ -2498,10 +2506,11 @@ class _EscherParser extends CoreTagParser
 	{
 		extract($this->gatts(array(
 			'category' => '',
+			'notcategory' => '',
 			'status' => 'published',
 		),$atts));
 
-		return ($this->content->countPages($this->currentPageContext()->parent(), NULL, $category, $status) > 1);
+		return ($this->content->countPages($this->currentPageContext()->parent(), NULL, $category, $notcategory, $status) > 1);
 	}
 
 	//---------------------------------------------------------------------------
@@ -2594,13 +2603,14 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
-		return $this->content->countPages($this->currentPageContext(), NULL, $category, $status, NULL, NULL, $limit, $offset);
+		return $this->content->countPages($this->currentPageContext(), NULL, $category, $notcategory, $status, NULL, NULL, $limit, $offset);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -2618,6 +2628,7 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2637,6 +2648,7 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2654,6 +2666,7 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2662,7 +2675,7 @@ class _EscherParser extends CoreTagParser
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
-		$pages = $this->content->fetchPages($this->currentPageContext(), NULL, $category, $status, NULL, NULL, 1, $offset, $sort, $order);
+		$pages = $this->content->fetchPages($this->currentPageContext(), NULL, $category, $notcategory, $status, NULL, NULL, 1, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[0])
 		{
@@ -2693,6 +2706,7 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2701,7 +2715,7 @@ class _EscherParser extends CoreTagParser
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
-		$pages = $this->content->fetchPages($this->currentPageContext(), NULL, $category, $status, NULL, NULL, $limit, $offset, $sort, $order);
+		$pages = $this->content->fetchPages($this->currentPageContext(), NULL, $category, $notcategory, $status, NULL, NULL, $limit, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[count($pages)-1])
 		{
@@ -2732,6 +2746,7 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2744,7 +2759,7 @@ class _EscherParser extends CoreTagParser
 		$out = '';
 
 		$offset = (max(1, $start) - 1) * $limit;
-		if ($pages = $this->content->fetchPages($this->currentPageContext(), NULL, $category, $status, NULL, NULL, $limit, $offset, $sort, $order))
+		if ($pages = $this->content->fetchPages($this->currentPageContext(), NULL, $category, $notcategory, $status, NULL, NULL, $limit, $offset, $sort, $order))
 		{
 			$content = $this->getParsable();
 			
@@ -2826,13 +2841,14 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
 		),$atts));
 
 		$offset = (max(1, $start) - 1) * $limit;
-		$count =  $this->content->countPages($this->currentPageContext()->parent(), NULL, $category, $status, NULL, NULL, $limit, $offset) - 1;
+		$count =  $this->content->countPages($this->currentPageContext()->parent(), NULL, $category, $notcategory, $status, NULL, NULL, $limit, $offset) - 1;
 		return max(0, $count);
 	}
 	
@@ -2851,6 +2867,7 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2870,6 +2887,7 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2885,10 +2903,11 @@ class _EscherParser extends CoreTagParser
 	{
 		extract($this->gatts(array(
 			'category' => '',
+			'notcategory' => '',
 			'status' => 'published',
 		),$atts));
 
-		$pages = $this->content->fetchPageSiblings($this->currentPageContext(), $category, $status, 1, 0, NULL, NULL, PublishContentModel::siblings_before);
+		$pages = $this->content->fetchPageSiblings($this->currentPageContext(), $category, $notcategory, $status, 1, 0, NULL, NULL, PublishContentModel::siblings_before);
 
 		if (empty($pages) || !$page = $pages[0])
 		{
@@ -2917,10 +2936,11 @@ class _EscherParser extends CoreTagParser
 	{
 		extract($this->gatts(array(
 			'category' => '',
+			'notcategory' => '',
 			'status' => 'published',
 		),$atts));
 
-		$pages = $this->content->fetchPageSiblings($this->currentPageContext(), $category, $status, 1, 0, NULL, NULL, PublishContentModel::siblings_after);
+		$pages = $this->content->fetchPageSiblings($this->currentPageContext(), $category, $notcategory, $status, 1, 0, NULL, NULL, PublishContentModel::siblings_after);
 
 		if (empty($pages) || !$page = $pages[count($pages)-1])
 		{
@@ -2951,6 +2971,7 @@ class _EscherParser extends CoreTagParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -2977,7 +2998,7 @@ class _EscherParser extends CoreTagParser
 		}
 
 		$offset = (max(1, $start) - 1) * $limit;
-		if ($pages = $this->content->fetchPageSiblings($this->currentPageContext(), $category, $status, $limit, $offset, $sort, $order, $which))
+		if ($pages = $this->content->fetchPageSiblings($this->currentPageContext(), $category, $notcategory, $status, $limit, $offset, $sort, $order, $which))
 		{
 			$content = $this->getParsable();
 			
@@ -4015,6 +4036,8 @@ class _EscherParser extends CoreTagParser
 	{
 		extract($this->gatts(array(
 			'parent' => '',
+	//		'include' => '',			// any use cases for this?
+	//		'exclude' => '',			// any use cases for this?
 			'recurse' => false,
 		),$atts));
 
@@ -4024,6 +4047,13 @@ class _EscherParser extends CoreTagParser
 		}
 
 		return $this->content->countCategories($parent, $this->truthy($recurse));
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_categories_if_any($atts)
+	{
+		return ($this->_tag_categories_count($atts) > 0);
 	}
 	
 	//---------------------------------------------------------------------------

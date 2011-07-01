@@ -895,7 +895,7 @@ class _PublishContentModel extends EscherModel
 
 	//---------------------------------------------------------------------------
 
-	public function fetchPageRows($parentPage, $ids = NULL, $categories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
+	public function fetchPageRows($parentPage, $ids = NULL, $categories = NULL, $notCategories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
 											$limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
@@ -924,62 +924,72 @@ class _PublishContentModel extends EscherModel
 		}
 		
 		$joins = array();
+		$bind = array();
+		$where = array();
 		
-		if (empty($parentPage))
-		{
-			$where = '1';
-			$bind = array();
-		}
-		else
-		{
-			$where = '{page}.parent_id=?';
-			$bind[] = intval($parentPage->id);
-		}
-
-		if (!empty($ids))
-		{
-			$where .= ' AND ' . $db->buildFieldIn('page', 'id', $ids);
-			$bind = array_merge($bind, $ids);
-		}
-
 		if (!empty($categories))
 		{
 			$this->buildCategoriesJoin('page', $joins);
-			$where .= ' AND ' . $db->buildFieldIn('category', 'slug', $categories);
+			$where[] = $db->buildFieldIn('category', 'slug', $categories);
 			$bind = array_merge($bind, $categories);
 		}
 		
 		$joins[] = array('leftTable'=>'page', 'table'=>'user', 'type'=>'left', 'conditions'=>array(array('leftField'=>'author_id', 'rightField'=>'id', 'joinOp'=>'=')));
 
+		if (!empty($parentPage))
+		{
+			$where[] = '{page}.parent_id=?';
+			$bind[] = intval($parentPage->id);
+		}
+
+		if (!empty($ids))
+		{
+			$where[] = $db->buildFieldIn('page', 'id', $ids);
+			$bind = array_merge($bind, $ids);
+		}
+
 		if (!empty($status) && ($status !== 'any'))
 		{
-			$where .= ' AND ' . $this->buildStatusIn($db, 'page', $status);
+			$where[] = $this->buildStatusIn($db, 'page', $status);
 			$bind = array_merge($bind, $status);
 		}
 		
 		if (!empty($onOrAfter))
 		{
-			$where .= ' AND {page}.published >= ?';
+			$where[] = '{page}.published >= ?';
 			$bind[] = $onOrAfter;
 		}
 		
 		if (!empty($onOrBefore))
 		{
-			$where .= ' AND {page}.published < ?';
+			$where[] = '{page}.published < ?';
 			$bind[] = $onOrBefore;
-		}		
+		}
+
+		// build sub-select to eliminate rows with unwanted categories
+
+		if (!empty($notCategories))
+		{
+			$this->buildCategoriesJoin('page', $joins2);
+			$joins2[1]['conditions'][] = $db->buildFieldIn('category', 'slug', $notCategories);
+			$bind = array_merge($bind, $notCategories);
+			$sql = $db->buildSelect(array('page', 'page2'), '{category}.id', $joins2, 'page2.id = page.id');
+			$where[] = "NOT EXISTS ({$sql})";
+		}
+		
+		$where = implode(' AND ', $where);
 
 		$sql = $db->buildSelect('page', '{page}.*, {user}.name AS author_name', $joins, $where, $orderBy, $limit, $offset, true);
 
-		return  $db->query($sql, $bind)->rows();
+		return $db->query($sql, $bind)->rows();
 	}
 	
 	//---------------------------------------------------------------------------
 
-	public function fetchPages($parentPage, $ids = NULL, $categories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
+	public function fetchPages($parentPage, $ids = NULL, $categories = NULL, $notCategories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
 										$limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
-		$rows = $this->fetchPageRows($parentPage, $ids, $categories, $status, $onOrAfter, $onOrBefore, $limit, $offset, $sort, $order);
+		$rows = $this->fetchPageRows($parentPage, $ids, $categories, $notCategories, $status, $onOrAfter, $onOrBefore, $limit, $offset, $sort, $order);
 
 		$pages = array();
 		foreach ($rows as $row)
@@ -1046,10 +1056,10 @@ class _PublishContentModel extends EscherModel
 
 	//---------------------------------------------------------------------------
 	
-	public function countPages($parentPage, $ids = NULL, $categories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
+	public function countPages($parentPage, $ids = NULL, $categories = NULL, $notCategories = NULL, $status = NULL, $onOrAfter = NULL, $onOrBefore = NULL,
 										$limit = NULL, $offset = NULL)
 	{
-		if (empty($ids) && empty($categories) && (empty($status) || ($status === 'any')) && empty($onOrAfter) && empty($onOrBefore) && empty($limit) && empty($offset))
+		if (empty($ids) && empty($categories) && empty($notCategories) && (empty($status) || ($status === 'any')) && empty($onOrAfter) && empty($onOrBefore) && empty($limit) && empty($offset))
 		{
 			$db = $this->loadDBWithPerm(EscherModel::PermRead);
 			if (empty($parentPage))
@@ -1059,13 +1069,13 @@ class _PublishContentModel extends EscherModel
 			return $db->countRows('page', 'parent_id=?', $parentPage->id);
 		}
 		
-		$childRows = $this->fetchPageRows($parentPage, $ids, $categories, $status, $onOrAfter, $onOrBefore, $limit, $offset);
+		$childRows = $this->fetchPageRows($parentPage, $ids, $categories, $notCategories, $status, $onOrAfter, $onOrBefore, $limit, $offset);
 		return count($childRows);
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function fetchPageSiblings($page, $category, $status, $limit, $offset, $sort, $order, $which)
+	public function fetchPageSiblings($page, $categories, $notCategories, $status, $limit, $offset, $sort, $order, $which)
 	{
 		if (!$parentPage = $page->parent())
 		{
@@ -1095,27 +1105,26 @@ class _PublishContentModel extends EscherModel
 		$orderBy = $this->buildOrderBy($sort, $order, 'filterPageColumn');
 
 		$joins = array();
-		
-		$where = '{page}.parent_id=?';
 		$bind[] = intval($parentPage->id);
+		$where[] = '{page}.parent_id=?';
 		
 		switch ($which)
 		{
 			case self::siblings_before:
-				$where .= ' AND {page}.position<?';
+				$where[] = '{page}.position<?';
 				break;
 			case self::siblings_after:
-				$where .= ' AND {page}.position>?';
+				$where[] = '{page}.position>?';
 				break;
 			default:
-				$where .= ' AND {page}.position!=?';
+				$where[] = '{page}.position!=?';
 		}
 		$bind[] = intval($page->position);
 
 		if (!empty($categories))
 		{
 			$this->buildCategoriesJoin('page', $joins);
-			$where .= ' AND ' . $db->buildFieldIn('category', 'slug', $categories);
+			$where[] = $db->buildFieldIn('category', 'slug', $categories);
 			$bind = array_merge($bind, $categories);
 		}
 		
@@ -1123,10 +1132,23 @@ class _PublishContentModel extends EscherModel
 
 		if (!empty($status) && ($status !== 'any'))
 		{
-			$where .= ' AND ' . $this->buildStatusIn($db, 'page', $status);
+			$where[] = $this->buildStatusIn($db, 'page', $status);
 			$bind = array_merge($bind, $status);
 		}
 		
+		// build sub-select to eliminate rows with unwanted categories
+
+		if (!empty($notCategories))
+		{
+			$this->buildCategoriesJoin('page', $joins2);
+			$joins2[1]['conditions'][] = $db->buildFieldIn('category', 'slug', $notCategories);
+			$bind = array_merge($bind, $notCategories);
+			$sql = $db->buildSelect(array('page', 'page2'), '{category}.id', $joins2, 'page2.id = page.id');
+			$where[] = "NOT EXISTS ({$sql})";
+		}
+		
+		$where = implode(' AND ', $where);
+
 		$sql = $db->buildSelect('page', '{page}.*, {user}.name AS author_name', $joins, $where, $orderBy, $limit, $offset, true);
 
 		$result = $db->query($sql, $bind);

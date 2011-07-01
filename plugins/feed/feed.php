@@ -76,7 +76,7 @@ class _Feed extends EscherPlugin
 	<updated><et:date for="edited" format="atom" /></updated>
 	<id><et:feed:id /></id>
 	<et:page id='<et:meta name="feed-root" default=''<et:pages:id />'' tag="false" />'><link rel="alternate" type="text/html" href='<et:url />'/>
-		<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' order="desc">
+		<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' notcategory="no-feed" order="desc">
 			<entry>
 				<title><et:title /></title>
 				<link rel="alternate" type="text/html" href='<et:url />'/>
@@ -129,7 +129,7 @@ EOD;
 		<pubDate><et:date for="published" format="rss" /></pubDate>
 		<description><et:site_slogan /></description>
 		<et:page id='<et:meta name="feed-root" default=''<et:pages:id />'' tag="false" />'><link><et:url /></link>
-			<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' order="desc">
+			<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' notcategory="no-feed" order="desc">
 				<item>
 					<title><et:title /></title>
 					<description><et:escape_html><et:excerpt maxchars="0" /></et:escape_html></description>

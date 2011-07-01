@@ -86,6 +86,7 @@ class ArchiveTags extends EscherParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -105,7 +106,7 @@ class ArchiveTags extends EscherParser
 		$parent = $this->findNonVirtualParent($page);
 
 		$offset = (max(1, $start) - 1) * $limit;
-		return $this->content->countPages($parent, NULL, $category, $status, $startDate, $endDate, $limit, $offset);
+		return $this->content->countPages($parent, NULL, $category, $notcategory, $status, $startDate, $endDate, $limit, $offset);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -123,6 +124,7 @@ class ArchiveTags extends EscherParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -142,6 +144,7 @@ class ArchiveTags extends EscherParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -159,6 +162,7 @@ class ArchiveTags extends EscherParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -181,7 +185,7 @@ class ArchiveTags extends EscherParser
 		$baseURI = $parent->uri();
 
 		$offset = (max(1, $start) - 1) * $limit;
-		$pages = $this->content->fetchPages($parent, NULL, $category, $status, $startDate, $endDate, 1, $offset, $sort, $order);
+		$pages = $this->content->fetchPages($parent, NULL, $category, $notcategory, $status, $startDate, $endDate, 1, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[0])
 		{
@@ -220,6 +224,7 @@ class ArchiveTags extends EscherParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -242,7 +247,7 @@ class ArchiveTags extends EscherParser
 		$baseURI = $parent->uri();
 
 		$offset = (max(1, $start) - 1) * $limit;
-		$pages = $this->content->fetchPages($parent, NULL, $category, $status, $startDate, $endDate, $limit, $offset, $sort, $order);
+		$pages = $this->content->fetchPages($parent, NULL, $category, $notcategory, $status, $startDate, $endDate, $limit, $offset, $sort, $order);
 
 		if (empty($pages) || !$page = $pages[count($pages)-1])
 		{
@@ -281,6 +286,7 @@ class ArchiveTags extends EscherParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -309,7 +315,7 @@ class ArchiveTags extends EscherParser
 		$published = $this->factory->manufacture('SparkDateTime');
 
 		$offset = (max(1, $start) - 1) * $limit;
-		if ($pages = $this->content->fetchPages($parent, NULL, $category, $status, $startDate, $endDate, $limit, $offset, $sort, $order))
+		if ($pages = $this->content->fetchPages($parent, NULL, $category, $notcategory, $status, $startDate, $endDate, $limit, $offset, $sort, $order))
 		{
 			$content = $this->getParsable();
 			
@@ -385,6 +391,7 @@ class ArchiveTags extends EscherParser
 		
 		extract($this->gatts(array(
 			'category' => $curIter['category'],
+			'notcategory' => $curIter['notcategory'],
 			'status' => $curIter['status'],
 			'limit' => $curIter['limit'],
 			'start' => $curIter['start'],
@@ -409,7 +416,7 @@ class ArchiveTags extends EscherParser
 		$parent = $this->findNonVirtualParent($page);
 
 		$offset = (max(1, $start) - 1) * $limit;
-		$rows = $this->content->fetchPageRows($parent, NULL, $category, $status, $startDate, $endDate, $limit, $offset, $sort, $order);
+		$rows = $this->content->fetchPageRows($parent, NULL, $category, $notcategory, $status, $startDate, $endDate, $limit, $offset, $sort, $order);
 		if (!empty($rows))
 		{
 			// convert dates to selected timezone, format and remove duplicates

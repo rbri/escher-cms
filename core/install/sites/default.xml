@@ -34,7 +34,7 @@
 	<updated><et:date for="edited" format="atom" /></updated>
 	<id><et:feed:id /></id>
 	<et:page id='<et:meta name="feed-root" default=''<et:pages:id />'' tag="false" />'><link rel="alternate" type="text/html" href='<et:url />'/>
-		<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' order="desc">
+		<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' notcategory="no-feed" order="desc">
 			<entry>
 				<title><et:title /></title>
 				<link rel="alternate" type="text/html" href='<et:url />'/>
@@ -80,7 +80,7 @@
 		<pubDate><et:date for="published" format="rss" /></pubDate>
 		<description><et:site_slogan /></description>
 		<et:page id='<et:meta name="feed-root" default=''<et:pages:id />'' tag="false" />'><link><et:url /></link>
-			<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' order="desc">
+			<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' notcategory="no-feed" order="desc">
 				<item>
 					<title><et:title /></title>
 					<description><et:escape_html><et:excerpt maxchars="0" /></et:escape_html></description>
@@ -468,6 +468,15 @@
 			</et:children:each>
 		</ul>
 	</et:if_selected></et:page>
+	
+	<et:categories:if_any parent="tags">
+	<p>Categories</p>
+	<ul class="linklist">
+	<et:categories:each parent="tags">
+		<li><et:categories:anchor /></li>
+	</et:categories:each>
+	</ul>
+	</et:categories:if_any>
 
 	<p>External Links</p>
 	<ul class="linklist">
@@ -555,7 +564,9 @@
       <content><![CDATA[<article>
 	<p><strong>Posted:</strong> <et:design:snippet name="posted" /></p>
 	<p><et:content /></p>
-	<p><strong>Tagged under: </strong><et:pages:categories_each parent="tags"><et:categories:anchor rel="tag" /><et:categories:if_last><et:else />, </et:categories:if_last></et:pages:categories_each></p>
+	<et:categories:if_any parent="tags">
+		<p><strong>Tagged under: </strong><et:pages:categories_each parent="tags"><et:categories:anchor rel="tag" /><et:categories:if_last><et:else />, </et:categories:if_last></et:pages:categories_each></p>
+	</et:categories:if_any>
 	<et:design:snippet name="comments" />
 </article>]]></content>
       <created>2011-06-30 00:00:00</created>
@@ -1493,8 +1504,8 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
   <categorys>
     <category>
       <id>1</id>
-      <slug>main-nav</slug>
-      <title>Main Navigation</title>
+      <slug>no-comments</slug>
+      <title>No Comments</title>
       <level>0</level>
       <position>1</position>
       <count>0</count>
@@ -1503,8 +1514,8 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
     </category>
     <category>
       <id>2</id>
-      <slug>sidebar</slug>
-      <title>Sidebar</title>
+      <slug>no-feed</slug>
+      <title>No Feed</title>
       <level>0</level>
       <position>2</position>
       <count>0</count>
@@ -1513,8 +1524,8 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
     </category>
     <category>
       <id>3</id>
-      <slug>no-comments</slug>
-      <title>No Comments</title>
+      <slug>main-nav</slug>
+      <title>Main Navigation</title>
       <level>0</level>
       <position>3</position>
       <count>0</count>
@@ -1523,8 +1534,8 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
     </category>
     <category>
       <id>4</id>
-      <slug>tags</slug>
-      <title>Tags</title>
+      <slug>sidebar</slug>
+      <title>Sidebar</title>
       <level>0</level>
       <position>4</position>
       <count>0</count>
@@ -1533,32 +1544,42 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
     </category>
     <category>
       <id>5</id>
+      <slug>tags</slug>
+      <title>Tags</title>
+      <level>0</level>
+      <position>5</position>
+      <count>0</count>
+      <parent_id>0</parent_id>
+      <priority>0</priority>
+    </category>
+    <category>
+      <id>6</id>
       <slug>fruitful-efforts</slug>
       <title>Fruitful Efforts</title>
       <level>1</level>
       <position>1</position>
       <count>0</count>
-      <parent_id>4</parent_id>
+      <parent_id>5</parent_id>
       <priority>0</priority>
     </category>
     <category>
-      <id>6</id>
+      <id>7</id>
       <slug>harmonious-living</slug>
       <title>Harmonious Living</title>
       <level>1</level>
       <position>2</position>
       <count>0</count>
-      <parent_id>4</parent_id>
+      <parent_id>5</parent_id>
       <priority>0</priority>
     </category>
     <category>
-      <id>7</id>
+      <id>8</id>
       <slug>miscellany</slug>
       <title>Miscellany</title>
       <level>1</level>
       <position>3</position>
       <count>0</count>
-      <parent_id>4</parent_id>
+      <parent_id>5</parent_id>
       <priority>0</priority>
     </category>
   </categorys>
@@ -2129,36 +2150,36 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
   </page_metas>
   <page_categorys>
     <page_category>
-      <page_id>13</page_id>
-      <category_id>1</category_id>
-    </page_category>
-    <page_category>
-      <page_id>14</page_id>
-      <category_id>1</category_id>
-    </page_category>
-    <page_category>
       <page_id>1</page_id>
-      <category_id>3</category_id>
-    </page_category>
-    <page_category>
-      <page_id>13</page_id>
-      <category_id>3</category_id>
-    </page_category>
-    <page_category>
-      <page_id>1</page_id>
-      <category_id>5</category_id>
-    </page_category>
-    <page_category>
-      <page_id>18</page_id>
-      <category_id>5</category_id>
+      <category_id>1</category_id>
     </page_category>
     <page_category>
       <page_id>1</page_id>
       <category_id>6</category_id>
     </page_category>
     <page_category>
-      <page_id>13</page_id>
+      <page_id>1</page_id>
       <category_id>7</category_id>
+    </page_category>
+    <page_category>
+      <page_id>13</page_id>
+      <category_id>1</category_id>
+    </page_category>
+    <page_category>
+      <page_id>13</page_id>
+      <category_id>3</category_id>
+    </page_category>
+    <page_category>
+      <page_id>13</page_id>
+      <category_id>8</category_id>
+    </page_category>
+    <page_category>
+      <page_id>14</page_id>
+      <category_id>3</category_id>
+    </page_category>
+    <page_category>
+      <page_id>18</page_id>
+      <category_id>6</category_id>
     </page_category>
   </page_categorys>
   <page_parts>
@@ -2276,19 +2297,19 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
   <link_categorys>
     <link_category>
       <link_id>1</link_id>
-      <category_id>2</category_id>
+      <category_id>4</category_id>
     </link_category>
     <link_category>
       <link_id>2</link_id>
-      <category_id>2</category_id>
+      <category_id>4</category_id>
     </link_category>
     <link_category>
       <link_id>3</link_id>
-      <category_id>2</category_id>
+      <category_id>4</category_id>
     </link_category>
     <link_category>
       <link_id>4</link_id>
-      <category_id>2</category_id>
+      <category_id>4</category_id>
     </link_category>
   </link_categorys>
   <comments>
