@@ -333,14 +333,13 @@ class _SettingsController extends EscherAdminController
 				$model = $this->newModel('EscherSchemaUpgrade');
 				$model->upgrade();
 				$vars['content'] = 'settings/upgrade_success';
+				$this->observer->notify('EventLog:logevent', 'upgraded database to schema version ' . EscherVersion::SchemaVersion);
 			}
 			catch (Exception $e)
 			{
 				$vars['warning'] = $e->getMessage();
 			}
 			
-			$this->observer->notify('EventLog:logevent', 'upgraded database to schema version ' . EscherVersion::SchemaVersion);
-
 			// since we likely just upgraded the code, clear code caches
 
 			$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Production);

@@ -18,9 +18,17 @@ $sites['<?= $site_id ?>'] = array
 	),
 	'sanitizer' => array
 	(
-		'active' => true,
-		'safe' => 1,
-		'deny_attribute' => 'style',
+		'in' => array
+		(
+			'active' => true,
+			'safe' => 1,
+			'deny_attribute' => 'style',
+		),
+		'out' => array
+		(
+			'active' => false,	// disabled by default because htmlawed not yet HTML5-compatible
+			'tidy' => 1,
+		)
 	),
 	'cache' => array
 	(

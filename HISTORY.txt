@@ -16,6 +16,7 @@ Version 0.9.2 [TBD]
 	comments plugin:
 		new default snippets
 		change: by default, comment processing now done prior to saving comment instead of after retrieving it
+	upgraded textile library to rev 3511
 
 Version 0.9.1 [not released]
 	miscellaneous bug fixes
