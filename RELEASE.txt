@@ -22,6 +22,30 @@ ownership and permissions as your existing cache/code directory:
 
 --
 
+Drag & Drop page reordering.
+
+--
+
+New default theme by Phil Wareham of Design Hive Ltd. Thanks Phil!
+
+	http://www.designhive.com/
+	@philwareham
+
+--
+
+Site search plugin.
+Feed generator plugin.
+
+--
+
+Unlimited custom metadata for images, files and links.
+
+--
+
+Support for separate read-only database(s) (for load-balancing MySQL queries to replicated slaves) 
+
+--
+
 Specifying snippets by ID when using escher tags such as <et:design:snippet> is
 now deprecated and support will be dropped in the next release. Fetch snippets
 by name instead.
@@ -75,6 +99,10 @@ Comments Plugin
 		stored in your site database may contain data that is unsafe to render. You should check
 		your existing comments and potentially escape the contents of the `message` column for each
 		existing comment before enabling the new behavior in your site.
+
+--
+
+	Miscellaneous bug fixes.
 
 --
 
