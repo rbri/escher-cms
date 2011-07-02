@@ -335,7 +335,7 @@
 
 	<!-- css -->
 	<!-- Google font API -->
-	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic&subset=latin">
+	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic&amp;subset=latin">
 	<et:design:style name="default.css" media="screen" />
 
 	<link rel="shortcut icon" type="image/ico" href="<et:site_url />/favicon.ico">
@@ -502,7 +502,7 @@
 		<li>
 			<article>
 				<et:pagelink rel="bookmark"><et:title /></et:pagelink> &#183; <et:design:snippet name="posted" />
-				<p><et:excerpt /></p>
+				<et:excerpt />
 			</article>
 		</li>
 	</et:children:each>
@@ -563,7 +563,7 @@
       <name>article</name>
       <content><![CDATA[<article>
 	<p><strong>Posted:</strong> <et:design:snippet name="posted" /></p>
-	<p><et:content /></p>
+	<et:content />
 	<et:categories:if_any parent="tags">
 		<p><strong>Tagged under: </strong><et:pages:categories_each parent="tags"><et:categories:anchor rel="tag" /><et:categories:if_last><et:else />, </et:categories:if_last></et:pages:categories_each></p>
 	</et:categories:if_any>
@@ -2195,7 +2195,7 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
 
 <p>By default, commenting is disabled on the home page. Try enabling comments by removing the "No Comments" category from this page. Just click on the category to remove it. Don't forget to save your changes by clicking the button at the bottom! Then, come back and refresh this page. You should now see the commenting form. By the way, commenting functionality is provided by an Escher <em>plugin.</em> If you don't need commenting, you can disable it in the <a href="<et:admin_url />/settings/preferences/plugins">plugins preferences pane</a>, or you can disable the plugin entirely by editing your site-config.php file.</p>
 
-<p>Another plugin provided with the default Escher installation is the <em>Search</em> plugin, which provides site-wide search capabilities. You can try it out by entering search terms into the Search box in the sidebar. Note that by default, this theme limits the target of searches to pages in the Articles section of the site. So you won't find the Home or About pages turning up in search results. You are free to change this behavior if you like and otherwise tune the behavior of the Search plugin to your needs.
+<p>Another plugin provided with the default Escher installation is the <em>Search</em> plugin, which provides site-wide search capabilities. You can try it out by entering search terms into the Search box in the sidebar. Note that by default, this theme limits the target of searches to pages in the Articles section of the site. So you won't find the Home or About pages turning up in search results. You are free to change this behavior if you like and otherwise tune the behavior of the Search plugin to your needs.</p>
 
 <p>Every page on your site can have an unlimited number of categories assigned. As you <a href="<et:admin_url />/content/categories">create categories</a> for your site, you may nest them to any depth (creating categories of categories!) This enables you to establish a taxonomy for your site other than and in addition to the natural taxonomy established by your site's URL structure. But you can also use categories simply to tag your pages, or for other purposes, such as disabling comments on a per-page basis, or choosing which pages appear in your site's navigation. Categories are an extremely flexible and powerful tool in Escher, and you are sure to find new and imaginative ways to use them.</p>
 
@@ -2206,7 +2206,7 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
 
 <p>By default, commenting is disabled on the home page. Try enabling comments by removing the &#8220;No Comments&#8221; category from this page. Just click on the category to remove it. Don&#8217;t forget to save your changes by clicking the button at the bottom! Then, come back and refresh this page. You should now see the commenting form. By the way, commenting functionality is provided by an Escher <em>plugin.</em> If you don&#8217;t need commenting, you can disable it in the <a href="<et:admin_url />/settings/preferences/plugins">plugins preferences pane</a>, or you can disable the plugin entirely by editing your site-config.php file.</p>
 
-<p>Another plugin provided with the default Escher installation is the <em>Search</em> plugin, which provides site-wide search capabilities. You can try it out by entering search terms into the Search box in the sidebar. Note that by default, this theme limits the target of searches to pages in the Articles section of the site. So you won&#8217;t find the Home or About pages turning up in search results. You are free to change this behavior if you like and otherwise tune the behavior of the Search plugin to your needs.
+<p>Another plugin provided with the default Escher installation is the <em>Search</em> plugin, which provides site-wide search capabilities. You can try it out by entering search terms into the Search box in the sidebar. Note that by default, this theme limits the target of searches to pages in the Articles section of the site. So you won&#8217;t find the Home or About pages turning up in search results. You are free to change this behavior if you like and otherwise tune the behavior of the Search plugin to your needs.</p>
 
 <p>Every page on your site can have an unlimited number of categories assigned. As you <a href="<et:admin_url />/content/categories">create categories</a> for your site, you may nest them to any depth (creating categories of categories!) This enables you to establish a taxonomy for your site other than and in addition to the natural taxonomy established by your site&#8217;s URL structure. But you can also use categories simply to tag your pages, or for other purposes, such as disabling comments on a per-page basis, or choosing which pages appear in your site&#8217;s navigation. Categories are an extremely flexible and powerful tool in Escher, and you are sure to find new and imaginative ways to use them.</p>
 
@@ -2219,8 +2219,8 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
       <position>0</position>
       <type>textarea</type>
       <validation/>
-      <content><![CDATA[This is a placeholder for an "About this Site" page. You can <a href="<et:admin_url />/content/pages/edit/<et:id />">edit it</a> or <a href="<et:admin_url />/content/pages/delete/<et:id />">delete it</a> if you don't need it. Notice that if you delete this page, it will be removed from your site's navigation automatically. Sweet, eh?]]></content>
-      <content_html><![CDATA[This is a placeholder for an &#8220;About this Site&#8221; page. You can <a href="<et:admin_url />/content/pages/edit/<et:id />">edit it</a> or <a href="<et:admin_url />/content/pages/delete/<et:id />">delete it</a> if you don&#8217;t need it. Notice that if you delete this page, it will be removed from your site&#8217;s navigation automatically. Sweet, eh?]]></content_html>
+      <content><![CDATA[<p>This is a placeholder for an "About this Site" page. You can <a href="<et:admin_url />/content/pages/edit/<et:id />">edit it</a> or <a href="<et:admin_url />/content/pages/delete/<et:id />">delete it</a> if you don't need it. Notice that if you delete this page, it will be removed from your site's navigation automatically. Sweet, eh?</p>]]></content>
+      <content_html><![CDATA[<p>This is a placeholder for an &#8220;About this Site&#8221; page. You can <a href="<et:admin_url />/content/pages/edit/<et:id />">edit it</a> or <a href="<et:admin_url />/content/pages/delete/<et:id />">delete it</a> if you don&#8217;t need it. Notice that if you delete this page, it will be removed from your site&#8217;s navigation automatically. Sweet, eh?</p>]]></content_html>
       <filter_id>2</filter_id>
     </page_part>
     <page_part>
@@ -2230,7 +2230,7 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
       <type>textarea</type>
       <validation/>
       <content><![CDATA[Welcome to my first article!]]></content>
-      <content_html><![CDATA[	<p>Welcome to my first article!</p>]]></content_html>
+      <content_html><![CDATA[<p>Welcome to my first article!</p>]]></content_html>
       <filter_id>4</filter_id>
     </page_part>
     <page_part>
@@ -2240,7 +2240,7 @@ b[0]&&b[0].ownerDocument||c);var h=[],i;for(var j=0,k;(k=a[j])!=null;j++){typeof
       <type>textarea</type>
       <validation/>
       <content><![CDATA[This is a summary of my first article.]]></content>
-      <content_html><![CDATA[	<p>This is a summary of my first article.</p>]]></content_html>
+      <content_html><![CDATA[<p>This is a summary of my first article.</p>]]></content_html>
       <filter_id>4</filter_id>
     </page_part>
   </page_parts>
