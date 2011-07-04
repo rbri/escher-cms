@@ -18,9 +18,10 @@ ErrorDocument 403 /index.php
 #
 #   Uncomment this block of rules for static file caching.
 #
+#
 #   Replace all occurrences of "my.fqdn.com" with the fully qualified domain
-#   name of your production site. This will prevent the development and staging
-#   branches from displaying statically cached pages from the production branch.
+#   name of your production site.
+#
 #
 #   RewriteCond %{SERVER_NAME} ^my.fqdn.com$
 #   RewriteCond %{REQUEST_METHOD} ^GET$
@@ -37,6 +38,48 @@ ErrorDocument 403 /index.php
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI} -d
 #   RewriteCond %{DOCUMENT_ROOT}/cache/pages%{REQUEST_URI}index.html -f
 #   RewriteRule ^(.*)$ /cache/pages/$1index.html [L]
+#
+#
+#   Replace all occurrences of "staging.my.fqdn.com" with the fully qualified
+#   domain name of your staging site.
+#
+#
+#   RewriteCond %{SERVER_NAME} ^staging.my.fqdn.com$
+#   RewriteCond %{REQUEST_METHOD} ^GET$
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages.staging%{REQUEST_URI} -f
+#   RewriteRule ^(.*)$ /cache/pages.staging/$1 [L]
+#
+#   RewriteCond %{SERVER_NAME} ^staging.my.fqdn.com$
+#   RewriteCond %{REQUEST_METHOD} ^GET$
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages.staging%{REQUEST_URI}.html -f
+#   RewriteRule ^(.*)$ /cache/pages.staging/$1.html [L]
+#
+#   RewriteCond %{SERVER_NAME} ^staging.my.fqdn.com$
+#   RewriteCond %{REQUEST_METHOD} ^GET$
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages.staging%{REQUEST_URI} -d
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages.staging%{REQUEST_URI}index.html -f
+#   RewriteRule ^(.*)$ /cache/pages.staging/$1index.html [L]
+#
+#
+#   Replace all occurrences of "dev.my.fqdn.com" with the fully qualified
+#   domain name of your development site.
+#
+#
+#   RewriteCond %{SERVER_NAME} ^dev.my.fqdn.com$
+#   RewriteCond %{REQUEST_METHOD} ^GET$
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages.dev%{REQUEST_URI} -f
+#   RewriteRule ^(.*)$ /cache/pages.dev/$1 [L]
+#
+#   RewriteCond %{SERVER_NAME} ^dev.my.fqdn.com$
+#   RewriteCond %{REQUEST_METHOD} ^GET$
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages.dev%{REQUEST_URI}.html -f
+#   RewriteRule ^(.*)$ /cache/pages.dev/$1.html [L]
+#
+#   RewriteCond %{SERVER_NAME} ^dev.my.fqdn.com$
+#   RewriteCond %{REQUEST_METHOD} ^GET$
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages.dev%{REQUEST_URI} -d
+#   RewriteCond %{DOCUMENT_ROOT}/cache/pages.dev%{REQUEST_URI}index.html -f
+#   RewriteRule ^(.*)$ /cache/pages.dev/$1index.html [L]
 #
 ################################################################################
 
