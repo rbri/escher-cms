@@ -80,8 +80,8 @@ $lang['prefs'] = array
 	
 	'secure_site_url' => 'Secure Site URL',
 	'enforce_page_security' => NULL,
-	
 	'automatic_redirect' => NULL,
+
 	'last_update_version' => NULL,
 	'last_update_check' => NULL,
 	'check_for_updates' => NULL,
@@ -139,7 +139,7 @@ $lang['prefs'] = array
 
 	'secure_site_url_help' => 'If some of your site\'s pages are secure, the full URL to your secure site\'s main page, including protocol scheme and host.',
 	'enforce_page_security_help' => 'Deny access to secure pages unless accessed via secure site URL?',
-
 	'automatic_redirect_help' => 'Automatically redirect secure pages accessed via non-secure site URL to secure site URL?',
+
 	'check_for_updates_help' => 'How often should Escher check in with the update server to look for a new version?',
 );

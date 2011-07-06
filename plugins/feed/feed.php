@@ -71,7 +71,7 @@ class _Feed extends EscherPlugin
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title><et:site_name /> Feed</title>
-	<subtitle><et:site_slogan /></subtitle>
+	<subtitle><et:if_not_empty><et:meta name="description" tag="false" /><et:else /><et:title /></et:if_not_empty></subtitle>
 	<link rel="self" type="application/atom+xml" href='<et:url />'/>
 	<updated><et:date for="edited" format="atom" /></updated>
 	<id><et:feed:id /></id>
@@ -126,8 +126,8 @@ EOD;
 <rss version="2.0">
 	<channel>
 		<title><et:site_name /> Feed</title>
+		<description><et:if_not_empty><et:meta name="description" tag="false" /><et:else /><et:title /></et:if_not_empty></description>
 		<pubDate><et:date for="published" format="rss" /></pubDate>
-		<description><et:site_slogan /></description>
 		<et:page id='<et:meta name="feed-root" default=''<et:pages:id />'' tag="false" />'><link><et:url /></link>
 			<et:children:each limit='<et:page><et:meta name="feed-limit" default="20" tag="false" /></et:page>' notcategory="no-feed" order="desc">
 				<item>

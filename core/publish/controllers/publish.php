@@ -165,34 +165,23 @@ class _PublishController extends SparkController
 			}
 			$content = $parser->currentPageTemplateContent($contentType, $parsable, $cacheable, $secure, $lastModTime, $fileName, $fileSize);
 
-			// sanity check host name in url
+			if ($secure && $prefs['enforce_page_security'])
+			{
+				// sanity check host name in url
+				
+				$schemeHost = SparkUtil::scheme().SparkUtil::host();
 			
-			$schemeHost = SparkUtil::scheme().SparkUtil::host();
-			$expectHost = NULL;
-			
-			if (!$secure)
-			{
-				$checkFailed = ($schemeHost !== ($expectHost = $params['site_host']));
-			}
-			elseif ($prefs['enforce_page_security'])
-			{
-				$checkFailed = ($schemeHost !== ($expectHost = $params['secure_site_host']));
-			}
-			else
-			{
-				$checkFailed = ($schemeHost !== $params['site_host']) && ($schemeHost !== $params['secure_site_host']);
-			}
-			
-			if ($checkFailed)
-			{
-				if ($expectHost && $prefs['automatic_redirect'])
+				if ($schemeHost !== $params['secure_site_host'])
 				{
-					header('Location: ' . $this->urlTo($uri, $expectHost, false));
-					exit;
-				}
-				else
-				{
-					throw new SparkHTTPException_NotFound(NULL, array('reason'=>'host scheme mismatch'));
+					if ($prefs['automatic_redirect'])
+					{
+						header('Location: ' . $this->urlTo($uri, $params['secure_site_host'], false));
+						exit;
+					}
+					else
+					{
+						throw new SparkHTTPException_NotFound(NULL, array('reason'=>'host scheme mismatch'));
+					}
 				}
 			}
 		}
