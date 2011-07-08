@@ -355,7 +355,7 @@ class _DesignController extends EscherAdminController
 					elseif (!empty($changes))
 					{
 						$model->pushBranchPartialByID($branchID, $changes);
-						$this->observer->notify('escher:site_change:design:branch:push', $branch);
+						$this->observer->notify('escher:site_change:design:branch:push', $branch, $branchID+1);
 						$vars['notice'] = 'Selected changes were pushed successfully.';
 					}
 				}
@@ -377,7 +377,7 @@ class _DesignController extends EscherAdminController
 					elseif (!empty($changes))
 					{
 						$model->rollbackBranchPartialByID($branchID, $changes);
-						$this->observer->notify('escher:site_change:design:branch:rollback', $branch);
+						$this->observer->notify('escher:site_change:design:branch:rollback', $branch, $branchID);
 						$vars['notice'] = 'Selected changes were rolled back successfully.';
 					}
 				}
@@ -453,7 +453,7 @@ class _DesignController extends EscherAdminController
 			else
 			{
 				$model->pushBranchByID($branchID);
-				$this->observer->notify('escher:site_change:design:branch:push', $branch);
+				$this->observer->notify('escher:site_change:design:branch:push', $branch, $branchID+1);
 				$this->session->flashSet('notice', 'Branch pushed successfully.');
 				$this->redirect('/design/branches');
 			}
@@ -513,7 +513,7 @@ class _DesignController extends EscherAdminController
 			else
 			{
 				$model->rollbackBranchByID($branchID);
-				$this->observer->notify('escher:site_change:design:branch:rollback', $branch);
+				$this->observer->notify('escher:site_change:design:branch:rollback', $branch, $branchID);
 				$this->session->flashSet('notice', 'Branch rolled back successfully.');
 				$this->redirect('/design/branches');
 			}
@@ -584,7 +584,7 @@ class _DesignController extends EscherAdminController
 				{
 					$this->updateObjectCreated($theme);
 					$model->addTheme($theme);
-					$this->observer->notify('escher:site_change:design:theme:add', $theme);
+					$this->observer->notify('escher:site_change:design:theme:add', $theme, NULL);
 					$this->session->flashSet('notice', 'Theme added successfully.');
 					$this->redirect('/design/themes');
 				}
@@ -656,7 +656,7 @@ class _DesignController extends EscherAdminController
 				{
 					$this->updateObjectEdited($theme);
 					$model->updateTheme($theme);
-					$this->observer->notify('escher:site_change:design:theme:edit', $theme);
+					$this->observer->notify('escher:site_change:design:theme:edit', $theme, EscherProductionStatus::Production);
 					$vars['notice'] = 'Theme saved successfully.';
 				}
 				catch (SparkDBException $e)
@@ -715,7 +715,7 @@ class _DesignController extends EscherAdminController
 			else
 			{
 				$count = $model->deleteThemeByID($themeID);
-				$this->observer->notify('escher:site_change:design:theme:delete', $theme);
+				$this->observer->notify('escher:site_change:design:theme:delete', $theme, EscherProductionStatus::Production);
 				$this->session->flashSet('notice', $count . ($count === 1 ? ' theme' : ' themes') . ' deleted successfully.');
 				$this->redirect('/design/themes');
 			}
@@ -799,7 +799,7 @@ class _DesignController extends EscherAdminController
 					{
 						$model->addTemplate($template);
 					}
-					$this->observer->notify('escher:site_change:design:template:add', $template);
+					$this->observer->notify('escher:site_change:design:template:add', $template, $branch);
 					$this->session->flashSet('notice', 'Template added successfully.');
 					$this->redirect('/design/templates/edit/'.$template->id);
 				}
@@ -920,7 +920,7 @@ class _DesignController extends EscherAdminController
 		
 							$model->updateTemplate($template);
 						}
-						$this->observer->notify('escher:site_change:design:template:edit', $template);
+						$this->observer->notify('escher:site_change:design:template:edit', $template, $branch);
 						$vars['notice'] = 'Template saved successfully.';
 					}
 					catch (SparkDBException $e)
@@ -1007,7 +1007,7 @@ class _DesignController extends EscherAdminController
 					$model->markTemplateDeletedByID($template->id);
 				}
 				
-				$this->observer->notify('escher:site_change:design:template:delete', $template);
+				$this->observer->notify('escher:site_change:design:template:delete', $template, $branch);
 				$this->session->flashSet('notice', 'Template deleted successfully.');
 				$this->redirect('/design/templates');
 			}
@@ -1067,7 +1067,7 @@ class _DesignController extends EscherAdminController
 					{
 						$model->addSnippet($snippet);
 					}
-					$this->observer->notify('escher:site_change:design:snippet:add', $snippet);
+					$this->observer->notify('escher:site_change:design:snippet:add', $snippet, $branch);
 					$this->session->flashSet('notice', 'Snippet added successfully.');
 					$this->redirect('/design/snippets/edit/'.$snippet->id);
 				}
@@ -1190,7 +1190,7 @@ class _DesignController extends EscherAdminController
 		
 							$model->updateSnippetContent($snippet);
 						}
-						$this->observer->notify('escher:site_change:design:snippet:edit', $snippet);
+						$this->observer->notify('escher:site_change:design:snippet:edit', $snippet, $branch);
 						$vars['notice'] = 'Snippet saved successfully.';
 					}
 					catch (SparkDBException $e)
@@ -1277,7 +1277,7 @@ class _DesignController extends EscherAdminController
 					$model->markSnippetDeletedByID($snippet->id);
 				}
 				
-				$this->observer->notify('escher:site_change:design:snippet:delete', $snippet);
+				$this->observer->notify('escher:site_change:design:snippet:delete', $snippet, $branch);
 				$this->session->flashSet('notice', 'Snippet deleted successfully.');
 				$this->redirect('/design/snippets');
 			}
@@ -1337,14 +1337,7 @@ class _DesignController extends EscherAdminController
 					{
 						$model->addTag($tag);
 					}
-					$this->observer->notify('escher:site_change:design:tag:add', $tag);
-					
-					// flush code cache for this branch and all brances above it
-					
-					for ($flushBranch = $branch; $flushBranch <= EscherProductionStatus::Development; ++$flushBranch)
-					{
-						$this->observer->notify('escher:cache:request_flush:plug', $flushBranch);
-					}
+					$this->observer->notify('escher:site_change:design:tag:add', $tag, $branch);
 					
 					$this->session->flashSet('notice', 'Tag added successfully.');
 					$this->redirect('/design/tags/edit/'.$tag->id);
@@ -1468,14 +1461,7 @@ class _DesignController extends EscherAdminController
 		
 							$model->updateTagContent($tag);
 						}
-						$this->observer->notify('escher:site_change:design:tag:edit', $tag);
-						
-						// flush code cache for this branch and all brances above it
-						
-						for ($flushBranch = $branch; $flushBranch <= EscherProductionStatus::Development; ++$flushBranch)
-						{
-							$this->observer->notify('escher:cache:request_flush:plug', $flushBranch);
-						}
+						$this->observer->notify('escher:site_change:design:tag:edit', $tag, $branch);
 						
 						$vars['notice'] = 'Tag saved successfully.';
 					}
@@ -1563,15 +1549,8 @@ class _DesignController extends EscherAdminController
 					$model->markTagDeletedByID($tag->id);
 				}
 				
-				$this->observer->notify('escher:site_change:design:tag:delete', $tag);
+				$this->observer->notify('escher:site_change:design:tag:delete', $tag, $branch);
 
-				// flush code cache for this branch and all brances above it
-				
-				for ($flushBranch = $branch; $flushBranch <= EscherProductionStatus::Development; ++$flushBranch)
-				{
-					$this->observer->notify('escher:cache:request_flush:plug', $flushBranch);
-				}
-				
 				$this->session->flashSet('notice', 'Tag deleted successfully.');
 				$this->redirect('/design/tags');
 			}
@@ -1632,7 +1611,7 @@ class _DesignController extends EscherAdminController
 					{
 						$model->addStyle($style);
 					}
-					$this->observer->notify('escher:site_change:design:style:add', $style);
+					$this->observer->notify('escher:site_change:design:style:add', $style, $branch);
 					$this->session->flashSet('notice', 'Style added successfully.');
 					$this->redirect('/design/styles/edit/'.$style->id);
 				}
@@ -1755,7 +1734,7 @@ class _DesignController extends EscherAdminController
 		
 							$model->updateStyle($style);
 						}
-						$this->observer->notify('escher:site_change:design:style:edit', $style);
+						$this->observer->notify('escher:site_change:design:style:edit', $style, $branch);
 						$vars['notice'] = 'Style saved successfully.';
 					}
 					catch (SparkDBException $e)
@@ -1842,7 +1821,7 @@ class _DesignController extends EscherAdminController
 					$model->markStyleDeletedByID($style->id);
 				}
 				
-				$this->observer->notify('escher:site_change:design:style:delete', $style);
+				$this->observer->notify('escher:site_change:design:style:delete', $style, $branch);
 				$this->session->flashSet('notice', 'Style deleted successfully.');
 				$this->redirect('/design/styles');
 			}
@@ -1903,7 +1882,7 @@ class _DesignController extends EscherAdminController
 					{
 						$model->addScript($script);
 					}
-					$this->observer->notify('escher:site_change:design:script:add', $script);
+					$this->observer->notify('escher:site_change:design:script:add', $script, $branch);
 					$this->session->flashSet('notice', 'Script added successfully.');
 					$this->redirect('/design/scripts/edit/'.$script->id);
 				}
@@ -2026,7 +2005,7 @@ class _DesignController extends EscherAdminController
 		
 							$model->updateScript($script);
 						}
-						$this->observer->notify('escher:site_change:design:script:edit', $script);
+						$this->observer->notify('escher:site_change:design:script:edit', $script, $branch);
 						$vars['notice'] = 'Script saved successfully.';
 					}
 					catch (SparkDBException $e)
@@ -2113,7 +2092,7 @@ class _DesignController extends EscherAdminController
 					$model->markScriptDeletedByID($script->id);
 				}
 				
-				$this->observer->notify('escher:site_change:design:script:delete', $script);
+				$this->observer->notify('escher:site_change:design:script:delete', $script, $branch);
 				$this->session->flashSet('notice', 'Script deleted successfully.');
 				$this->redirect('/design/scripts');
 			}
@@ -2186,7 +2165,7 @@ class _DesignController extends EscherAdminController
 						{
 							$model->addImage($image);
 						}
-						$this->observer->notify('escher:site_change:design:image:add', $image);
+						$this->observer->notify('escher:site_change:design:image:add', $image, $branch);
 						if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
 						{
 							$model->saveImageMeta($image, $vars);
@@ -2342,7 +2321,7 @@ class _DesignController extends EscherAdminController
 			
 								$model->updateImage($image);
 							}
-							$this->observer->notify('escher:site_change:design:image:edit', $image);
+							$this->observer->notify('escher:site_change:design:image:edit', $image, $branch);
 							if ($vars['can_edit_meta'] || $vars['can_add_meta'] || $vars['can_delete_meta'])
 							{
 								$model->saveImageMeta($image, $vars);
@@ -2456,7 +2435,7 @@ class _DesignController extends EscherAdminController
 					$model->markImageDeletedByID($image->id);
 				}
 				
-				$this->observer->notify('escher:site_change:design:image:delete', $image);
+				$this->observer->notify('escher:site_change:design:image:delete', $image, $branch);
 				$this->session->flashSet('notice', 'Image deleted successfully.');
 				$this->redirect('/design/images');
 			}

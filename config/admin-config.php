@@ -49,7 +49,6 @@ $config = array
 	'root_dir' => $rootDir = dirname(dirname(__FILE__)),
 	'sparkplug_dir' => $rootDir . '/sparkplug',
 //	'plug_cache_dir' => $rootDir . '/cache/admin',
-//	'page_cache_dir' => $rootDir . '/cache/pages',		// only need this if using static page cache, to allow admin side to purge cache
 	'core_dir' => $rootDir . '/core',
 	'app_dir' => $rootDir . '/core/admin',
 	'lang_dir' => $rootDir . '/core/shared/languages',

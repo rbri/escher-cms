@@ -592,7 +592,7 @@ class _ContentController extends EscherAdminController
 			else
 			{
 				$model->deleteModelByID($modelID);
-				$this->observer->notify('escher:site_change:content:model:delete', $pageModel);
+				$this->observer->notify('escher:db_change:content:model:delete', $pageModel);
 				$this->session->flashSet('notice', 'Model deleted successfully.');
 				$this->redirect('/content/models');
 			}
@@ -617,13 +617,13 @@ class _ContentController extends EscherAdminController
 		{
 			$this->updateObjectEdited($pageModel);
 			$model->updateModel($pageModel);
-			$this->observer->notify('escher:site_change:content:model:edit', $pageModel);
+			$this->observer->notify('escher:db_change:content:model:edit', $pageModel);
 		}
 		else
 		{
 			$this->updateObjectCreated($pageModel);
 			$model->addModel($pageModel);
-			$this->observer->notify('escher:site_change:content:model:add', $pageModel);
+			$this->observer->notify('escher:db_change:content:model:add', $pageModel);
 		}
 
 		// save page parts

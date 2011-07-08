@@ -32,6 +32,8 @@ class _PublishController extends SparkController
 {
 	private $_content;
 	private $_theme;
+	private $_cacherBaseNameSpace;
+	private $_cacher;
 	
 	//---------------------------------------------------------------------------
 
@@ -125,25 +127,27 @@ class _PublishController extends SparkController
 		
 		// set up the cacher
 
-		$cacher = NULL;
+		$this->_cacher = NULL;
 		if (($prefs['partial_cache_active']) && method_exists($this, 'loadCacher'))
 		{
 			if ($cache_params = $this->config->get('cache'))
 			{
-				$cache_params['namespace'] = @$cache_params['namespace'] . $cacheSuffix;
+				$this->_cacherBaseNameSpace = @$cache_params['namespace'];
+				$cache_params['namespace'] = $this->_cacherBaseNameSpace . $cacheSuffix;
 				if (isset($prefs['partial_cache_ttl']))
 				{
 					$cache_params['lifetime'] = $prefs['partial_cache_ttl'];
 				}
 				$cache_params['connection'] = $this->_content->loadDBWithPerm(EscherModel::PermWrite);
-				$cacher = $this->loadCacher($cache_params);
+				$this->_cacher = $this->loadCacher($cache_params);
 
 				if (!empty($prefs[$partialCachePref]))
 				{
-					$cacher->clear();
+					$this->flushSitePartialCache('escher:cache:request_flush:partial', $params['production_status']);
 					$changedPrefs[$partialCachePref] = array('name'=>$partialCachePref, 'val'=>0);
 					$prefsModel->updatePrefs($changedPrefs);
 				}
+				$this->observer->observe(array($this, 'flushSitePartialCache'), array('escher:cache:request_flush:partial'));
 			}
 		}
 		
@@ -158,7 +162,7 @@ class _PublishController extends SparkController
 			{
 				$saveDir = $this->factory->setPlugCacheDir($plugCacheDir);	// ensure user tags are cached separately for each branch
 			}
-			$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, $uri);
+			$parser = $this->factory->manufacture('EscherParser', $params, $this->_cacher, $this->_content, $uri);
 			if ($plugCacheDir)
 			{
 				$this->factory->setPlugCacheDir($saveDir);
@@ -180,7 +184,7 @@ class _PublishController extends SparkController
 					}
 					else
 					{
-						throw new SparkHTTPException_NotFound(NULL, array('reason'=>'host scheme mismatch'));
+						throw new SparkHTTPException_NotFound(NULL, array('reason'=>'host mismatch'));
 					}
 				}
 			}
@@ -192,7 +196,7 @@ class _PublishController extends SparkController
 			{
 				$saveDir = $this->factory->setPlugCacheDir($plugCacheDir);	// ensure user tags are cached separately for each branch
 			}
-			$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
+			$parser = $this->factory->manufacture('EscherParser', $params, $this->_cacher, $this->_content, '/');
 			if ($plugCacheDir)
 			{
 				$this->factory->setPlugCacheDir($saveDir);
@@ -227,7 +231,7 @@ class _PublishController extends SparkController
 				{
 					$saveDir = $this->factory->setPlugCacheDir($plugCacheDir);	// ensure user tags are cached separately for each branch
 				}
-				$parser = $this->factory->manufacture('EscherParser', $params, $cacher, $this->_content, '/');
+				$parser = $this->factory->manufacture('EscherParser', $params, $this->_cacher, $this->_content, '/');
 				if ($plugCacheDir)
 				{
 					$this->factory->setPlugCacheDir($saveDir);
@@ -237,6 +241,41 @@ class _PublishController extends SparkController
 				return;
 			}
 		}
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function flushSitePartialCache($message, $branch, $requester = NULL)
+	{
+		if (!$this->_cacher)
+		{
+			return;
+		}
+		
+		switch ($branch)
+		{
+			case EscherProductionStatus::Staging:
+				$saveNameSpace = $this->_cacher->getNameSpace();
+				$this->_cacher->setNameSpace($this->_cacherBaseNameSpace . '.staging');
+				break;
+
+			case EscherProductionStatus::Development:
+				$saveNameSpace = $this->_cacher->getNameSpace();
+				$this->_cacher->setNameSpace($this->_cacherBaseNameSpace . '.dev');
+				break;
+
+			default:
+				$saveNameSpace = NULL;
+		}
+		
+		$this->_cacher->clear();
+		
+		if ($saveNameSpace)
+		{
+			$this->_cacher->setNameSpace($saveNameSpace);
+		}
+
+		$this->observer->notify('escher:cache:flush:partial', $branch, $requester);
 	}
 
 	//---------------------------------------------------------------------------

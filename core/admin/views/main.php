@@ -7,7 +7,7 @@
 <title>Escher Content Management System Administration</title>
 <link href="<?= $this->urlToStatic('/css/escher.css') ?>" media="screen" rel="stylesheet" type="text/css" />
 <link href="<?= $this->urlToStatic('/js/jquery/css/smoothness/jquery-ui-1.8.13.custom.css') ?>" media="screen" rel="stylesheet" type="text/css" />
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" type="text/javascript"></script>
 <script>window.jQuery || document.write('<script src="<?= $this->urlToStatic('/js/jquery/jquery.js') ?>" type="text/javascript"><\/script>')</script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js" type="text/javascript"></script>
 <script>window.jQuery.ui || document.write('<script src="<?= $this->urlToStatic('/js/jquery/jquery-ui.js') ?>" type="text/javascript"><\/script>')</script>

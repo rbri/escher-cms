@@ -47,13 +47,6 @@ if (empty($config['auth']['database']))
 	@$config['auth']['database'] = $config['database_default'];
 }
 
-define('escher_core_dir', $config['core_dir']);
-
-@$plug_search_paths = $config['plug_search_paths'];
-@$plug_cache_dir = $config['plug_cache_dir'];
-
-require($config['sparkplug_dir'].'/sparkplug.php');
-
 // Plugs that extend the application object are a special case, since they must be
 // loaded before we instantiate the application object.
 
@@ -61,17 +54,14 @@ require($config['sparkplug_dir'].'/sparkplug.php');
 
 // Escher application class definition
 
-require($config['core_dir'].'/shared/escher_admin_controller.php');
+require(escher_core_dir.'/shared/escher_application.php');
+require(escher_core_dir.'/shared/escher_admin_controller.php');
 
-class _EscherAdmin extends SparkApplication
+class _EscherAdmin extends EscherApplication
 {
 	private $_headElements;
 	private $_user;
 	private $_tabs;
-	private $_prefsModel;
-	private $_prefs;
-	private $_pluginsModel;
-	private $_plugins;
 	
 	//---------------------------------------------------------------------------
 
@@ -137,9 +127,16 @@ class _EscherAdmin extends SparkApplication
 		$this->observer->observe(array($this, 'afterLogin'), array('SparkAuthController:login'));
 		$this->observer->observe(array($this, 'beforeRender'), array('SparkView:render:before:main'));
 		$this->observer->observe(array($this, 'addHeadElement'), array('escher:page:request_add_element:head'));
-		$this->observer->observe(array($this, 'flushPlugCache'), array('escher:cache:request_flush:plug'));
-		$this->observer->observe(array($this, 'flushPartialCache'), array('escher:cache:request_flush:partial'));
-		$this->observer->observe(array($this, 'flushPageCache'), array('escher:cache:request_flush:page'));
+		
+		$this->observer->observe(array($this, 'flushSitePlugCache'), array('escher:cache:request_flush:plug'));
+		if ($this->_prefs['partial_cache_active'])
+		{
+			$this->observer->observe(array($this, 'flushSitePartialCache'), array('escher:cache:request_flush:partial'));
+		}
+		if ($this->_prefs['page_cache_active'])
+		{
+			$this->observer->observe(array($this, 'flushSitePageCache'), array('escher:cache:request_flush:page'));
+		}
 		
 		// load "always-enabled" auto-load plugins, listed in config
 		
@@ -174,6 +171,13 @@ class _EscherAdmin extends SparkApplication
 	
 	//---------------------------------------------------------------------------
 
+	public function is_admin()
+	{
+		return true;
+	}
+
+	//---------------------------------------------------------------------------
+
 	public function afterLogin()
 	{
 		// check for updates
@@ -200,207 +204,160 @@ class _EscherAdmin extends SparkApplication
 
 	//---------------------------------------------------------------------------
 
-	public function flushPlugCache($message, $branch)
+	public function flushSitePlugCache($message, $branches)
 	{
-		switch ($branch)
+		if ($flushAllBranches = empty($branches))
 		{
-			case EscherProductionStatus::Staging:
-				$pref = 'plug_cache_flush_staging';
-				break;
-			case EscherProductionStatus::Development:
-				$pref = 'plug_cache_flush_dev';
-				break;
-			default:
-				$pref = 'plug_cache_flush';
+			$branches = array(EscherProductionStatus::Production, EscherProductionStatus::Staging, EscherProductionStatus::Development);
 		}
 		
-		if (!$this->_prefs[$pref])
-		{
-			$this->_prefs[$pref] = 1;
-			$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
-			$this->_prefsModel->updatePrefs($changedPrefs);
-		}
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function flushPartialCache($message, $branch)
-	{
-		switch ($branch)
-		{
-			case EscherProductionStatus::Staging:
-				$pref = 'partial_cache_flush_staging';
-				break;
-			case EscherProductionStatus::Development:
-				$pref = 'partial_cache_flush_dev';
-				break;
-			default:
-				$pref = 'partial_cache_flush';
-		}
+		$changedPrefs = array();
 		
-		if (!$this->_prefs[$pref])
-		{
-			$this->_prefs[$pref] = 1;
-			$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
-			$this->_prefsModel->updatePrefs($changedPrefs);
-		}
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function flushPageCache($message, $branch)
-	{
-		switch ($branch)
-		{
-			case EscherProductionStatus::Staging:
-				$pref = 'page_cache_flush_staging';
-				break;
-			case EscherProductionStatus::Development:
-				$pref = 'page_cache_flush_dev';
-				break;
-			default:
-				$pref = 'page_cache_flush';
-		}
-
-		if (!$this->_prefs[$pref])
-		{
-			$this->_prefs[$pref] = 1;
-			$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
-			$this->_prefsModel->updatePrefs($changedPrefs);
-		}
-
-		// Configurations utilizing static page caching will not get a chance to
-		// purge the cache on the publish side. So if using a file-based page cache,
-		// we remove the page cache directory here on the admin side.
-
-		if ($dir = $this->config->get('page_cache_dir'))
+		foreach ((array)$branches as $branch)
 		{
 			switch ($branch)
 			{
 				case EscherProductionStatus::Staging:
-					$dir = rtrim($dir, '/\\') . '.staging';
+					$pref = 'plug_cache_flush_staging';
 					break;
+					
 				case EscherProductionStatus::Development:
-					$dir = rtrim($dir, '/\\') . '.dev';
+					$pref = 'plug_cache_flush_dev';
 					break;
+					
+				default:
+					$pref = 'plug_cache_flush';
 			}
-			$cacher = $this->loadCacher(array('adapter' => 'file', 'cache_dir' => $dir));
-			$cacher->clear();
+			
+			if (!$this->_prefs[$pref])
+			{
+				$this->_prefs[$pref] = 1;
+				$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
+			}
+		}
+
+		if (!empty($changedPrefs))
+		{
+			$this->_prefsModel->updatePrefs($changedPrefs);
 		}
 	}
 
 	//---------------------------------------------------------------------------
 
-	public function setAutoLoadPlugin(&$plugin)
+	public function flushSitePartialCache($message, $branches)
 	{
-		if (isset($plugin['enabled']) && !$plugin['enabled'])
+		if ($flushAllBranches = empty($branches))
 		{
-			return false;
-		}
-		if (isset($plugin['runs_where']) && !($plugin['runs_where'] & PluginsModel::PluginRuns_backend))
-		{
-			return false;
-		}
-		if (!empty($plugin['auto_load']))
-		{
-			$this->_plugins[$plugin['name']] = $plugin['name'];
-		}
-		return true;
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function loadPlugin(&$plugin)
-	{
-		// load plugin code from database
-
-		return $this->_pluginsModel->fetchPluginCode($plugin['name']);
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function fetchExternalWebPage($url)
-	{
-		$page = false;
-		
-		$userAgent = 'Escher CMS '. EscherVersion::CoreVersion . '/' . EscherVersion::SchemaVersion;
-		$referrer = SparkUtil::self_url();
-
-		if (ini_get('allow_url_fopen'))
-		{
-			$ctx = stream_context_create
-			(
-				array
-				(
-					'http'=>array
-					(
-						'method'=>'GET',
-						'header'=>"Accept: text/html,application/xhtml+xml,application/xml\r\nReferer: {$referrer}\r\n",
-						'user_agent'=>$userAgent,
-						'timeout'=>5
-					)
-				)
-			);
-			$page = @file_get_contents($url, false, $ctx, 0, 12);
-		}
-
-		elseif (function_exists('curl_init'))
-		{
-			$ch = curl_init();
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_URL, $url);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, array("User-Agent: {$userAgent}, Referer: {$referrer}"));
-				$page = curl_exec($ch);
-				if (($status = curl_getinfo($ch, CURLINFO_HTTP_CODE)) != 200)
-				{
-					$page = false;
-				}
-			curl_close($ch);
+			$branches = array(EscherProductionStatus::Production, EscherProductionStatus::Staging, EscherProductionStatus::Development);
 		}
 		
-		return $page;
+		$changedPrefs = array();
+		
+		foreach ((array)$branches as $branch)
+		{
+			switch ($branch)
+			{
+				case EscherProductionStatus::Staging:
+					$pref = 'partial_cache_flush_staging';
+					break;
+					
+				case EscherProductionStatus::Development:
+					$pref = 'partial_cache_flush_dev';
+					break;
+					
+				default:
+					$pref = 'partial_cache_flush';
+			}
+			
+			if (!$this->_prefs[$pref])
+			{
+				$this->_prefs[$pref] = 1;
+				$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
+			}
+		}
+
+		if (!empty($changedPrefs))
+		{
+			$this->_prefsModel->updatePrefs($changedPrefs);
+		}
 	}
 
 	//---------------------------------------------------------------------------
+
+	public function flushSitePageCache($message, $branches)
+	{
+		if ($flushAllBranches = empty($branches))
+		{
+			$branches = array(EscherProductionStatus::Production, EscherProductionStatus::Staging, EscherProductionStatus::Development);
+		}
+		
+		$changedPrefs = array();
+		
+		foreach ((array)$branches as $branch)
+		{
+			switch ($branch)
+			{
+				case EscherProductionStatus::Staging:
+					$pref = 'page_cache_flush_staging';
+					break;
+					
+				case EscherProductionStatus::Development:
+					$pref = 'page_cache_flush_dev';
+					break;
+					
+				default:
+					$pref = 'page_cache_flush';
+			}
 	
-	public function format_date($date = 'now', $format = NULL, $formatType = 0)
-	{
-		$date = $this->factory->manufacture('SparkDateTime', $date);
-
-		switch ($format)
-		{
-			case 'atom':
-				return $date->format(DateTime::ATOM);
-			case 'rss':
-				return $date->format(DateTime::RSS);
-			case '':
-				$format = 'Y-m-d H:i:s T';
-				$formatType = 0;
-			default:
-				$date->setTimeZone($this->get_pref('site_time_zone', 'UTC'));
-				return ($formatType === 0) ? $date->format($format) : $date->strformat($format);
+			if (!$this->_prefs[$pref])
+			{
+				$this->_prefs[$pref] = 1;
+				$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
+			}
 		}
-	}
 
-	//---------------------------------------------------------------------------
+		if (!empty($changedPrefs))
+		{
+			$this->_prefsModel->updatePrefs($changedPrefs);
+		}
 
-	public function get_date()
-	{
-		return gmdate('Y-m-d H:i:s');
-	}
+		// Configurations utilizing static page caching will not get a chance to
+		// purge the cache on the publish side. In this case, we purge the page
+		// cache directory here on the admin side.
 
-	//---------------------------------------------------------------------------
+		if (!$cacheParams = $this->config->get('page_cache'))
+		{
+			$cacheParams = $this->config->get('cache');
+		}
 
-	public function is_installed()
-	{
-		return $this->config->get('db');
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function is_admin()
-	{
-		return true;
+		if ($dir = @$cacheParams['page_cache_dir'])
+		{
+			foreach ((array)$branches as $branch)
+			{
+				switch ($branch)
+				{
+					case EscherProductionStatus::Staging:
+						$dir = rtrim($dir, '/\\') . '.staging';
+						break;
+					case EscherProductionStatus::Development:
+						$dir = rtrim($dir, '/\\') . '.dev';
+						break;
+				}
+				$cacher = $this->loadCacher(array('adapter' => 'file', 'cache_dir' => $dir));
+				$cacher->clear();
+				if (!$flushAllBranches)
+				{
+					$this->observer->notify('escher:cache:flush:page', $branch);
+				}
+			}
+			
+			// optimization for reducing message flow and CacheSync operations
+			
+			if ($flushAllBranches)
+			{
+				$this->observer->notify('escher:cache:flush:page', 0);	// 0 -> all branches
+			}
+		}
 	}
 
 	//---------------------------------------------------------------------------
@@ -408,20 +365,6 @@ class _EscherAdmin extends SparkApplication
 	public function get_user()
 	{
 		return $this->_user;
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function get_pref($key, $default = NULL)
-	{
-		return isset($this->_prefs[$key]) ? $this->_prefs[$key] : $default;
-	}
-
-	//---------------------------------------------------------------------------
-
-	public function put_pref($pref)
-	{
-		$this->_prefsModel->updatePrefs(array($pref));
 	}
 
 	//---------------------------------------------------------------------------

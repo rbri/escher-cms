@@ -26,8 +26,6 @@ if (!defined('escher'))
 	exit('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>403 Forbidden</title></head><body><h1>Forbidden</h1><p>You don\'t have permission to access the requested resource on this server.</p></body></html>');
 }
 
-require('escher_base.php');
-
 //------------------------------------------------------------------------------
 
 class EscherAdminController extends SparkController

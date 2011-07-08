@@ -342,12 +342,9 @@ class _SettingsController extends EscherAdminController
 			
 			// since we likely just upgraded the code, clear code caches
 
-			$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Production);
-			$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Staging);
-			$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Development);
-
+			$this->observer->notify('escher:cache:request_flush:plug', 0);
 			$this->observer->notify('Spark:cache:request_flush');
-			$this->observer->notify('escher:site_change');
+			$this->observer->notify('escher:db_change');
 		}
 
 		$this->render('main', $vars);

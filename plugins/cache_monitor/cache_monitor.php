@@ -38,25 +38,72 @@ class _CacheMonitor extends EscherPlugin
 	{
 		parent::__construct($params);
 		
-		$this->observer->observe(array($this, 'flushCaches'), array('escher:site_change'));
+		$this->observer->observe(array($this, 'flushCachesContent'), array('escher:site_change:content'));
+		$this->observer->observe(array($this, 'flushCachesDesign'), array('escher:site_change:design'));
+		$this->observer->observe(array($this, 'flushCachesSettings'), array('escher:site_change:settings'));
 	}
 
 	//---------------------------------------------------------------------------
 
-	public function flushCaches($event, $object)
+	public function flushCachesContent($event, $object)
 	{
 		// A very simple and conservative full cache flush.
 		// In the future, we may add some intelligence to flush only the objects that have actually changed.
 	
-		// Currently flushing all branches. But if a design asset changed, we could be smarter and only flush the current working branch...
-		
-		$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Production);
-		$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Staging);
-		$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Development);
+		$this->observer->notify('escher:cache:request_flush:partial', 0);
+		$this->observer->notify('escher:cache:request_flush:page', 0);
+	}
 
-		$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Production);
-		$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Staging);
-		$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Development);
+	//---------------------------------------------------------------------------
+
+	public function flushCachesDesign($event, $object, $branch = EscherProductionStatus::Production)
+	{
+		// A very simple and conservative full cache flush.
+		// In the future, we may add some intelligence to flush only the objects that have actually changed.
+		
+		// Ignore branch-related site_change messages, as the branch model sends cache flush requests directly.
+		
+		if ($object instanceof Branch)
+		{
+			return;
+		}
+
+		// Flush affected branches (the specified branch and those above it).
+		// If target is production, branch, we know all branches are affected so we pass '0' as an optimization.
+		
+		$isTag = $object instanceof Tag;
+		
+		if ($branch == EscherProductionStatus::Production)
+		{
+			$this->observer->notify('escher:cache:request_flush:partial', 0);
+			$this->observer->notify('escher:cache:request_flush:page', 0);
+			
+			if ($isTag)
+			{
+				$this->observer->notify('escher:cache:request_flush:plug', 0);
+			}
+		}
+		elseif ($branch)
+		{
+			for ($id = $branch; $id <= EscherProductionStatus::Development; ++$id)
+			{
+				$this->observer->notify('escher:cache:request_flush:partial', $id);
+				$this->observer->notify('escher:cache:request_flush:page', $id);
+
+				if ($isTag)
+				{
+					$this->observer->notify('escher:cache:request_flush:plug', $id);
+				}
+			}
+		}
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function flushCachesSettings($event, $changedPrefsNames)
+	{
+		$this->observer->notify('escher:cache:request_flush:partial', 0);
+		$this->observer->notify('escher:cache:request_flush:page', 0);
 	}
 
 	//---------------------------------------------------------------------------

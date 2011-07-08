@@ -1,6 +1,13 @@
 Escher CMS Change History
 =========================
 
+Version 0.9.3 [TBD]
+	branch-aware CacheMonitor plugin
+	page_cache_dir config setting has moved into the cache/page_cache config
+	bug fix: rollback of staging branch did not always invalidate development branch caches
+	update to jQuery 1.6.2
+	relaxed host name match verification: now only checked for secure site and dev/staging
+
 Version 0.9.2 [2011-07-01]
 	integrated branch management: production, staging and development branches
 	support for separate read/write databases

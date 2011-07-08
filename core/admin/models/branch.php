@@ -129,8 +129,15 @@ class _BranchModel extends EscherModel
 				$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Development);
 			 }
 		}
+
 		$this->observer->notify('escher:cache:request_flush:partial', $id);
 		$this->observer->notify('escher:cache:request_flush:page', $id);
+
+		 if ($id == EscherProductionStatus::Staging)
+		 {
+			$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Development);
+			$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Development);
+		 }
 	}
 
 	//---------------------------------------------------------------------------
@@ -187,6 +194,7 @@ class _BranchModel extends EscherModel
 		{
 			$this->observer->notify('escher:cache:request_flush:plug', $toBranch);
 		}
+
 		$this->observer->notify('escher:cache:request_flush:partial', $toBranch);
 		$this->observer->notify('escher:cache:request_flush:page', $toBranch);
 	}
@@ -232,9 +240,24 @@ class _BranchModel extends EscherModel
 			if ($flushPlugCache)
 			{
 				$this->observer->notify('escher:cache:request_flush:plug', $id);
+
+				// if staging is rolled back, development branch's code cache will also
+				// need to be purged of stale tags
+				
+				 if ($id == EscherProductionStatus::Staging)
+				 {
+					$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Development);
+				 }
 			}
+			
 			$this->observer->notify('escher:cache:request_flush:partial', $id);
 			$this->observer->notify('escher:cache:request_flush:page', $id);
+
+			 if ($id == EscherProductionStatus::Staging)
+			 {
+				$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Development);
+				$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Development);
+			 }
 		}
 	}
 
@@ -284,6 +307,7 @@ class _BranchModel extends EscherModel
 			{
 				$this->observer->notify('escher:cache:request_flush:plug', $toBranch);
 			}
+			
 			$this->observer->notify('escher:cache:request_flush:partial', $toBranch);
 			$this->observer->notify('escher:cache:request_flush:page', $toBranch);
 		}
