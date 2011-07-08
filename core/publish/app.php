@@ -37,7 +37,7 @@ if (defined('escher_site_id'))
 	unset($sites);
 }
 
-require(escher_core_dir.'/shared/escher_application.php');
+require($config['core_dir'].'/shared/escher_application.php');
 
 class _EscherSite extends EscherApplication
 {

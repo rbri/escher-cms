@@ -54,8 +54,8 @@ if (empty($config['auth']['database']))
 
 // Escher application class definition
 
-require(escher_core_dir.'/shared/escher_application.php');
-require(escher_core_dir.'/shared/escher_admin_controller.php');
+require($config['core_dir'].'/shared/escher_application.php');
+require($config['core_dir'].'/shared/escher_admin_controller.php');
 
 class _EscherAdmin extends EscherApplication
 {
