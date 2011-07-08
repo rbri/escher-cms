@@ -291,36 +291,6 @@ class _EscherAdmin extends EscherApplication
 			$branches = array(EscherProductionStatus::Production, EscherProductionStatus::Staging, EscherProductionStatus::Development);
 		}
 		
-		$changedPrefs = array();
-		
-		foreach ((array)$branches as $branch)
-		{
-			switch ($branch)
-			{
-				case EscherProductionStatus::Staging:
-					$pref = 'page_cache_flush_staging';
-					break;
-					
-				case EscherProductionStatus::Development:
-					$pref = 'page_cache_flush_dev';
-					break;
-					
-				default:
-					$pref = 'page_cache_flush';
-			}
-	
-			if (!$this->_prefs[$pref])
-			{
-				$this->_prefs[$pref] = 1;
-				$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
-			}
-		}
-
-		if (!empty($changedPrefs))
-		{
-			$this->_prefsModel->updatePrefs($changedPrefs);
-		}
-
 		// Configurations utilizing static page caching will not get a chance to
 		// purge the cache on the publish side. In this case, we purge the page
 		// cache directory here on the admin side.
@@ -330,7 +300,7 @@ class _EscherAdmin extends EscherApplication
 			$cacheParams = $this->config->get('cache');
 		}
 
-		if ($dir = @$cacheParams['page_cache_dir'])
+		if (!empty($cacheParams['page_cache_static']) && ($dir = @$cacheParams['page_cache_dir']))
 		{
 			foreach ((array)$branches as $branch)
 			{
@@ -356,6 +326,38 @@ class _EscherAdmin extends EscherApplication
 			if ($flushAllBranches)
 			{
 				$this->observer->notify('escher:cache:flush:page', 0);	// 0 -> all branches
+			}
+		}
+		else
+		{
+			$changedPrefs = array();
+			
+			foreach ((array)$branches as $branch)
+			{
+				switch ($branch)
+				{
+					case EscherProductionStatus::Staging:
+						$pref = 'page_cache_flush_staging';
+						break;
+						
+					case EscherProductionStatus::Development:
+						$pref = 'page_cache_flush_dev';
+						break;
+						
+					default:
+						$pref = 'page_cache_flush';
+				}
+		
+				if (!$this->_prefs[$pref])
+				{
+					$this->_prefs[$pref] = 1;
+					$changedPrefs[$pref] = array('name'=>$pref, 'val'=>1);
+				}
+			}
+	
+			if (!empty($changedPrefs))
+			{
+				$this->_prefsModel->updatePrefs($changedPrefs);
 			}
 		}
 	}

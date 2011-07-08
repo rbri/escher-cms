@@ -179,8 +179,8 @@ class _EscherSite extends EscherApplication
 		if (!empty($changedPrefs))
 		{
 			$this->loadPlugins();
-			$this->flushSiteCaches();
 			$this->_prefsModel->updatePrefs($changedPrefs);
+			$this->flushSiteCaches();
 		}
 		else
 		{

@@ -51,7 +51,6 @@ $sites['<?= $site_id ?>'] = array
 		'filters/Textile',
 		'filters/Tidy',
 		'Archive',
-		'CacheMonitor',
 		'Comment',
 		'Cookie',
 		'Feed',

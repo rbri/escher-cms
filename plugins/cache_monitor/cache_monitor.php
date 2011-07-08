@@ -30,7 +30,7 @@ if (!defined('escher'))
 
 class _CacheMonitor extends EscherPlugin
 {
-	private $_model;
+	private $_flushes;
 
 	//---------------------------------------------------------------------------
 
@@ -41,6 +41,8 @@ class _CacheMonitor extends EscherPlugin
 		$this->observer->observe(array($this, 'flushCachesContent'), array('escher:site_change:content'));
 		$this->observer->observe(array($this, 'flushCachesDesign'), array('escher:site_change:design'));
 		$this->observer->observe(array($this, 'flushCachesSettings'), array('escher:site_change:settings'));
+		
+		$this->observer->observe(array($this, 'performFlushes'), array('SparkApplication:run:after'));
 	}
 
 	//---------------------------------------------------------------------------
@@ -50,8 +52,8 @@ class _CacheMonitor extends EscherPlugin
 		// A very simple and conservative full cache flush.
 		// In the future, we may add some intelligence to flush only the objects that have actually changed.
 	
-		$this->observer->notify('escher:cache:request_flush:partial', 0);
-		$this->observer->notify('escher:cache:request_flush:page', 0);
+		$this->_flushes['escher:cache:request_flush:partial'][0] = true;
+		$this->_flushes['escher:cache:request_flush:page'][0] = true;
 	}
 
 	//---------------------------------------------------------------------------
@@ -75,24 +77,24 @@ class _CacheMonitor extends EscherPlugin
 		
 		if ($branch == EscherProductionStatus::Production)
 		{
-			$this->observer->notify('escher:cache:request_flush:partial', 0);
-			$this->observer->notify('escher:cache:request_flush:page', 0);
+			$this->_flushes['escher:cache:request_flush:partial'][0] = true;
+			$this->_flushes['escher:cache:request_flush:page'][0] = true;
 			
 			if ($isTag)
 			{
-				$this->observer->notify('escher:cache:request_flush:plug', 0);
+				$this->_flushes['escher:cache:request_flush:plug'][0] = true;
 			}
 		}
 		elseif ($branch)
 		{
 			for ($id = $branch; $id <= EscherProductionStatus::Development; ++$id)
 			{
-				$this->observer->notify('escher:cache:request_flush:partial', $id);
-				$this->observer->notify('escher:cache:request_flush:page', $id);
+				$this->_flushes['escher:cache:request_flush:partial'][$id] = true;
+				$this->_flushes['escher:cache:request_flush:page'][$id] = true;
 
 				if ($isTag)
 				{
-					$this->observer->notify('escher:cache:request_flush:plug', $id);
+					$this->_flushes['escher:cache:request_flush:plug'][$id] = true;
 				}
 			}
 		}
@@ -102,8 +104,24 @@ class _CacheMonitor extends EscherPlugin
 
 	public function flushCachesSettings($event, $changedPrefsNames)
 	{
-		$this->observer->notify('escher:cache:request_flush:partial', 0);
-		$this->observer->notify('escher:cache:request_flush:page', 0);
+		$this->_flushes['escher:cache:request_flush:partial'][0] = true;
+		$this->_flushes['escher:cache:request_flush:page'][0] = true;
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function performFlushes($event)
+	{
+		if (!empty($this->_flushes))
+		{
+			foreach ($this->_flushes as $event => $branches)
+			{
+				foreach ($branches as $branch => $ignore)
+				{
+					$this->observer->notify($event, $branch);
+				}
+			}
+		}
 	}
 
 	//---------------------------------------------------------------------------

@@ -143,9 +143,9 @@ class _PublishController extends SparkController
 
 				if (!empty($prefs[$partialCachePref]))
 				{
-					$this->flushSitePartialCache('escher:cache:request_flush:partial', $params['production_status']);
 					$changedPrefs[$partialCachePref] = array('name'=>$partialCachePref, 'val'=>0);
 					$prefsModel->updatePrefs($changedPrefs);
+					$this->flushSitePartialCache('escher:cache:request_flush:partial', $params['production_status']);
 				}
 				$this->observer->observe(array($this, 'flushSitePartialCache'), array('escher:cache:request_flush:partial'));
 			}

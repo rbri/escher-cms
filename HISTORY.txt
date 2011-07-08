@@ -9,6 +9,7 @@ Version 0.9.3 [TBD]
 	relaxed host name match verification: now only checked for secure site and dev/staging
 
 Version 0.9.2 [2011-07-01]
+	Requires Spark/Plug v1.1.0
 	integrated branch management: production, staging and development branches
 	support for separate read/write databases
 	drag & drop ordering of pages

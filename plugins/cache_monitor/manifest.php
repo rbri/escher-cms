@@ -36,4 +36,4 @@ $plug['author'] = 'Sam Weiss';
 $plug['version'] = '1.0.0';
 $plug['license'] = 'GPL3';
 
-$plug['plugs'][] = array('name'=>'CacheMonitor', 'runs_where'=>3, 'auto_load'=>true);
+$plug['plugs'][] = array('name'=>'CacheMonitor', 'runs_where'=>1, 'auto_load'=>true);
