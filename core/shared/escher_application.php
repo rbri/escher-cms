@@ -182,6 +182,7 @@ abstract class EscherApplication extends SparkApplication
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 				curl_setopt($ch, CURLOPT_URL, $url);
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array("User-Agent: {$userAgent}, Referer: {$referrer}"));
+				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 				$page = curl_exec($ch);
 				if (($status = curl_getinfo($ch, CURLINFO_HTTP_CODE)) != 200)
 				{
