@@ -147,7 +147,7 @@ class _EscherSite extends EscherApplication
 				{
 					$changedPrefs['plug_cache_flush_staging'] = array('name'=>'plug_cache_flush_staging', 'val'=>0);
 				}
-				if (!empty($this->_prefs['page_cache_flush_staging']) && !empty($this->_prefs['page_cache_active']))
+				if (!empty($this->_prefs['page_cache_flush_staging']))
 				{
 					$changedPrefs['page_cache_flush_staging'] = array('name'=>'page_cache_flush_staging', 'val'=>0);
 				}
@@ -159,7 +159,7 @@ class _EscherSite extends EscherApplication
 				{
 					$changedPrefs['plug_cache_flush_dev'] = array('name'=>'plug_cache_flush_dev', 'val'=>0);
 				}
-				if (!empty($this->_prefs['page_cache_flush_dev']) && !empty($this->_prefs['page_cache_active']))
+				if (!empty($this->_prefs['page_cache_flush_dev']))
 				{
 					$changedPrefs['page_cache_flush_dev'] = array('name'=>'page_cache_flush_dev', 'val'=>0);
 				}
@@ -170,7 +170,7 @@ class _EscherSite extends EscherApplication
 				{
 					$changedPrefs['plug_cache_flush'] = array('name'=>'plug_cache_flush', 'val'=>0);
 				}
-				if (!empty($this->_prefs['page_cache_flush']) && !empty($this->_prefs['page_cache_active']))
+				if (!empty($this->_prefs['page_cache_flush']))
 				{
 					$changedPrefs['page_cache_flush'] = array('name'=>'page_cache_flush', 'val'=>0);
 				}
@@ -190,7 +190,14 @@ class _EscherSite extends EscherApplication
 			$this->observer->observe(array($this, 'loadPlugins'), 'SparkApplication:run:before');
 		}
 
-		$this->setDefaultTTL($this->_prefs['page_cache_ttl']);
+		if (empty($this->_prefs['page_cache_active']))
+		{
+			$this->disableCache();
+		}
+		else
+		{
+			$this->setDefaultTTL($this->_prefs['page_cache_ttl']);
+		}
 
 		// observe cache flush events
 		
@@ -253,7 +260,7 @@ class _EscherSite extends EscherApplication
 				{
 					$this->flushSitePlugCache('escher:cache:request_flush:plug', EscherProductionStatus::Staging);
 				}
-				if (!empty($this->_prefs['page_cache_flush_staging']) && !empty($this->_prefs['page_cache_active']))
+				if (!empty($this->_prefs['page_cache_flush_staging']))
 				{
 					$this->flushSitePageCache('escher:cache:request_flush:page', EscherProductionStatus::Staging);
 				}
@@ -264,7 +271,7 @@ class _EscherSite extends EscherApplication
 				{
 					$this->flushSitePlugCache('escher:cache:request_flush:plug', EscherProductionStatus::Development);
 				}
-				if (!empty($this->_prefs['page_cache_flush_dev']) && !empty($this->_prefs['page_cache_active']))
+				if (!empty($this->_prefs['page_cache_flush_dev']))
 				{
 					$this->flushSitePageCache('escher:cache:request_flush:page', EscherProductionStatus::Development);
 				}
@@ -275,7 +282,7 @@ class _EscherSite extends EscherApplication
 				{
 					$this->flushSitePlugCache('escher:cache:request_flush:plug', EscherProductionStatus::Production);
 				}
-				if (!empty($this->_prefs['page_cache_flush']) && !empty($this->_prefs['page_cache_active']))
+				if (!empty($this->_prefs['page_cache_flush']))
 				{
 					$this->flushSitePageCache('escher:cache:request_flush:page', EscherProductionStatus::Production);
 				}

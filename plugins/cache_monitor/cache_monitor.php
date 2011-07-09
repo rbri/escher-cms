@@ -42,7 +42,7 @@ class _CacheMonitor extends EscherPlugin
 		$this->observer->observe(array($this, 'flushCachesDesign'), array('escher:site_change:design'));
 		$this->observer->observe(array($this, 'flushCachesSettings'), array('escher:site_change:settings'));
 		
-		$this->observer->observe(array($this, 'performFlushes'), array('SparkApplication:run:after'));
+		$this->observer->observe(array($this, 'performFlushes'), array('SparkApplication:run:after', 'SparkPlug:redirect:before'));
 	}
 
 	//---------------------------------------------------------------------------

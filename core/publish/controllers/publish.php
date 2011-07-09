@@ -179,8 +179,7 @@ class _PublishController extends SparkController
 				{
 					if ($prefs['automatic_redirect'])
 					{
-						header('Location: ' . $this->urlTo($uri, $params['secure_site_host'], false));
-						exit;
+						$this->redirectAbsolute($this->urlTo($uri, $params['secure_site_host'], false));
 					}
 					else
 					{
