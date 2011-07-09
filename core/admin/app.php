@@ -302,18 +302,21 @@ class _EscherAdmin extends EscherApplication
 
 		if (!empty($cacheParams['page_cache_static']) && ($dir = @$cacheParams['page_cache_dir']))
 		{
+			$dir = rtrim($dir, '/\\');
 			foreach ((array)$branches as $branch)
 			{
 				switch ($branch)
 				{
 					case EscherProductionStatus::Staging:
-						$dir = rtrim($dir, '/\\') . '.staging';
+						$cacheDir = $dir . '.staging';
 						break;
 					case EscherProductionStatus::Development:
-						$dir = rtrim($dir, '/\\') . '.dev';
+						$cacheDir = $dir . '.dev';
 						break;
+					default:
+						$cacheDir = $dir;
 				}
-				$cacher = $this->loadCacher(array('adapter' => 'file', 'cache_dir' => $dir));
+				$cacher = $this->loadCacher(array('adapter' => 'file', 'cache_dir' => $cacheDir));
 				$cacher->clear();
 				if (!$flushAllBranches)
 				{
