@@ -291,67 +291,101 @@ class _EscherSite extends EscherApplication
 	
 	//---------------------------------------------------------------------------
 
-	public function flushSitePlugCache($message, $branch, $requester = NULL)
+	public function flushSitePlugCache($message, $branches, $requester = NULL)
 	{
-		if (!$plugCacheDir = $this->factory->getPlugCacheDir())
+		if (!$savePlugCacheDir = $this->factory->getPlugCacheDir())
 		{
 			return;
 		}
 		
-		// set plug cache directory for appropriate branch so correct cache directory is cleared
-
-		switch ($branch)
+		if ($flushAllBranches = empty($branches))
 		{
-			case EscherProductionStatus::Staging:
-				$savPlugCacheDir = $this->factory->setPlugCacheDir(rtrim($plugCacheDir, '/\\') . '.staging');
-				break;
-				
-			case EscherProductionStatus::Development:
-				$savPlugCacheDir = $this->factory->setPlugCacheDir(rtrim($plugCacheDir, '/\\') . '.dev');
-				break;
-				
-			default:
-				$savPlugCacheDir = NULL;
+			$branches = array(EscherProductionStatus::Production, EscherProductionStatus::Staging, EscherProductionStatus::Development);
 		}
 		
-		$this->observer->notify('Spark:cache:request_flush');
+		$savePlugCacheDir = rtrim($savePlugCacheDir, '/\\');
+		
+		// set plug cache directory for appropriate branch so correct cache directory is cleared
 
-		if ($savPlugCacheDir)
+		foreach ((array)$branches as $branch)
 		{
-			$this->factory->setPlugCacheDir($savPlugCacheDir);
+			switch ($branch)
+			{
+				case EscherProductionStatus::Staging:
+					$this->factory->setPlugCacheDir($savePlugCacheDir . '.staging');
+					break;
+					
+				case EscherProductionStatus::Development:
+					$this->factory->setPlugCacheDir($savePlugCacheDir . '.dev');
+					break;
+					
+				default:
+					$this->factory->setPlugCacheDir($savePlugCacheDir);
+					break;
+			}
+
+			$this->observer->notify('Spark:cache:request_flush');
+
+			if (!$flushAllBranches)
+			{
+				$this->observer->notify('escher:cache:flush:plug', $branch, $requester);
+			}
+		}
+		
+		// optimization for reducing message flow and CacheSync operations
+		
+		if ($flushAllBranches)
+		{
+			$this->observer->notify('escher:cache:flush:plug', 0, $requester);	// 0 -> all branches
 		}
 
-		$this->observer->notify('escher:cache:flush:plug', $branch, $requester);
+		$this->factory->setPlugCacheDir($savePlugCacheDir);
 	}
 
 	//---------------------------------------------------------------------------
 
-	public function flushSitePageCache($message, $branch, $requester = NULL)
+	public function flushSitePageCache($message, $branches, $requester = NULL)
 	{
-		switch ($branch)
+		if ($flushAllBranches = empty($branches))
 		{
-			case EscherProductionStatus::Staging:
-				$saveNameSpace = $this->getNameSpace();
-				$this->setNameSpace($this->_baseNameSpace . '.staging');
-				break;
-
-			case EscherProductionStatus::Development:
-				$saveNameSpace = $this->getNameSpace();
-				$this->setNameSpace($this->_baseNameSpace . '.dev');
-				break;
-
-			default:
-				$saveNameSpace = NULL;
+			$branches = array(EscherProductionStatus::Production, EscherProductionStatus::Staging, EscherProductionStatus::Development);
 		}
 		
-		$this->observer->notify('SparkPageCache:request_flush');
+		$saveNameSpace = $this->getNameSpace();
 		
-		if ($saveNameSpace)
+		foreach ((array)$branches as $branch)
 		{
-			$this->setNameSpace($saveNameSpace);
+			switch ($branch)
+			{
+				case EscherProductionStatus::Staging:
+					$this->setNameSpace($this->_baseNameSpace . '.staging');
+					break;
+	
+				case EscherProductionStatus::Development:
+					$this->setNameSpace($this->_baseNameSpace . '.dev');
+					break;
+	
+				default:
+					$this->setNameSpace($this->_baseNameSpace);
+					break;
+			}
+			
+			$this->observer->notify('SparkPageCache:request_flush');
+			
+			if (!$flushAllBranches)
+			{
+				$this->observer->notify('escher:cache:flush:page', $branch, $requester);
+			}
 		}
 
-		$this->observer->notify('escher:cache:flush:page', $branch, $requester);
+		// optimization for reducing message flow and CacheSync operations
+		
+		if ($flushAllBranches)
+		{
+			$this->observer->notify('escher:cache:flush:page', 0, $requester);	// 0 -> all branches
+		}
+
+		$this->setNameSpace($saveNameSpace);
 	}
 
 	//---------------------------------------------------------------------------

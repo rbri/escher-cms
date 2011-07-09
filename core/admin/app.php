@@ -227,6 +227,7 @@ class _EscherAdmin extends EscherApplication
 					
 				default:
 					$pref = 'plug_cache_flush';
+					break;
 			}
 			
 			if (!$this->_prefs[$pref])
@@ -267,6 +268,7 @@ class _EscherAdmin extends EscherApplication
 					
 				default:
 					$pref = 'partial_cache_flush';
+					break;
 			}
 			
 			if (!$this->_prefs[$pref])
@@ -315,6 +317,7 @@ class _EscherAdmin extends EscherApplication
 						break;
 					default:
 						$cacheDir = $dir;
+						break;
 				}
 				$cacher = $this->loadCacher(array('adapter' => 'file', 'cache_dir' => $cacheDir));
 				$cacher->clear();
@@ -349,6 +352,7 @@ class _EscherAdmin extends EscherApplication
 						
 					default:
 						$pref = 'page_cache_flush';
+						break;
 				}
 		
 				if (!$this->_prefs[$pref])

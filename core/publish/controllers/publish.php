@@ -244,37 +244,53 @@ class _PublishController extends SparkController
 
 	//---------------------------------------------------------------------------
 
-	public function flushSitePartialCache($message, $branch, $requester = NULL)
+	public function flushSitePartialCache($message, $branches, $requester = NULL)
 	{
 		if (!$this->_cacher)
 		{
 			return;
 		}
 		
-		switch ($branch)
+		if ($flushAllBranches = empty($branches))
 		{
-			case EscherProductionStatus::Staging:
-				$saveNameSpace = $this->_cacher->getNameSpace();
-				$this->_cacher->setNameSpace($this->_cacherBaseNameSpace . '.staging');
-				break;
-
-			case EscherProductionStatus::Development:
-				$saveNameSpace = $this->_cacher->getNameSpace();
-				$this->_cacher->setNameSpace($this->_cacherBaseNameSpace . '.dev');
-				break;
-
-			default:
-				$saveNameSpace = NULL;
+			$branches = array(EscherProductionStatus::Production, EscherProductionStatus::Staging, EscherProductionStatus::Development);
 		}
 		
-		$this->_cacher->clear();
+		$saveNameSpace = $this->_cacher->getNameSpace();
 		
-		if ($saveNameSpace)
+		foreach ((array)$branches as $branch)
 		{
-			$this->_cacher->setNameSpace($saveNameSpace);
+			switch ($branch)
+			{
+				case EscherProductionStatus::Staging:
+					$this->_cacher->setNameSpace($this->_cacherBaseNameSpace . '.staging');
+					break;
+	
+				case EscherProductionStatus::Development:
+					$this->_cacher->setNameSpace($this->_cacherBaseNameSpace . '.dev');
+					break;
+	
+				default:
+					$this->_cacher->setNameSpace($this->_cacherBaseNameSpace);
+					break;
+			}
+			
+			$this->_cacher->clear();
+			
+			if (!$flushAllBranches)
+			{
+				$this->observer->notify('escher:cache:flush:partial', $branch, $requester);
+			}
 		}
 
-		$this->observer->notify('escher:cache:flush:partial', $branch, $requester);
+		// optimization for reducing message flow and CacheSync operations
+		
+		if ($flushAllBranches)
+		{
+			$this->observer->notify('escher:cache:flush:partial', 0, $requester);	// 0 -> all branches
+		}
+		
+		$this->_cacher->setNameSpace($saveNameSpace);
 	}
 
 	//---------------------------------------------------------------------------
