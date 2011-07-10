@@ -378,6 +378,8 @@ class _BranchModel extends EscherModel
 			$metaID = 'image_id';
 		}
 
+		$changed = false;
+
 		foreach ($changes as $change)
 		{
 			$row = $db->selectRow($table, '*', 'id=?', $srcID = $change['source_id']);
@@ -395,6 +397,10 @@ class _BranchModel extends EscherModel
 					$row['rev'] = $db->getFunction('literal')->literal('rev+1');
 				}
 				$db->updateRows($table, $row, 'id=?', $dstID = $change['target_id']);
+				if (!$changed)
+				{
+					$changed = ($db->affectedRows() > 0);
+				}
 			}
 			
 			// otherwise, (target does not exist) so we must create it
@@ -404,6 +410,7 @@ class _BranchModel extends EscherModel
 				$row['branch'] = $toBranch;
 				$db->insertRow($table, $row);
 				$dstID = $db->lastInsertID();
+				$changed = true;
 			}
 
 			if ($hasMeta && ($meta = $db->selectRows($metaTable, 'name, data', "{$metaID}=?", $srcID)))
@@ -414,10 +421,11 @@ class _BranchModel extends EscherModel
 				}
 				$db->deleteRows($metaTable, "{$metaID}=?", $dstID);
 				$db->insertRows($metaTable, $meta);
+				$changed = true;
 			}
 		}
 		
-		return true;	// optimize later!
+		return $changed;
 	}
 	
 	//---------------------------------------------------------------------------
