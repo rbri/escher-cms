@@ -167,6 +167,23 @@ class _EscherAdmin extends EscherApplication
 				$this->_plugins[$name] = $this->factory->manufacture($name);
 			}
 		}
+		
+		// check if the core code has been updated
+		
+		if (version_compare(@$this->_prefs['version'], EscherVersion::CoreVersion) != 0)
+		{
+			$version = array
+			(
+				'name' => 'version',
+				'group_name' => 'system',
+				'section_name' => 'version',
+				'type' => 'hidden',
+				'val' => EscherVersion::CoreVersion,
+			);
+			
+			$this->_prefsModel->upsertPrefs(array($version));
+			$this->observer->notify('escher:version:upgrade');
+		}
 	}
 	
 	//---------------------------------------------------------------------------

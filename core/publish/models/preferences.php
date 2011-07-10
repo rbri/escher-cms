@@ -101,6 +101,14 @@ class _PreferencesModel extends EscherModel
 
 	//---------------------------------------------------------------------------
 	
+	public function upsertPrefs($prefs)
+	{
+		$db = $this->loadDBWithPerm(EscherModel::PermWrite);
+		$db->upsertRows('pref', $prefs, array('name', 'user_id'));
+	}
+
+	//---------------------------------------------------------------------------
+	
 	public function fetchPref($name, $userID = 0)
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);

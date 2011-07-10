@@ -140,6 +140,13 @@ class _XMLImportExportModel extends EscherModel
 			}
 			throw new SparkHTTPException_BadRequest(NULL, array('reason'=>$errors));
       }
+      
+      // validate schema version
+      
+		if ($xml['version'] != EscherVersion::SchemaVersion)
+		{
+			throw new SparkHTTPException_BadRequest('XML file could not be imported', array('reason'=>'schema version mismatch'));
+		}
 
 		$db = $this->loadDBWithPerm(EscherModel::PermWrite);
 

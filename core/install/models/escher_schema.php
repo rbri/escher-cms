@@ -715,6 +715,14 @@ class _EscherSchemaModel extends EscherModel
 			(
 				array
 				(
+					'name' => 'version',
+					'group_name' => 'system',
+					'section_name' => 'version',
+					'type' => 'hidden',
+					'val' => EscherVersion::CoreVersion,
+				),
+				array
+				(
 					'name' => 'schema',
 					'group_name' => 'system',
 					'section_name' => 'version',
@@ -730,16 +738,6 @@ class _EscherSchemaModel extends EscherModel
 					'type' => 'hidden',
 					'validation' => '',
 					'val' => EscherVersion::CoreVersion,
-				),
-				array
-				(
-					'name' => 'admin_url',
-					'group_name' => 'basic',
-					'section_name' => '0site_info',
-					'position' => 0,
-					'type' => 'hidden',
-					'validation' => '',
-					'val' => '',
 				),
 				array
 				(
@@ -792,19 +790,6 @@ class _EscherSchemaModel extends EscherModel
 		$prefModel = $this->newModel('Preferences');
 		$savePrefs = array();
 
-		if ($parentFileName)
-		{
-			$this->installSite($parentFileName);
-		}
-		
-		$siteDir = $this->config->get('app_dir') . '/sites';
-		$file = "{$siteDir}/{$fileName}";
-
-		if (($xml = file_get_contents($file)) === false)
-		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'site xml file not found'));
-		}
-		
 		$savePrefNames = array('site_url', 'secure_site_url');
 		if ($preserveSiteName)
 		{
@@ -818,13 +803,49 @@ class _EscherSchemaModel extends EscherModel
 			}
 		}
 
-		$xmlModel = $this->newModel('XMLImportExport');
-		$xmlModel->fromXML($xml, self::$_xml_params);
+		if ($parentFileName)
+		{
+			$this->install1Site($parentFileName);
+		}
 		
+		$this->install1Site($fileName);
+				
 		// restore install-time admin user and prefs
 		
 		$userModel->updateUser($saveAdminUser);
 		$prefModel->updatePrefs($savePrefs);
+		
+		$prefModel->addPrefs(
+			array
+			(
+				array
+				(
+					'name' => 'version',
+					'group_name' => 'system',
+					'section_name' => 'version',
+					'type' => 'hidden',
+					'val' => EscherVersion::CoreVersion,
+				),
+				array
+				(
+					'name' => 'schema',
+					'group_name' => 'system',
+					'section_name' => 'version',
+					'type' => 'hidden',
+					'val' => EscherVersion::SchemaVersion,
+				),
+				array
+				(
+					'name' => 'last_update_version',
+					'group_name' => 'system',
+					'section_name' => 'updates',
+					'position' => 0,
+					'type' => 'hidden',
+					'validation' => '',
+					'val' => EscherVersion::CoreVersion,
+				),
+			)
+		);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -902,6 +923,22 @@ class _EscherSchemaModel extends EscherModel
 	public function installEmptySite()
 	{
 		$this->installSite('empty.xml');
+	}
+	
+	//---------------------------------------------------------------------------
+
+	private function install1Site($fileName)
+	{
+		$siteDir = $this->config->get('app_dir') . '/sites';
+		$file = "{$siteDir}/{$fileName}";
+
+		if (($xml = file_get_contents($file)) === false)
+		{
+			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'site xml file not found'));
+		}
+		
+		$xmlModel = $this->newModel('XMLImportExport');
+		$xmlModel->fromXML($xml, self::$_xml_params);
 	}
 	
 	//---------------------------------------------------------------------------

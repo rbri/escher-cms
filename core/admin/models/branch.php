@@ -61,9 +61,9 @@ class _BranchModel extends EscherModel
 	
 	public function fetchAllBranches()
 	{
-		$branches[1] = $this->factory->manufacture('Branch', array('id'=>1, 'name'=>'Production'));
-		$branches[2] = $this->factory->manufacture('Branch', array('id'=>2, 'name'=>'Staging'));
-		$branches[3] = $this->factory->manufacture('Branch', array('id'=>3, 'name'=>'Development'));
+		$branches[EscherProductionStatus::Production] = $this->factory->manufacture('Branch', array('id'=>EscherProductionStatus::Production, 'name'=>'Production'));
+		$branches[EscherProductionStatus::Staging] = $this->factory->manufacture('Branch', array('id'=>EscherProductionStatus::Staging, 'name'=>'Staging'));
+		$branches[EscherProductionStatus::Development] = $this->factory->manufacture('Branch', array('id'=>EscherProductionStatus::Development, 'name'=>'Development'));
 
 		return $branches;
 	}
@@ -74,12 +74,12 @@ class _BranchModel extends EscherModel
 	{
 		switch ($id)
 		{
-			case 1:
-				return $this->factory->manufacture('Branch', array('id'=>1, 'name'=>'Production'));
-			case 2:
-				return $this->factory->manufacture('Branch', array('id'=>2, 'name'=>'Staging'));
-			case 3:
-				return $this->factory->manufacture('Branch', array('id'=>3, 'name'=>'Development'));
+			case EscherProductionStatus::Production:
+				return $this->factory->manufacture('Branch', array('id'=>EscherProductionStatus::Production, 'name'=>'Production'));
+			case EscherProductionStatus::Staging:
+				return $this->factory->manufacture('Branch', array('id'=>EscherProductionStatus::Staging, 'name'=>'Staging'));
+			case EscherProductionStatus::Development:
+				return $this->factory->manufacture('Branch', array('id'=>EscherProductionStatus::Development, 'name'=>'Development'));
 			default:
 				return false;
 		}
@@ -87,12 +87,14 @@ class _BranchModel extends EscherModel
 	
 	//---------------------------------------------------------------------------
 	
-	public function rollbackBranchByID($id)
+	public function rollbackBranchByID($id, &$affected)
 	{
 		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
+		
+		$affected = array();
 		
 		$db = $this->loadDBWithPerm(EscherModel::PermWrite);
 		
@@ -100,14 +102,14 @@ class _BranchModel extends EscherModel
 
 		try
 		{
-			$db->deleteRows('theme', 'branch=?', $id);
-			$db->deleteRows('template', 'branch=?', $id);
-			$db->deleteRows('snippet', 'branch=?', $id);
-			$db->deleteRows('tag', 'branch=?', $id);
-			$flushPlugCache = ($db->affectedRows() > 0);
-			$db->deleteRows('style', 'branch=?', $id);
-			$db->deleteRows('script', 'branch=?', $id);
-			$db->deleteRows('image', 'branch=?', $id);
+			foreach (self::$_assetBranchInfo as $table => $ignore)
+			{
+				$db->deleteRows($table, 'branch=?', $id);
+				if ($db->affectedRows() > 0)
+				{
+					$affected[$table] = true;
+				}
+			}
 		}
 		catch (Exception $e)
 		{
@@ -116,39 +118,21 @@ class _BranchModel extends EscherModel
 		}
 		
 		$db->commit();
-	
-		if ($flushPlugCache)
-		{
-			$this->observer->notify('escher:cache:request_flush:plug', $id);
-			
-			// if staging is rolled back, development branch's code cache will also
-			// need to be purged of stale tags
-			
-			 if ($id == EscherProductionStatus::Staging)
-			 {
-				$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Development);
-			 }
-		}
-
-		$this->observer->notify('escher:cache:request_flush:partial', $id);
-		$this->observer->notify('escher:cache:request_flush:page', $id);
-
-		 if ($id == EscherProductionStatus::Staging)
-		 {
-			$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Development);
-			$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Development);
-		 }
+		
+		return !empty($affected);
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function pushBranchByID($id)
+	public function pushBranchByID($id, &$affected)
 	{
 		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
 		
+		$affected = array();
+
 		$toBranch = $id - 1;		// target branch id of push
 		
 		$db = $this->loadDBWithPerm(EscherModel::PermWrite);
@@ -157,29 +141,26 @@ class _BranchModel extends EscherModel
 
 		try
 		{
-			$this->pushAsset($db, 'theme', false, $id);
-			$this->pushAsset($db, 'template', true, $id);
-			$this->pushAsset($db, 'snippet', true, $id);
-			$flushPlugCache = $this->pushAsset($db, 'tag', true, $id);
-			$this->pushAsset($db, 'style', true, $id);
-			$this->pushAsset($db, 'script', true, $id);
-			$this->pushAsset($db, 'image', true, $id);
+			foreach (self::$_assetBranchInfo as $table => $ignore)
+			{
+				if ($this->pushAsset($db, $table, ($table !== 'theme'), $id))
+				{
+					$affected[$table] = true;
+				}
+			}
 			
 			// after successfully pushing the branch, we can safely roll it back to a fresh starting state
 			
-			$this->rollbackBranchByID($id);
+			$this->rollbackBranchByID($id, $ignore);
 
 			// permanently delete assets marked for deletion if pushing to production
 			
-			if ($toBranch === 1)
+			if ($toBranch === EscherProductionStatus::Production)
 			{
-				$db->deleteRows('theme', 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
-				$db->deleteRows('template', 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
-				$db->deleteRows('snippet', 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
-				$db->deleteRows('tag', 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
-				$db->deleteRows('style', 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
-				$db->deleteRows('script', 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
-				$db->deleteRows('image', 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
+				foreach (self::$_assetBranchInfo as $table => $ignore)
+				{
+					$db->deleteRows($table, 'branch=? AND branch_status=?', array(EscherProductionStatus::Production, ContentObject::branch_status_deleted));
+				}
 			}
 		}
 		catch (Exception $e)
@@ -190,28 +171,22 @@ class _BranchModel extends EscherModel
 		
 		$db->commit();
 
-		if ($flushPlugCache)
-		{
-			$this->observer->notify('escher:cache:request_flush:plug', $toBranch);
-		}
-
-		$this->observer->notify('escher:cache:request_flush:partial', $toBranch);
-		$this->observer->notify('escher:cache:request_flush:page', $toBranch);
+		return !empty($affected);
 	}
 
 	//---------------------------------------------------------------------------
 	
-	public function rollbackBranchPartialByID($id, $changes)
+	public function rollbackBranchPartialByID($id, $changes, &$affected)
 	{
 		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
 		
+		$affected = array();
+
 		if (!empty($changes))
 		{
-			$flushPlugCache = false;	// only need to flush if pushing tag changes
-
 			$db = $this->loadDBWithPerm(EscherModel::PermWrite);
 			
 			$db->begin();
@@ -220,12 +195,16 @@ class _BranchModel extends EscherModel
 			{
 				foreach ($changes as $table => $assetIDs)
 				{
+					if (!isset(self::$_assetBranchInfo[$table]))
+					{
+						continue;
+					}
 					$where = 'branch=? AND ' . $db->buildFieldIn($table, 'id', $assetIDs);
 					$bind = array_merge(array($id), $assetIDs);
 					$db->deleteRows($table, $where, $bind);
-					if ($table === 'tag')
+					if ($db->affectedRows() > 0)
 					{
-						$flushPlugCache = true;
+						$affected[$table] = true;
 					}
 				}
 			}
@@ -236,46 +215,27 @@ class _BranchModel extends EscherModel
 			}
 			
 			$db->commit();
-
-			if ($flushPlugCache)
-			{
-				$this->observer->notify('escher:cache:request_flush:plug', $id);
-
-				// if staging is rolled back, development branch's code cache will also
-				// need to be purged of stale tags
-				
-				 if ($id == EscherProductionStatus::Staging)
-				 {
-					$this->observer->notify('escher:cache:request_flush:plug', EscherProductionStatus::Development);
-				 }
-			}
-			
-			$this->observer->notify('escher:cache:request_flush:partial', $id);
-			$this->observer->notify('escher:cache:request_flush:page', $id);
-
-			 if ($id == EscherProductionStatus::Staging)
-			 {
-				$this->observer->notify('escher:cache:request_flush:partial', EscherProductionStatus::Development);
-				$this->observer->notify('escher:cache:request_flush:page', EscherProductionStatus::Development);
-			 }
 		}
+
+		return !empty($affected);
 	}
 
 	//---------------------------------------------------------------------------
 
-	public function pushBranchPartialByID($id, $changes)
+	public function pushBranchPartialByID($id, $changes, &$affected)
 	{
 		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
 		}
-		
+
+		$affected = array();
+
 		if (!empty($changes))
 		{
 			try
 			{
 				$toBranch = $id - 1;			// target branch id of push
-				$flushPlugCache = false;	// only need to flush if pushing tag changes
 				
 				$db = $this->loadDBWithPerm(EscherModel::PermWrite);
 				
@@ -283,16 +243,25 @@ class _BranchModel extends EscherModel
 		
 				foreach ($changes as $table => $assetIDs)
 				{
-					$this->pushAsset($db, $table, ($table !== 'theme'), $id, $assetIDs);
-					if ($table === 'tag')
+					if (!isset(self::$_assetBranchInfo[$table]))
 					{
-						$flushPlugCache = true;
+						continue;
+					}
+					if ($this->pushAsset($db, $table, ($table !== 'theme'), $id, $assetIDs))
+					{
+						$affected[$table] = true;
 					}
 				}
-				$this->rollbackBranchPartialByID($id, $changes);
-				if ($toBranch === 1)
+			
+				// after successfully pushing the branch, we can safely roll back all pushed assets
+			
+				$this->rollbackBranchPartialByID($id, $changes, $ignore);
+
+				// permanently delete assets marked for deletion if pushing to production
+			
+				if ($toBranch === EscherProductionStatus::Production)
 				{
-					$db->deleteRows($table, 'branch=1 AND branch_status=?', ContentObject::branch_status_deleted);
+					$db->deleteRows($table, 'branch=? AND branch_status=?', array(EscherProductionStatus::Production, ContentObject::branch_status_deleted));
 				}
 			}
 			catch (Exception $e)
@@ -302,15 +271,9 @@ class _BranchModel extends EscherModel
 			}
 		
 			$db->commit();
-	
-			if ($flushPlugCache)
-			{
-				$this->observer->notify('escher:cache:request_flush:plug', $toBranch);
-			}
-			
-			$this->observer->notify('escher:cache:request_flush:partial', $toBranch);
-			$this->observer->notify('escher:cache:request_flush:page', $toBranch);
 		}
+
+		return !empty($affected);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -361,8 +324,7 @@ class _BranchModel extends EscherModel
 		$changes = $this->fetchAssetChanges($db, $table, $matchTheme, $fromBranch, $restrictTo);
 		if (!empty($changes))
 		{
-			$this->updateAsset($db, $table, $fromBranch-1, $changes);
-			return true;
+			return $this->updateAsset($db, $table, $fromBranch-1, $changes);
 		}
 		return false;
 	}
@@ -412,8 +374,8 @@ class _BranchModel extends EscherModel
 		
 		if ($hasMeta = ($table === 'image'))
 		{
-			$metaTable = "{$table}_meta";
-			$metaID = "{$table}_id";
+			$metaTable = 'image_meta';
+			$metaID = 'image_id';
 		}
 
 		foreach ($changes as $change)
@@ -454,6 +416,8 @@ class _BranchModel extends EscherModel
 				$db->insertRows($metaTable, $meta);
 			}
 		}
+		
+		return true;	// optimize later!
 	}
 	
 	//---------------------------------------------------------------------------

@@ -354,9 +354,15 @@ class _DesignController extends EscherAdminController
 					}
 					elseif (!empty($changes))
 					{
-						$model->pushBranchPartialByID($branchID, $changes);
-						$this->observer->notify('escher:site_change:design:branch:push', $branch, $branchID+1);
-						$vars['notice'] = 'Selected changes were pushed successfully.';
+						if ($model->pushBranchPartialByID($branchID, $changes, $affected))
+						{
+							$this->observer->notify('escher:site_change:design:branch:push', $branch, $branchID-1, $affected);
+							$vars['notice'] = 'Selected changes were pushed successfully.';
+						}
+						else
+						{
+							$vars['notice'] = 'No changes to push.';
+						}
 					}
 				}
 		
@@ -376,9 +382,15 @@ class _DesignController extends EscherAdminController
 					}
 					elseif (!empty($changes))
 					{
-						$model->rollbackBranchPartialByID($branchID, $changes);
-						$this->observer->notify('escher:site_change:design:branch:rollback', $branch, $branchID);
-						$vars['notice'] = 'Selected changes were rolled back successfully.';
+						if ($model->rollbackBranchPartialByID($branchID, $changes, $affected))
+						{
+							$this->observer->notify('escher:site_change:design:branch:rollback', $branch, $branchID, $affected);
+							$vars['notice'] = 'Selected changes were rolled back successfully.';
+						}
+						else
+						{
+							$vars['notice'] = 'No changes to roll back.';
+						}
 					}
 				}
 			}
@@ -452,9 +464,15 @@ class _DesignController extends EscherAdminController
 			}
 			else
 			{
-				$model->pushBranchByID($branchID);
-				$this->observer->notify('escher:site_change:design:branch:push', $branch, $branchID+1);
-				$this->session->flashSet('notice', 'Branch pushed successfully.');
+				if ($model->pushBranchByID($branchID, $affected))
+				{
+					$this->observer->notify('escher:site_change:design:branch:push', $branch, $branchID-1, $affected);
+					$this->session->flashSet('notice', 'Branch pushed successfully.');
+				}
+				else
+				{
+					$this->session->flashSet('notice', 'No changes to push.');
+				}
 				$this->redirect('/design/branches');
 			}
 		}
@@ -512,9 +530,15 @@ class _DesignController extends EscherAdminController
 			}
 			else
 			{
-				$model->rollbackBranchByID($branchID);
-				$this->observer->notify('escher:site_change:design:branch:rollback', $branch, $branchID);
-				$this->session->flashSet('notice', 'Branch rolled back successfully.');
+				if ($model->rollbackBranchByID($branchID, $affected))
+				{
+					$this->observer->notify('escher:site_change:design:branch:rollback', $branch, $branchID, $affected);
+					$this->session->flashSet('notice', 'Branch rolled back successfully.');
+				}
+				else
+				{
+					$this->session->flashSet('notice', 'No changes to roll back.');
+				}
 				$this->redirect('/design/branches');
 			}
 		}

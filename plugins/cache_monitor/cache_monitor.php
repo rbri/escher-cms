@@ -41,6 +41,7 @@ class _CacheMonitor extends EscherPlugin
 		$this->observer->observe(array($this, 'flushCachesContent'), array('escher:site_change:content'));
 		$this->observer->observe(array($this, 'flushCachesDesign'), array('escher:site_change:design'));
 		$this->observer->observe(array($this, 'flushCachesSettings'), array('escher:site_change:settings'));
+		$this->observer->observe(array($this, 'flushCachesUpgrade'), array('escher:version:upgrade'));
 		
 		$this->observer->observe(array($this, 'performFlushes'), array('SparkApplication:run:after', 'SparkPlug:redirect:before'));
 	}
@@ -58,29 +59,43 @@ class _CacheMonitor extends EscherPlugin
 
 	//---------------------------------------------------------------------------
 
-	public function flushCachesDesign($event, $object, $branch = EscherProductionStatus::Production)
+	public function flushCachesDesign($event, $object, $branch = EscherProductionStatus::Production, $affected = NULL)
 	{
-		// A very simple and conservative full cache flush.
+		// A very simple and conservative full cache flush. It is branch-aware, but not object-aware.
 		// In the future, we may add some intelligence to flush only the objects that have actually changed.
-		
-		// Ignore branch-related site_change messages, as the branch model sends cache flush requests directly.
 		
 		if ($object instanceof Branch)
 		{
-			return;
-		}
+			$flushPlugs = !empty($affected['tag']);
 
+			// push events are a special case, since they do not affect any branches above the push target
+			
+			if ($event === 'escher:site_change:design:branch:push')
+			{
+				$this->_flushes['escher:cache:request_flush:partial'][$branch] = true;
+				$this->_flushes['escher:cache:request_flush:page'][$branch] = true;
+				
+				if ($flushPlugs)
+				{
+					$this->_flushes['escher:cache:request_flush:plug'][$branch] = true;
+				}
+				return;
+			}
+		}
+		else
+		{
+			$flushPlugs = ($object instanceof Tag);
+		}
+		
 		// Flush affected branches (the specified branch and those above it).
 		// If target is production, branch, we know all branches are affected so we pass '0' as an optimization.
-		
-		$isTag = $object instanceof Tag;
-		
+				
 		if ($branch == EscherProductionStatus::Production)
 		{
 			$this->_flushes['escher:cache:request_flush:partial'][0] = true;
 			$this->_flushes['escher:cache:request_flush:page'][0] = true;
 			
-			if ($isTag)
+			if ($flushPlugs)
 			{
 				$this->_flushes['escher:cache:request_flush:plug'][0] = true;
 			}
@@ -89,10 +104,15 @@ class _CacheMonitor extends EscherPlugin
 		{
 			for ($id = $branch; $id <= EscherProductionStatus::Development; ++$id)
 			{
-				$this->_flushes['escher:cache:request_flush:partial'][$id] = true;
-				$this->_flushes['escher:cache:request_flush:page'][$id] = true;
-
-				if ($isTag)
+				if (!isset($this->_flushes['escher:cache:request_flush:partial'][0]))
+				{
+					$this->_flushes['escher:cache:request_flush:partial'][$id] = true;
+				}
+				if (!isset($this->_flushes['escher:cache:request_flush:page'][0]))
+				{
+					$this->_flushes['escher:cache:request_flush:page'][$id] = true;
+				}
+				if ($flushPlugs && !isset($this->_flushes['escher:cache:request_flush:plug'][0]))
 				{
 					$this->_flushes['escher:cache:request_flush:plug'][$id] = true;
 				}
@@ -106,6 +126,17 @@ class _CacheMonitor extends EscherPlugin
 	{
 		$this->_flushes['escher:cache:request_flush:partial'][0] = true;
 		$this->_flushes['escher:cache:request_flush:page'][0] = true;
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function flushCachesUpgrade($event)
+	{
+		$this->_flushes['escher:cache:request_flush:plug'][0] = true;
+		
+		// flush admin side too...
+		
+		$this->observer->notify('Spark:cache:request_flush');
 	}
 
 	//---------------------------------------------------------------------------
