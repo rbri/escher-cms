@@ -376,14 +376,14 @@ class _Input extends SparkPlug
 
 	public static function validate_name($item)
 	{
-		return preg_match('/^([a-z0-9_-])+$/i', $item) ? true : false;
+		return preg_match('/^\w(\w|-)*$/', $item) ? true : false;
 	}
 
 	// --------------------------------------------------------------------------
 
 	public static function validate_currency($item)
 	{
-		return preg_match('/^\$?([0-9]{1,3}(,?[0-9]{3})*)(\.[0-9]{2})?$/', $item) ? true : false;
+		return preg_match('/^\$?(\d{1,3}(,?\d{3})*)(\.\d{2})?$/', $item) ? true : false;
 	}
 
 	// --------------------------------------------------------------------------
@@ -461,12 +461,21 @@ class _Input extends SparkPlug
 			return false;
 		}
 		
+		// first character must be alphabetic
+		
 		if (!ctype_alpha($item[0]))
 		{
 			return false;
 		}
 		
-		return self::validate_alphanum($item);
+		if (self::validate_alphanum($item))
+		{
+			return true;
+		}
+		
+		// allow underscores
+		
+		return preg_match('/^[:alpha:]\w+$/', $item) ? true : false;
 	}
 		
 	// --------------------------------------------------------------------------
@@ -557,8 +566,8 @@ class _Input extends SparkPlug
 	
 	public function validate_zip_code($item, $param)
 	{
-		$usRegEx = '[[:digit:]]{5}(-[[:digit:]]{4})?';
-		$canadianRegEx = '[[:alpha:]][[:digit:]][[:alpha:]] [[:digit:]][[:alpha:]][[:digit:]]';
+		$usRegEx = '\d{5}(-\d{4})?';
+		$canadianRegEx = '[:alpha:]\d[:alpha:] \d[:alpha:]\d';
 		$regEx = "/^(({$usRegEx})|({$canadianRegEx}))$/";
 
 		return preg_match($regEx, $item) ? true : false;
