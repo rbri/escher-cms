@@ -475,7 +475,7 @@ class _Input extends SparkPlug
 		
 		// allow underscores
 		
-		return preg_match('/^[:alpha:]\w+$/', $item) ? true : false;
+		return preg_match('/^[[:alpha:]]\w+$/', $item) ? true : false;
 	}
 		
 	// --------------------------------------------------------------------------
@@ -567,7 +567,7 @@ class _Input extends SparkPlug
 	public function validate_zip_code($item, $param)
 	{
 		$usRegEx = '\d{5}(-\d{4})?';
-		$canadianRegEx = '[:alpha:]\d[:alpha:] \d[:alpha:]\d';
+		$canadianRegEx = '[[:alpha:]]\d[[:alpha:]] \d[[:alpha:]]\d';
 		$regEx = "/^(({$usRegEx})|({$canadianRegEx}))$/";
 
 		return preg_match($regEx, $item) ? true : false;
