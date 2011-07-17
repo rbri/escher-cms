@@ -81,7 +81,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {perm}');
 		$ct->table('perm');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('group_name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$db->query($ct->compile());
@@ -92,7 +92,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {role}');
 		$ct->table('role');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$db->query($ct->compile());
 
@@ -102,11 +102,11 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {user}');
 		$ct->table('user');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('email', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('login', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('password', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
-		$ct->field('nonce', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 64, '1');
+		$ct->field('nonce', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 63, '1');
 		$ct->field('logged', iSparkDBQueryFunctionCreateTable::kFieldTypeDate);
 		$ct->field('created', iSparkDBQueryFunctionCreateTable::kFieldTypeDate);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
@@ -154,7 +154,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {theme}');
 		$ct->table('theme');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('slug', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('title', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('family', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
@@ -168,8 +168,8 @@ class _EscherSchemaModel extends EscherModel
 		$ct->field('editor_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('parent_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
 //		$ct->field('parent_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 'NULL', true);
-		$ct->field('uuid', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 32);
-		$ct->field('parent_uuid', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 32);
+		$ct->field('uuid', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 32, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagFixedLength);
+		$ct->field('parent_uuid', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 32, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagFixedLength);
 		$ct->field('branch', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 1);
 		$ct->field('branch_status', iSparkDBQueryFunctionCreateTable::kFieldTypeByte, NULL, 0);
 		$ct->foreignKey('author_id', 'user', 'id', array(iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerDelete=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionRestrict, iSparkDBQueryFunctionCreateTable::kForeignKeyTriggerUpdate=>iSparkDBQueryFunctionCreateTable::kForeignKeyActionCascade));
@@ -187,7 +187,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {template}');
 		$ct->table('template');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('ctype', iSparkDBQueryFunctionCreateTable::kFieldTypeString, NULL, 'text/html');
 		$ct->field('content', iSparkDBQueryFunctionCreateTable::kFieldTypeText);
@@ -213,7 +213,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {snippet}');
 		$ct->table('snippet');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('content', iSparkDBQueryFunctionCreateTable::kFieldTypeText);
 		$ct->field('created', iSparkDBQueryFunctionCreateTable::kFieldTypeDate);
@@ -238,7 +238,7 @@ class _EscherSchemaModel extends EscherModel
 		
 		$db->query('DROP TABLE IF EXISTS {tag}');
 		$ct->table('tag');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('content', iSparkDBQueryFunctionCreateTable::kFieldTypeText);
 		$ct->field('created', iSparkDBQueryFunctionCreateTable::kFieldTypeDate);
@@ -263,7 +263,7 @@ class _EscherSchemaModel extends EscherModel
 		
 		$db->query('DROP TABLE IF EXISTS {style}');
 		$ct->table('style');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('slug', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('ctype', iSparkDBQueryFunctionCreateTable::kFieldTypeString, NULL, 'text/css');
 		$ct->field('url', iSparkDBQueryFunctionCreateTable::kFieldTypeString, NULL, 'NULL', true);
@@ -293,7 +293,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {script}');
 		$ct->table('script');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('slug', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('ctype', iSparkDBQueryFunctionCreateTable::kFieldTypeString, NULL, 'application/javascript');
 		$ct->field('url', iSparkDBQueryFunctionCreateTable::kFieldTypeString, NULL, 'NULL', true);
@@ -323,7 +323,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {image}');
 		$ct->table('image');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('slug', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('ctype', iSparkDBQueryFunctionCreateTable::kFieldTypeString, NULL, 'image/gif');
 		$ct->field('url', iSparkDBQueryFunctionCreateTable::kFieldTypeString, NULL, 'NULL', true);
@@ -360,7 +360,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {category}');
 		$ct->table('category');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('slug', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('title', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('level', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
@@ -382,7 +382,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {model}');
 		$ct->table('model');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('type', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('status', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
@@ -436,7 +436,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {page}');
 		$ct->table('page');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('slug', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('level', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('position', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, 0);
@@ -510,7 +510,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {block}');
 		$ct->table('block');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('title', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('content', iSparkDBQueryFunctionCreateTable::kFieldTypeText);
@@ -560,7 +560,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {file}');
 		$ct->table('file');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('slug', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('ctype', iSparkDBQueryFunctionCreateTable::kFieldTypeString, NULL, 'image/gif');
 		$ct->field('url', iSparkDBQueryFunctionCreateTable::kFieldTypeString, NULL, 'NULL', true);
@@ -606,7 +606,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {link}');
 		$ct->table('link');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('title', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('description', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
@@ -653,7 +653,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {cache}');
 		$ct->table('cache');
-		$ct->field('namespace', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
+		$ct->field('namespace', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 63);
 		$ct->field('ckey', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('val', iSparkDBQueryFunctionCreateTable::kFieldTypeBinary, 16*1024*1024-1);
 		$ct->field('expires', iSparkDBQueryFunctionCreateTable::kFieldTypeDate);
@@ -662,7 +662,7 @@ class _EscherSchemaModel extends EscherModel
 
 		$db->query('DROP TABLE IF EXISTS {plugin}');
 		$ct->table('plugin');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('family', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('name', iSparkDBQueryFunctionCreateTable::kFieldTypeString);
 		$ct->field('extends', iSparkDBQueryFunctionCreateTable::kFieldTypeString);

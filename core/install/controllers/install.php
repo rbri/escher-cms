@@ -239,7 +239,16 @@ class _InstallController extends SparkController
 						$config['charset'] = 'utf8';
 						$config['persistent'] = false;
 						$config['table_prefix'] = '';
-						$config = array_merge($config, $this->_db_plugs[$config['adapter']][1]->buildConnectionParams($params['pv']));
+						
+						$plugIn =& $this->_db_plugs[$config['adapter']][1];
+						$connectionParams = $plugIn->buildConnectionParams($params['pv']);
+						
+						if (!$plugIn->checkSupport($connectionParams, $errorMsg))
+						{
+							throw new SparkException('This database plugin is not supported on your server: ' . $errorMsg);
+						}
+						
+						$config = array_merge($config, $connectionParams);
 
 						$dbConfig = $config;
 						$config['db_config'] = $dbConfig;

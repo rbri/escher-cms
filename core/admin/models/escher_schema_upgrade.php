@@ -794,4 +794,26 @@ class _EscherSchemaUpgradeModel extends EscherModel
 	}
 
 	//---------------------------------------------------------------------------
+
+	private function upgrade_7($db)
+	{
+		$db->begin();
+
+		try
+		{
+			// uuid of default theme changed to: 6997a7da47c34beb9454c779a17393dd
+			
+			$db->updateRows('theme', array('uuid'=>'6997a7da47c34beb9454c779a17393dd'), 'uuid=?', '63224103-4697-4229-9c30-624ffa2a');
+			$db->updateRows('theme', array('parent_uuid'=>'6997a7da47c34beb9454c779a17393dd'), 'parent_uuid=?', '63224103-4697-4229-9c30-624ffa2a');
+		}
+		catch (Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
+		
+		$db->commit();
+	}
+
+	//---------------------------------------------------------------------------
 }

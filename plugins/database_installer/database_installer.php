@@ -52,4 +52,5 @@ abstract class _DatabaseInstaller extends SparkPlug
 	abstract public function setConnectionDefaults(&$vars);
 	abstract public function validateConnectionFields($data, &$errors, &$vars);
 	abstract public function buildConnectionParams($data);
+	abstract public function checkSupport($connectionParams, &$errorMsg);
 }

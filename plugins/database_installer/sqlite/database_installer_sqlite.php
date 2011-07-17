@@ -99,6 +99,13 @@ class DatabaseInstallerSqlite extends DatabaseInstaller
 		);
 	}
 
+	// --------------------------------------------------------------------------
+
+	public function checkSupport($connectionParams, &$errorMsg)
+	{
+		return true;
+	}
+
 	//---------------------------------------------------------------------------
 
 	private function validDir($path, &$error)

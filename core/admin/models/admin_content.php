@@ -2276,7 +2276,7 @@ class _AdminContentModel extends _PublishContentModel
 			'edited' => $now,
 			'author_id' => $theme->author_id,
 			'editor_id' => $theme->editor_id ? $theme->editor_id : $theme->author_id,
-			'uuid' => SparkUtil::make_uuid(),
+			'uuid' => SparkUtil::make_uuid(false),
 		);
 		
 		if ($theme->parent_id && $parent = $db->selectRow('theme', 'family, uuid, lineage', 'id=?', $theme->parent_id))

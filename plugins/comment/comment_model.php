@@ -311,7 +311,7 @@ class _CommentModel extends EscherModel
 		$ct = $db->getFunction('create_table');
 		
 		$ct->table('comment');
-		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoincrement);
+		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
 		$ct->field('page_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$ct->field('message', iSparkDBQueryFunctionCreateTable::kFieldTypeText);
 		$ct->field('author', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 255);

@@ -74,4 +74,22 @@ class DatabaseInstallerMySQL extends DatabaseInstaller
 			'password' => $data['db_pass'],
 		);
 	}
+
+	// --------------------------------------------------------------------------
+
+	public function checkSupport($connectionParams, &$errorMsg)
+	{
+		$connectionParams['adapter'] = 'mysql';
+		$db = _SparkDatabase::connect($connectionParams);
+
+		$row = $db->query("SHOW VARIABLES LIKE 'have_innodb'")->row();
+
+		if (($row['Variable_name'] === 'have_innodb') && ($row['Value'] === 'YES'))
+		{
+			return true;
+		}
+		
+		$errorMsg = 'InnoDB not enabled';
+		return false;
+	}
 }
