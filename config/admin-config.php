@@ -83,20 +83,37 @@ $config = array
 		'match_user_agent' => true,
 		'encrypted' => false,
 		'encryption_key' => '',
+		'hash_key' => '',
+/*
+		'database' => array
+		(
+			'config' => '',
+			'table' => 'session',
+			'columns' => array
+			(
+				'id' => 'id',
+				'nonce' => 'nonce',
+				'expires' => 'expires',
+			),
+		),
+*/
 	),
 	'auth' => array
 	(
 		'timeout' => 1200,
-		'database' => '',
-		'user_table' => 'user',
-		'user_fields' => array
+		'database' => array
 		(
-			'id' => 'id',
-			'email' => 'email',
-			'login' => 'login',
-			'password' => 'password',
-			'nonce' => 'nonce',
-			'logged' => 'logged',
+			'config' => '',
+			'table' => 'user',
+			'columns' => array
+			(
+				'id' => 'id',
+				'email' => 'email',
+				'login' => 'login',
+				'password' => 'password',
+				'nonce' => 'nonce',
+				'logged' => 'logged',
+			),
 		),
 	),
 	'plugins' => array

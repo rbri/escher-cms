@@ -36,7 +36,7 @@ class Parser extends SparkPlug
 {
 	// main tag parsing regex pattern adapted from the lovely Textpattern
 
-	const find_tags_regex = '@(</?et:(?:\w+:?)+(?:\s+\w+\s*=\s*(?:"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'|[^\s\'"/>]+))*\s*/?>)@s';
+	const find_tags_regex = '@(</?et(?::\w+)+(?:\s+\w+\s*=\s*(?:"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'|[^\s\'"/>]+))*\s*/?>)@s';
 	const split_tag_regex = '@:((?:\w+:?)+)(.*)/?>$@s';
 	const split_atts_regex = '@(\w+)\s*=\s*(?:"((?:[^"]|"")*)"|\'((?:[^\']|\'\')*)\'|([^\s\'"/>]+))@s';
 

@@ -12,6 +12,11 @@ CacheMonitor plugin is now branch-aware.
 
 --
 
+Admin config array structure has changed for: [session, auth]. Be sure to update
+your copy of admin-config.php or you will be unable to log into the admin interface.
+
+--
+
 ================================================================================
 
 Release 0.9.2
