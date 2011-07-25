@@ -92,13 +92,19 @@ class _Feed extends EscherPlugin
 						<et:content part="summary" />
 					</div>
 				</summary>
+				<et:else /><et:if_content part="excerpt">
+				<summary type="xhtml">
+					<div xmlns="http://www.w3.org/1999/xhtml">
+						<et:content part="excerpt" />
+					</div>
+				</summary>
 				<et:else /><et:if_content part="body">
 				<content type="xhtml">
 					<div xmlns="http://www.w3.org/1999/xhtml">
 						<et:content />
 					</div>
 				</content>
-				</et:if_content></et:if_content>
+				</et:if_content></et:if_content></et:if_content>
 			</entry>
       </et:children:each>
    </et:page>
@@ -175,6 +181,27 @@ EOD;
 				'section_name' => 'feed',
 				'position' => 0,
 				'type' => 'hidden',
+				'val' => true,
+			),
+			array
+			(
+				'name' => 'feed_id_type',
+				'group_name' => 'plugins',
+				'section_name' => 'feed',
+				'position' => 10,
+				'type' => 'select',
+				'data' => serialize(array('tag'=>'Tag', 'uuid'=>'UUID')),
+				'validation' => '',
+				'val' => 'uuid',
+			),
+			array
+			(
+				'name' => 'feed_auto_generate_uuid',
+				'group_name' => 'plugins',
+				'section_name' => 'feed',
+				'position' => 20,
+				'type' => 'yesnoradio',
+				'validation' => '',
 				'val' => true,
 			),
 		));

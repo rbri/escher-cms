@@ -37,5 +37,6 @@ $plug['version'] = '1.0.0';
 $plug['license'] = 'GPL3';
 
 $plug['plugs'][] = array('name'=>'Feed', 'runs_where'=>1, 'auto_load'=>true);
+$plug['plugs'][] = array('name'=>'FeedSettingsController',  'extends'=>'SettingsController', 'runs_where'=>1);
 $plug['plugs'][] = array('name'=>'FeedTags', 'extends'=>'EscherParser', 'runs_where'=>2);
 $plug['plugs'][] = array('name'=>'FeedModel', 'extends'=>'AdminContentModel', 'runs_where'=>1);

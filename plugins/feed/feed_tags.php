@@ -75,9 +75,12 @@ class FeedTags extends EscherParser
 	
 	protected function _tag_feed_id($atts)
 	{
-		if ($uuid = $this->_tag_pages_uuid($atts))
+		if (!isset($this->prefs['feed_id_type']) || ($this->prefs['feed_id_type'] === 'uuid'))
 		{
-			return "urn:uuid:{$uuid}";
+			if ($uuid = $this->_tag_pages_uuid($atts))
+			{
+				return "urn:uuid:{$uuid}";
+			}
 		}
 		return $this->_tag_pages_tag($atts);
 	}

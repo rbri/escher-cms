@@ -26,15 +26,27 @@ if (!defined('escher'))
 	exit('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>403 Forbidden</title></head><body><h1>Forbidden</h1><p>You don\'t have permission to access the requested resource on this server.</p></body></html>');
 }
 
-$lang['prefs'] = array
-(
-	'comments_enabled' => NULL,
-	'comments_apply_nofollow' => 'Apply "nofollow"',
-	'comments_require_approval' => 'Require Approval',
-	'comments_notification_email' => 'Notification Email',
+// -----------------------------------------------------------------------------
 
-	'comments_enabled_help' => 'Display comment form?',
-	'comments_apply_nofollow_help' => 'Apply "nofollow" to links in comments?',
-	'comments_require_approval_help' => 'Require administrator to approve comments before they appear on site?',
-	'comments_notification_email_help' => 'Notify this email address whenever new comment is posted.',
-);
+class FeedSettingsController extends SettingsController
+{	
+	private $_plugDir;
+
+	//---------------------------------------------------------------------------
+
+	public function __construct($params = NULL)
+	{
+		parent::__construct($params);
+
+		$myInfo = $this->factory->getPlug('FeedSettingsController');
+		$this->_plugDir = dirname($myInfo['file']);
+		$this->observer->observe(array($this, 'feedLoadLangFile'), array('SparkLang:load:preferences', 'SparkLang:load:permissions'));
+	}
+
+	//---------------------------------------------------------------------------
+
+	public function feedLoadLangFile($event, $file)
+	{
+		self::$lang->load($file, $this->_plugDir . '/languages');
+	}
+}

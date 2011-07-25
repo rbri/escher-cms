@@ -41,6 +41,11 @@ class FeedModel extends AdminContentModel
 
 	public function addPage($page)
 	{
+		if (!$this->app->get_pref('feed_auto_generate_uuid', '1'))
+		{
+			return parent::addPage($page);
+		}
+		
 		$db = $this->loadDBWithPerm(EscherModel::PermWrite);
 
 		$db->begin();

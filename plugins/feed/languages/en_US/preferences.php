@@ -28,13 +28,9 @@ if (!defined('escher'))
 
 $lang['prefs'] = array
 (
-	'comments_enabled' => NULL,
-	'comments_apply_nofollow' => 'Apply "nofollow"',
-	'comments_require_approval' => 'Require Approval',
-	'comments_notification_email' => 'Notification Email',
+	'feed_id_type' => 'ID Type',
+	'feed_auto_generate_uuid' => 'Auto-generate UUIDs?',
 
-	'comments_enabled_help' => 'Display comment form?',
-	'comments_apply_nofollow_help' => 'Apply "nofollow" to links in comments?',
-	'comments_require_approval_help' => 'Require administrator to approve comments before they appear on site?',
-	'comments_notification_email_help' => 'Notify this email address whenever new comment is posted.',
+	'feed_id_type_help' => 'Use tag or UUID as unique identifier for feed entries?',
+	'feed_auto_generate_uuid_help' => 'Automatically add UUID metadata to each new page?',
 );
