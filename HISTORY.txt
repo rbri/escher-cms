@@ -2,7 +2,7 @@ Escher CMS Change History
 =========================
 
 Version 0.9.3 [TBD]
-	changes to admin config array structure for: session, auth
+	changes to config array structure for: auth, cache, page_cache, nonce, session
 	minor change to main tag parsing regex
 	default theme gets new uuid (was getting truncated due to db column being too short to store the cananoical form)
 	MySQL installer plugin now checks for InnoDB support

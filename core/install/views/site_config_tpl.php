@@ -34,13 +34,15 @@ $sites['<?= $site_id ?>'] = array
 	(
 		'adapter' => 'database',
 		'lifetime' => '3600',
-		'table' => 'cache',
 		'namespace' => 'partials',
-		'page_cache_active' => true,
-		'page_cache_namespace' => 'pages',
-		'page_cache_send_content_type' => true,
-		'page_cache_send_last_modified' => true,
-		'page_cache_send_etag' => true,
+	),
+	'page_cache' => array		// page cache settings are layered over cache settings
+	(
+		'namespace' => 'pages',
+		'active' => true,
+		'send_content_type' => true,
+		'send_last_modified' => true,
+		'send_etag' => true,
 	),
 	'plugins' => array
 	(

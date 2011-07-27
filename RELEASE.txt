@@ -12,8 +12,13 @@ CacheMonitor plugin is now branch-aware.
 
 --
 
-Admin config array structure has changed for: [session, auth]. Be sure to update
-your copy of admin-config.php or you will be unable to log into the admin interface.
+Admin config array structure has changed for: [session, auth]. The "page_cache"
+config item has been renamed "publish_page_cache." Be sure to update your copy
+of admin-config.php or you will be unable to log into the admin interface.
+
+Site config array structure has changed for: [cache, page_cache, nonce].
+Be sure to update your site-config.php accordingly or your caches may not function
+properly.
 
 --
 

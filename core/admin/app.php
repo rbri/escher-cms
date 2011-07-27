@@ -314,29 +314,26 @@ class _EscherAdmin extends EscherApplication
 		// purge the cache on the publish side. In this case, we purge the page
 		// cache directory here on the admin side.
 
-		if (!$cacheParams = $this->config->get('page_cache'))
-		{
-			$cacheParams = $this->config->get('cache');
-		}
+		$cacheParams = $this->config->get('publish_page_cache');
 
-		if (!empty($cacheParams['page_cache_static']) && ($dir = @$cacheParams['page_cache_dir']))
+		if (!empty($cacheParams['static']))
 		{
-			$dir = rtrim($dir, '/\\');
+			$cacher = $this->loadCacher($cacheParams);
+			$namespace = $cacher->getNameSpace();
+
 			foreach ((array)$branches as $branch)
 			{
 				switch ($branch)
 				{
 					case EscherProductionStatus::Staging:
-						$cacheDir = $dir . '.staging';
+						$cacher->setNameSpace($namespace . '.staging');
 						break;
 					case EscherProductionStatus::Development:
-						$cacheDir = $dir . '.dev';
+						$cacher->setNameSpace($namespace . '.dev');
 						break;
 					default:
-						$cacheDir = $dir;
 						break;
 				}
-				$cacher = $this->loadCacher(array('adapter' => 'file', 'cache_dir' => $cacheDir));
 				$cacher->clear();
 				if (!$flushAllBranches)
 				{
