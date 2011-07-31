@@ -41,9 +41,9 @@ class _InstallController extends SparkController
 	
 	//---------------------------------------------------------------------------
 
-	public function __construct()
+	public function __construct($app)
 	{
-		parent::__construct();
+		parent::__construct($app);
 
 		$this->_rootDir = $this->config->get('root_dir');
 		$this->_cacheDir = $this->config->get('cache_dir', $this->_rootDir . '/cache');

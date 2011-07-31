@@ -35,9 +35,9 @@ class EscherAdminController extends SparkController
 	
 	//---------------------------------------------------------------------------
 
-	public function __construct($params = NULL)
+	public function __construct($app)
 	{		
-		parent::__construct();
+		parent::__construct($app);
 
 		$this->getCommonVars($this->_vars);
 	}

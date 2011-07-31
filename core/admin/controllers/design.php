@@ -36,9 +36,9 @@ class _DesignController extends EscherAdminController
 	
 	//---------------------------------------------------------------------------
 
-	public function __construct()
+	public function __construct($app)
 	{
-		parent::__construct();
+		parent::__construct($app);
 		$this->app->build_tabs($this->_tabs, array('branches', 'themes', 'templates', 'snippets', 'tags', 'styles', 'scripts', 'images'), 'design');
 	}
 

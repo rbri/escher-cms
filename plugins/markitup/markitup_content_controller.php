@@ -36,9 +36,9 @@ class MarkitupContentController extends ContentController
 	
 	//---------------------------------------------------------------------------
 
-	public function __construct()
+	public function __construct($app)
 	{
-		parent::__construct();
+		parent::__construct($app);
 
 		$this->observer->observe(array($this, 'beforeRender'), array('escher:render:before:content'));
 	}

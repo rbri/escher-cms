@@ -34,9 +34,9 @@ class CommentSettingsController extends SettingsController
 
 	//---------------------------------------------------------------------------
 
-	public function __construct($params = NULL)
+	public function __construct($app)
 	{
-		parent::__construct($params);
+		parent::__construct($app);
 
 		$myInfo = $this->factory->getPlug('CommentSettingsController');
 		$this->_plugDir = dirname($myInfo['file']);

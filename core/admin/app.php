@@ -89,10 +89,10 @@ class _EscherAdmin extends EscherApplication
 		try
 		{
 			$userModel = $this->newModel('User');
-			$authModel = $this->newModel('SparkAuth');
-			if ($auth = @$authModel->authenticate())
+			$authSession = $this->factory->manufacture('SparkAuthSession');
+			if ($userInfo = @$authSession->loggedIn())
 			{
-				$this->_user = @$userModel->fetchUser($auth['id'], true, true);
+				$this->_user = @$userModel->fetchUser($userInfo['id'], true, true);
 			}
 			else
 			{

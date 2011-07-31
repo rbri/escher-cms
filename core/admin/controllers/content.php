@@ -40,9 +40,9 @@ class _ContentController extends EscherAdminController
 	
 	//---------------------------------------------------------------------------
 
-	public function __construct()
+	public function __construct($app)
 	{
-		parent::__construct();
+		parent::__construct($app);
 
 		$this->app->build_tabs($this->_tabs, array('models', 'pages', 'blocks', 'images', 'files', 'links', 'categories'), 'content');
 

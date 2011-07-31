@@ -39,9 +39,9 @@ class EventLogSettingsController extends SettingsController
 	
 	//---------------------------------------------------------------------------
 
-	public function __construct()
+	public function __construct($app)
 	{
-		parent::__construct();
+		parent::__construct($app);
 
 		$tabs =& parent::get_tabs();
 		$this->app->append_tab($tabs, 'event-log');
