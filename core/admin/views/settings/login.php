@@ -42,7 +42,7 @@
 </div>
 
 <p>
-	To reset your password, enter your account user name and your new password below.
+	To change your password, enter your account user name and your new password below.
 </p>
 <form method="post">
 	<fieldset>
