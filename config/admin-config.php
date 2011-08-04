@@ -101,6 +101,10 @@ $config = array
 	'auth' => array
 	(
 		'timeout' => 1200,
+		'session' => array
+		(
+			'id', 'nonce',
+		),
 		'database' => array
 		(
 			'config' => '',
