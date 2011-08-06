@@ -89,9 +89,9 @@ class Parser extends SparkPlug
 	}
 
 	//---------------------------------------------------------------------------
-	//
+	
 	// Private Methods
-	//
+	
 	//---------------------------------------------------------------------------
 	
 	private final function parseRange($start, $stop)
@@ -302,9 +302,9 @@ class Parser extends SparkPlug
 	}
 		
 	//---------------------------------------------------------------------------
-	//
+	
 	// Protected Methods
-	//
+	
 	//---------------------------------------------------------------------------
 
 	protected static function rtrimslash($str)

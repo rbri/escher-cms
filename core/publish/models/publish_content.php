@@ -2263,9 +2263,9 @@ class _PublishContentModel extends EscherModel
 	}
 	
 	//---------------------------------------------------------------------------
-	//
+	
 	// Protected Methods
-	//
+	
 	//---------------------------------------------------------------------------
 	
 	public function fetchDesignAssetByID($table, $id, $select = '*')

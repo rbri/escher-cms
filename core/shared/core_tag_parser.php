@@ -70,9 +70,9 @@ class CoreTagParser extends Parser
 	}
 
 	//---------------------------------------------------------------------------
-	//
+	
 	// Protected Methods
-	//
+	
 	//---------------------------------------------------------------------------
 
 	protected final function setStatus($status, $message = '')

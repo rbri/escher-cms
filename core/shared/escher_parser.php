@@ -212,9 +212,9 @@ class _EscherParser extends CoreTagParser
 	}
 
 	//---------------------------------------------------------------------------
-	//
+	
 	// Protected Methods
-	//
+	
 	//---------------------------------------------------------------------------
 	
 	protected final function productionStatus()
