@@ -188,14 +188,14 @@ class FormTags extends EscherParser
 		$this->form_data[$this->tag_form_id]['required_class'] = $required_class;
 		$this->form_data[$this->tag_form_id]['error_class'] = $error_class;
 		
-		($useNonce = $this->truthy($nonce)) && ($nonceModel = $this->newModel('SparkNonce', array('nonce'=>array('lifetime'=>$nonce_lifetime))));
-		
+		($useNonce = $this->truthy($nonce)) && ($noncer = $this->loadNoncer(array('adapter'=>'database', 'lifetime'=>$nonce_lifetime)));
+
 		$content = '';
 		$extra = '';
 
 		if ($submitted = $this->fsub())
 		{
-			$useNonce && $nonce = $nonceModel->getNonce($this->gfvar('esc_nonce'));
+			$useNonce && $nonce = $noncer->getNonce($this->gfvar('esc_nonce'));
 
 			if ($this->gfvar('esc_honey') !== '')
 			{
@@ -246,7 +246,7 @@ class FormTags extends EscherParser
 					}
 					if (empty($this->form_errs) && $useNonce)
 					{
-						$nonceModel->useNonce($nonce['nonce']);
+						$noncer->useNonce($nonce['nonce']);
 					}
 				}
 			}
@@ -280,7 +280,7 @@ class FormTags extends EscherParser
 		{
 			if (!$submitted)
 			{
-				$nonce = $nonceModel->newNonce();
+				$nonce = $noncer->newNonce();
 			}
 			else
 			{
