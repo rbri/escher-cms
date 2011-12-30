@@ -127,7 +127,7 @@ class SearchModel extends PublishContentModel
 				$where[] = '(' . implode($bool, $like) . ')';
 			}
 
-			$sql = $db->buildSelect('page', 'id', NULL, implode(' AND ', $where), $orderBy, $limit, $offset, true);
+			$sql = $db->buildSelect('page', 'id', NULL, implode(' AND ', $where), NULL, $orderBy, $limit, $offset, true);
 			foreach($db->query($sql, $titleBind)->rows() as $row)
 			{
 				$result[$row['id']][] = NULL;
@@ -173,7 +173,7 @@ class SearchModel extends PublishContentModel
 				$where[] = '(' . implode($bool, $like) . ')';
 			}
 		
-			$sql = $db->buildSelect('page', '{page}.id, {page_part}.name', $joins, implode(' AND ', $where), $orderBy, $limit, $offset, true);
+			$sql = $db->buildSelect('page', '{page}.id, {page_part}.name', $joins, implode(' AND ', $where), NULL, $orderBy, $limit, $offset, true);
 
 			foreach($db->query($sql, $bind)->rows() as $row)
 			{

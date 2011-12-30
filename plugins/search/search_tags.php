@@ -145,6 +145,7 @@ class SearchTags extends EscherParser
 		$mode === '' || $mode === 'exact' || $mode === 'any' || $mode === 'all' || check($mode === '' || $mode === 'exact' || $mode === 'any' || $mode === 'all', $this->output->escape(self::$lang->get('unexpected_attribute_value', $mode, 'mode', 'search:if_found')));
 
 		$find = trim(preg_replace('/\s+/', ' ', $find));
+		$parent = $parent ? intval($parent) : NULL;
 
 		$searchTitles = $this->truthy($intitle);
 		$searchParts = $this->truthy($inparts);
@@ -158,11 +159,6 @@ class SearchTags extends EscherParser
 			}
 		}
 		
-		if ($parent !== NULL)
-		{
-			$parent = intval($parent);
-		}
-
 		$this->_search_term = $find;
 		$this->_limit = $limit;
 		$this->_start = $start;

@@ -101,7 +101,7 @@ class _EventLogModel extends EscherModel
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 	
 		$joins[] = array('leftTable'=>'log', 'table'=>'user', 'conditions'=>array(array('leftField'=>'user_id', 'rightField'=>'id', 'joinOp'=>'=')));
-		$sql = $db->buildSelect('log', '{log}.*, {user}.name AS user', $joins, NULL, '{log}.time DESC, {log}.id DESC', $limit, $offset);
+		$sql = $db->buildSelect('log', '{log}.*, {user}.name AS user', $joins, NULL, NULL, '{log}.time DESC, {log}.id DESC', $limit, $offset);
 		
 		$events = array();
 		foreach ($db->query($sql)->rows() as $row)

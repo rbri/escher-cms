@@ -3945,7 +3945,7 @@ class _EscherParser extends CoreTagParser
 		if ($link = $this->currentLink())
 		{
 			$url = rtrim($link->url, ' /');
-			$here = rtrim($this->pageURL(), ' /');
+			$here = rtrim($this->pageURL(true), ' /');
 			return ($url === $here);
 		}
 		return false;
@@ -3958,7 +3958,7 @@ class _EscherParser extends CoreTagParser
 		if ($link = $this->currentLink())
 		{
 			$url = rtrim($link->url, ' /') . '/';
-			$here = rtrim($this->pageURL(), ' /') . '/';
+			$here = rtrim($this->pageURL(true), ' /') . '/';
 			return strncmp($url, $here, strlen($url)) === 0;
 		}
 		return false;
