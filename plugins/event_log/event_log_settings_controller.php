@@ -138,13 +138,9 @@ class EventLogSettingsController extends SettingsController
 		$vars['action'] = 'view';
 		$vars['events'] = $this->_model->getEvents($eventsPerPage, ($curPage-1)*$eventsPerPage);
 
-		$vars['class'] = 'event-pagination';
 		$vars['page_url'] = $this->urlTo('/settings/event-log/view/');
 		$vars['cur_page'] = $curPage;
 		$vars['last_page'] = intval(ceil($numEvents/$eventsPerPage));
-
-		$vars['label_previous'] = '&larr; Newer';
-		$vars['label_next'] = 'Older &rarr;';
 
 		$vars['notice'] = $this->session->flashGet('notice');
 

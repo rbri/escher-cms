@@ -155,13 +155,9 @@ class CommentContentController extends ContentController
 		$vars['action'] = 'view';
 		$vars['comments'] = $this->_model->fetchComments(NULL, NULL, $commentsPerPage, ($curPage-1)*$commentsPerPage);
 
-		$vars['class'] = 'comments-pagination';
 		$vars['page_url'] = $this->urlTo('/content/comments/view/');
 		$vars['cur_page'] = $curPage;
 		$vars['last_page'] = intval(ceil($numComments/$commentsPerPage));
-
-		$vars['label_previous'] = '&larr; Newer';
-		$vars['label_next'] = 'Older &rarr;';
 
 		$vars['notice'] = $this->session->flashGet('notice');
 

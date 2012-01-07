@@ -4,7 +4,7 @@
 	Manage Comments
 </div>
 
-<?= $pagination = $this->renderPagination(NULL, true); ?>
+<?= $pagination = $this->renderPagination(array('class'=>'comments-pagination', 'wrapper'=>'', 'list'=>'ol', 'class_active'=>'selected', 'always_show_labels'=>false, 'label_prev'=>'&larr; Newer', 'label_next'=>'Older &rarr;', 'page_url'=>$page_url, 'cur_page'=>$cur_page, 'last_page'=>$last_page,), true); ?>
 <table id="comments-list">
 	<thead>
 		<tr>

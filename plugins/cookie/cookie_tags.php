@@ -30,11 +30,15 @@ if (!defined('escher'))
 
 class CookieTags extends EscherParser
 {
+	private $_cookie_cache;
+	
 	//---------------------------------------------------------------------------
 
 	public function __construct($params, $cacher, $content, $currentURI)
 	{
 		parent::__construct($params, $cacher, $content, $currentURI);
+
+		$this->_cookie_cache = array();
 	}
 	
 	//---------------------------------------------------------------------------
@@ -50,6 +54,43 @@ class CookieTags extends EscherParser
 		$this->popNamespace('cookie');
 	}
 		
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_cookie_setcookie($atts)
+	{
+		extract($this->gatts(array(
+			'name' => '',
+			'value' => '',
+			'expire' => 0,
+			'path' => $this->currentPageContext()->baseURI(),
+			'domain' => '',
+			'secure' => false,
+			'httponly' => false,
+		),$atts));
+
+		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'cookie')));
+
+		$cookieVal = $this->input->cookie($name);
+
+		setcookie($name, $value, intval($expire), $path, $domain, $this->truthy($secure), $this->truthy($httponly));
+	}
+
+	//---------------------------------------------------------------------------
+	
+	protected function _tag_cookie_cookie($atts)
+	{
+		extract($this->gatts(array(
+			'name' => '',
+			'escape' => false,
+		),$atts));
+
+		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'cookie')));
+		
+		$cookieVal = $this->input->cookie($name);
+
+		return ($cookieVal !== NULL) ? ($this->truthy($escape) ? $this->output->escape($cookieVal) : $cookieVal) : '';
+	}
+
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_cookie_if_cookie($atts)
@@ -76,39 +117,34 @@ class CookieTags extends EscherParser
 		
 	//---------------------------------------------------------------------------
 	
-	protected function _tag_cookie_cookie($atts)
+	protected function _tag_cookie_extract($atts)
 	{
 		extract($this->gatts(array(
 			'name' => '',
+			'key' => '',
+			'default' => '',
 			'escape' => false,
 		),$atts));
 
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'cookie')));
-		
-		$cookieVal = $this->input->cookie($name);
-
-		return ($cookieVal !== NULL) ? ($this->truthy($escape) ? $this->output->escape($cookieVal) : $cookieVal) : '';
-	}
-
-	//---------------------------------------------------------------------------
+		$key || check($key, $this->output->escape(self::$lang->get('attribute_required', 'key', 'cookie')));
 	
-	protected function _tag_cookie_setcookie($atts)
-	{
-		extract($this->gatts(array(
-			'name' => '',
-			'value' => '',
-			'expire' => 0,
-			'path' => $this->currentPageContext()->baseURI(),
-			'domain' => '',
-			'secure' => false,
-			'httponly' => false,
-		),$atts));
-
-		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'cookie')));
-
-		$cookieVal = $this->input->cookie($name);
-
-		setcookie($name, $value, intval($expire), $path, $domain, $this->truthy($secure), $this->truthy($httponly));
+		if (!array_key_exists($name, $this->_cookie_cache))
+		{
+			$cookieVal = $this->input->cookie($name);
+			if ((SparkUtil::is_serialized($cookieVal, $decoded) || SparkUtil::is_json($cookieVal, $decoded)) && is_array($decoded))
+			{
+				$this->_cookie_cache[$name] = $decoded;
+			}
+			else
+			{
+				$this->_cookie_cache[$name] = NULL;
+			}
+		}
+		
+		$decoded = $this->_cookie_cache[$name];
+		
+		return isset($decoded[$key]) ? ($this->truthy($escape) ? $this->output->escape($decoded[$key]) : $decoded[$key]) : $default;
 	}
 
 	//---------------------------------------------------------------------------

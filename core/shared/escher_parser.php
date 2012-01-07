@@ -1684,14 +1684,24 @@ class _EscherParser extends CoreTagParser
 	
 	protected function _tag_pages_title($atts)
 	{
-		return $this->output->escape($this->currentPageContext()->title);
+		extract($this->gatts(array(
+			'escape' => true,
+		),$atts));
+		
+		$title = $this->currentPageContext()->title;
+		return $this->truthy($escape) ? $this->output->escape($title) : $title;
 	}
 
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_pages_breadcrumb($atts)
 	{
-		return $this->output->escape($this->currentPageContext()->breadcrumb);
+		extract($this->gatts(array(
+			'escape' => true,
+		),$atts));
+		
+		$breadcrumb = $this->currentPageContext()->breadcrumb;
+		return $this->truthy($escape) ? $this->output->escape($breadcrumb) : $breadcrumb;
 	}
 
 	//---------------------------------------------------------------------------
