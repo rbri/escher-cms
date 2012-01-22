@@ -1,7 +1,7 @@
 <?php
 
 /*
-Copyright 2009-2011 Sam Weiss
+Copyright 2009-2012 Sam Weiss
 All Rights Reserved.
 
 This file is part of Escher.
