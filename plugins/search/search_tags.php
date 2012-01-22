@@ -131,6 +131,7 @@ class SearchTags extends EscherParser
 		extract($this->gatts(array(
 			'find' => '',
 			'mode' => '',
+			'filter' => true,
 			'min' => 1,
 			'max' => 0,
 			'parent' => NULL,
@@ -177,7 +178,7 @@ class SearchTags extends EscherParser
 
 		$this->_mode = $mode;
 		$this->_find = $find;
-		$this->_results = $this->content->searchPages($find, $mode, $parent, $status, $searchTitles, $searchParts);
+		$this->_results = $this->content->searchPages($find, $mode, $filter, $parent, $status, $searchTitles, $searchParts);
 		$this->_page_ids = array_keys($this->_results);
 		
 		return (count($this->_results) >= $min) && (!$max || count($this->_results) <= $max);

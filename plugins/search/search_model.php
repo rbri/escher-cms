@@ -30,6 +30,8 @@ if (!defined('escher'))
 
 class SearchModel extends PublishContentModel
 {
+	private static $_stop_words = array('a', 'about', 'above', 'above', 'across', 'after', 'afterwards', 'again', 'against', 'all', 'almost', 'alone', 'along', 'already', 'also','although','always','am','among', 'amongst', 'amoungst', 'amount',  'an', 'and', 'another', 'any','anyhow','anyone','anything','anyway', 'anywhere', 'are', 'around', 'as',  'at', 'back','be','became', 'because','become','becomes', 'becoming', 'been', 'before', 'beforehand', 'behind', 'being', 'below', 'beside', 'besides', 'between', 'beyond', 'bill', 'both', 'bottom','but', 'by', 'call', 'can', 'cannot', 'cant', 'co', 'con', 'could', 'couldnt', 'cry', 'de', 'describe', 'detail', 'do', 'done', 'down', 'due', 'during', 'each', 'eg', 'eight', 'either', 'eleven','else', 'elsewhere', 'empty', 'enough', 'etc', 'even', 'ever', 'every', 'everyone', 'everything', 'everywhere', 'except', 'few', 'fifteen', 'fify', 'fill', 'find', 'fire', 'first', 'five', 'for', 'former', 'formerly', 'forty', 'found', 'four', 'from', 'front', 'full', 'further', 'get', 'give', 'go', 'had', 'has', 'hasnt', 'have', 'he', 'hence', 'her', 'here', 'hereafter', 'hereby', 'herein', 'hereupon', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'however', 'hundred', 'ie', 'if', 'in', 'inc', 'indeed', 'interest', 'into', 'is', 'it', 'its', 'itself', 'keep', 'last', 'latter', 'latterly', 'least', 'less', 'ltd', 'made', 'many', 'may', 'me', 'meanwhile', 'might', 'mill', 'mine', 'more', 'moreover', 'most', 'mostly', 'move', 'much', 'must', 'my', 'myself', 'name', 'namely', 'neither', 'never', 'nevertheless', 'next', 'nine', 'no', 'nobody', 'none', 'noone', 'nor', 'not', 'nothing', 'now', 'nowhere', 'of', 'off', 'often', 'on', 'once', 'one', 'only', 'onto', 'or', 'other', 'others', 'otherwise', 'our', 'ours', 'ourselves', 'out', 'over', 'own','part', 'per', 'perhaps', 'please', 'put', 'rather', 're', 'same', 'see', 'seem', 'seemed', 'seeming', 'seems', 'serious', 'several', 'she', 'should', 'show', 'side', 'since', 'sincere', 'six', 'sixty', 'so', 'some', 'somehow', 'someone', 'something', 'sometime', 'sometimes', 'somewhere', 'still', 'such', 'system', 'take', 'ten', 'than', 'that', 'the', 'their', 'them', 'themselves', 'then', 'thence', 'there', 'thereafter', 'thereby', 'therefore', 'therein', 'thereupon', 'these', 'they', 'thickv', 'thin', 'third', 'this', 'those', 'though', 'three', 'through', 'throughout', 'thru', 'thus', 'to', 'together', 'too', 'top', 'toward', 'towards', 'twelve', 'twenty', 'two', 'un', 'under', 'until', 'up', 'upon', 'us', 'very', 'via', 'was', 'we', 'well', 'were', 'what', 'whatever', 'when', 'whence', 'whenever', 'where', 'whereafter', 'whereas', 'whereby', 'wherein', 'whereupon', 'wherever', 'whether', 'which', 'while', 'whither', 'who', 'whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with', 'within', 'without', 'would', 'yet', 'you', 'your', 'yours', 'yourself', 'yourselves', 'the');
+	
 	//---------------------------------------------------------------------------
 
 	public function __construct($params = NULL)
@@ -44,6 +46,7 @@ class SearchModel extends PublishContentModel
     *
     * @param string $find Text to search for
     * @param string $mode Method used to match search terms ("exact", "any", "all")
+    * @param boolean $filter Whether to filter common stop words (ignored if mode == "exact")
     * @param int $parentID If provided, only search pages with that are children of this page
     * @param string $status Status of pages to include in search
     * @param bool $searchTitles (true|false) whether to search in page titles
@@ -55,7 +58,7 @@ class SearchModel extends PublishContentModel
     * @return array: list of [page_ID=>part_ID] with matching text
     */
 
-	public function searchPages($find, $mode, $parentID = NULL, $status = NULL, $searchTitles = true, $searchParts = true, $limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
+	public function searchPages($find, $mode, $filter = true, $parentID = NULL, $status = NULL, $searchTitles = true, $searchParts = true, $limit = NULL, $offset = NULL, $sort = NULL, $order = NULL)
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
@@ -121,8 +124,16 @@ class SearchModel extends PublishContentModel
 				$like = array();
 				foreach (explode(' ', $find) as $term)
 				{
-					$like[] = '{page}.title LIKE ?';
-					$titleBind[] = "%{$term}%";
+					$term = trim($term);
+					if (!$filter || !in_array($term, self::$_stop_words))
+					{
+						$like[] = '{page}.title LIKE ?';
+						$titleBind[] = "%{$term}%";
+					}
+				}
+				if (empty($like))
+				{
+					return array();
 				}
 				$where[] = '(' . implode($bool, $like) . ')';
 			}
@@ -167,14 +178,21 @@ class SearchModel extends PublishContentModel
 				$like = array();
 				foreach (explode(' ', $find) as $term)
 				{
-					$like[] = '{page_part}.content LIKE ?';
-					$bind[] = "%{$term}%";
+					$term = trim($term);
+					if (!$filter || !in_array($term, self::$_stop_words))
+					{
+						$like[] = '{page_part}.content LIKE ?';
+						$bind[] = "%{$term}%";
+					}
+				}
+				if (empty($like))
+				{
+					return array();
 				}
 				$where[] = '(' . implode($bool, $like) . ')';
 			}
 		
 			$sql = $db->buildSelect('page', '{page}.id, {page_part}.name', $joins, implode(' AND ', $where), NULL, $orderBy, $limit, $offset, true);
-
 			foreach($db->query($sql, $bind)->rows() as $row)
 			{
 				$result[$row['id']][] = $row['name'];
