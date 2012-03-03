@@ -44,7 +44,7 @@ class EscherAdminController extends SparkController
 	
 	//---------------------------------------------------------------------------
 
-	public function _before_dispatch($method, $params)
+	public function _before_dispatch($method, &$params)
 	{
 		if (!$this->app->is_installed())
 		{

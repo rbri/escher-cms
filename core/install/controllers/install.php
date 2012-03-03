@@ -78,7 +78,7 @@ class _InstallController extends SparkController
 
 	// --------------------------------------------------------------------------
 
-	public function _before_dispatch($method, $params)
+	public function _before_dispatch($method, &$params)
 	{
 		return true;	// override SparkAuthController (which is active only so we can access SparkAuthModel)
 	}
