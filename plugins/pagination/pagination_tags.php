@@ -164,11 +164,13 @@ class PaginationTags extends EscherParser
 	protected function _tag_pagination_page_list($atts)
 	{
 		extract($this->gatts(array(
-			'label_previous' => '&larr; Previous',
+			'label_prev' => '&larr; Previous',
 			'label_next' => 'Next &rarr;',
 			'always_show_labels' => false,
 			'id' => '',
 			'class' => 'pagination',
+			'wrapper' => 'div',
+			'list' => 'ol',
 			'class_selected' => 'selected',
 			'cur_page' => 1,
 			'last_page' => 1,
@@ -183,13 +185,11 @@ class PaginationTags extends EscherParser
 		$last_page = intval($last_page);
 		$page_url = rtrim($page_url, '/') . '/';
 
-		$vars = compact('page_url', 'label_previous', 'label_next', 'always_show_labels', 'id', 'class', 'class_current', 'cur_page', 'last_page', 'hash');
-
-		$plugInfo = $this->factory->getPlug('SparkPagination');
-		$this->app->view()->pushViewDir(dirname($plugInfo['file']) . '/views');
-		$result = $this->app->render('pagination', $vars, true);
-		$this->app->view()->popViewDir();
-		return $result;
+		$vars = compact('page_url', 'label_prev', 'label_next', 'always_show_labels', 'id', 'class','wrapper', 'list', 'cur_page', 'last_page', 'hash');
+		$vars['class_active'] = $class_selected;
+		
+		$view = $this->factory->manufacture('SparkPagination');
+		return $view->renderPagination($vars, true);
 	}
 
 	//---------------------------------------------------------------------------

@@ -204,6 +204,11 @@ class _PublishController extends SparkController
 			$this->display($content, $contentType);
 			return;
 		}
+		catch (Exception $e)
+		{
+			$this->app->setCacheable(false);		// don't cache error pages!
+			throw $e;
+		}
 
 		// Enable page caching for this page if page cache is globally enabled.
 		// NOTE: the page cacher will automatically refuse to cache any request method other than GET.
@@ -238,6 +243,11 @@ class _PublishController extends SparkController
 				$content = $parser->errorPageTemplateContent($e->getHTTPStatusCode(), $e->getMessage(), $contentType);
 				$this->display($content, $contentType);
 				return;
+			}
+			catch (Exception $e)
+			{
+				$this->app->setCacheable(false);		// don't cache error pages!
+				throw $e;
 			}
 		}
 	}
