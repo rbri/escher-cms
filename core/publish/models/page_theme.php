@@ -68,6 +68,10 @@ class _PageTheme extends Page
 				$type = 3;
 				$typeName = 'images';
 				break;
+
+			default:
+				$type = 0;
+				$typeName = '';
 		}
 
 		// check for versioned file name
@@ -80,8 +84,6 @@ class _PageTheme extends Page
 				$rev = $matches[2];
 			}
 		}
-
-		$template = false;
 		
 		switch ($type)
 		{
@@ -96,6 +98,9 @@ class _PageTheme extends Page
 			case 3:
 				$template = $model->fetchImage($file, $theme ? $theme : 0, $branch, true);
 				break;
+
+			default:
+				$template = false;
 		}
 		
 		// if the request was for a versioned file name, ensure that we are serving the requested version

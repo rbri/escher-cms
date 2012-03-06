@@ -188,8 +188,9 @@ class PaginationTags extends EscherParser
 		$vars = compact('page_url', 'label_prev', 'label_next', 'always_show_labels', 'id', 'class','wrapper', 'list', 'cur_page', 'last_page', 'hash');
 		$vars['class_active'] = $class_selected;
 		
-		$view = $this->factory->manufacture('SparkPagination');
-		return $view->renderPagination($vars, true);
+		// we require the SparkPagination plug...
+		
+		return $this->app->view()->renderPagination($vars, true);
 	}
 
 	//---------------------------------------------------------------------------
