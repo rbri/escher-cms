@@ -181,7 +181,7 @@ abstract class EscherApplication extends SparkApplication
 			$ch = curl_init();
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 				curl_setopt($ch, CURLOPT_URL, $url);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, array("User-Agent: {$userAgent}, Referer: {$referrer}"));
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array("User-Agent: {$userAgent}", "Referer: {$referrer}"));
 				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 				$page = curl_exec($ch);
 				if (($status = curl_getinfo($ch, CURLINFO_HTTP_CODE)) != 200)
@@ -194,6 +194,30 @@ abstract class EscherApplication extends SparkApplication
 		return $page;
 	}
 
+	//---------------------------------------------------------------------------
+
+	public function makeAsyncHTTPRequest($url)
+	{
+		$userAgent = 'Escher CMS '. EscherVersion::CoreVersion . '/' . EscherVersion::SchemaVersion;
+		$referrer = SparkUtil::self_url();
+
+		$parts = parse_url($url);
+		
+		$fp = fsockopen($parts['host'], isset($parts['port']) ? $parts['port'] : 80, $errno, $errstr, 30);
+		
+		if ($fp !== false)
+		{
+			$out = "GET {$parts['path']} HTTP/1.1\r\n";
+			$out .= "Host: {$parts['host']}\r\n";
+			$out .= "User-Agent: {$userAgent}\r\n";
+			$out .= "Referer: {$referrer}\r\n";
+			$out .= "Connection: Close\r\n\r\n";
+		
+			fwrite($fp, $out);
+			fclose($fp);
+		}
+	}
+	
 	//---------------------------------------------------------------------------
 	
 }
