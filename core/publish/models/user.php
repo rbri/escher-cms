@@ -80,7 +80,7 @@ class _UserModel extends EscherModel
 		
 		$rows =
 			$sort
-				? $db->query($db->buildSelect('perm', '*', NULL, NULL, NULL, 'id'))->rows()
+				? $db->query($db->buildSelect('perm', '*', NULL, NULL, NULL, NULL, 'id'))->rows()
 				: $db->selectRows('perm')
 					;
 		
@@ -224,7 +224,7 @@ class _UserModel extends EscherModel
 
 		$roles = array();
 		
-		foreach ($db->query($db->buildSelect('role', '*', NULL, NULL, NULL, 'name'))->rows() as $row)
+		foreach ($db->query($db->buildSelect('role', '*', NULL, NULL, NULL, NULL, 'name'))->rows() as $row)
 		{
 			$roles[$row['id']] = $this->factory->manufacture('Role', $row);
 		}
@@ -478,7 +478,7 @@ class _UserModel extends EscherModel
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
-		foreach ($db->query($db->buildSelect('user', '*', NULL, 'id != 0', NULL, 'name'))->rows() as $row)
+		foreach ($db->query($db->buildSelect('user', '*', NULL, 'id != 0', NULL, NULL, 'name'))->rows() as $row)
 		{
 			$user = $this->factory->manufacture('User', $row);
 			if ($fetchRoles)

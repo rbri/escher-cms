@@ -62,7 +62,7 @@ class SearchModel extends PublishContentModel
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
-		// collapase multiple whitespace characters, escape SQL special characters, trim
+		// collapse multiple whitespace characters, escape SQL special characters, trim
 
 		$find = trim(str_replace(array('\\', '%', '_', '\''), array('\\\\', '\\%', '\\_', '\\\''), preg_replace('/\s+/', ' ', $find)));
 
@@ -138,7 +138,7 @@ class SearchModel extends PublishContentModel
 				$where[] = '(' . implode($bool, $like) . ')';
 			}
 
-			$sql = $db->buildSelect('page', 'id', NULL, implode(' AND ', $where), NULL, $orderBy, $limit, $offset, true);
+			$sql = $db->buildSelect('page', 'id', NULL, implode(' AND ', $where), NULL, NULL, $orderBy, $limit, $offset, true);
 			foreach($db->query($sql, $titleBind)->rows() as $row)
 			{
 				$result[$row['id']][] = NULL;
@@ -192,7 +192,7 @@ class SearchModel extends PublishContentModel
 				$where[] = '(' . implode($bool, $like) . ')';
 			}
 		
-			$sql = $db->buildSelect('page', '{page}.id, {page_part}.name', $joins, implode(' AND ', $where), NULL, $orderBy, $limit, $offset, true);
+			$sql = $db->buildSelect('page', '{page}.id, {page_part}.name', $joins, implode(' AND ', $where), NULL, NULL, $orderBy, $limit, $offset, true);
 			foreach($db->query($sql, $bind)->rows() as $row)
 			{
 				$result[$row['id']][] = $row['name'];

@@ -1975,7 +1975,7 @@ class _EscherParser extends CoreTagParser
 			
 			// no 'excerpt' or 'summary' part, so generate one on the fly (with markup stripped)
 		
-			return SparkUtil::truncate(strip_tags($this->parsePart($part)), $maxchars, false, $endcap);
+			return self::$text->strlen(strip_tags($this->parsePart($part)), $maxchars, false, $endcap);
 		}
 		
 		return '';

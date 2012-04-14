@@ -144,7 +144,7 @@ class _PreferencesModel extends EscherModel
 			$bind[] = $groupName;
 		}
 
-		return $db->query($db->buildSelect('pref', '*', NULL, $where, NULL, $orderBy = 'group_name, section_name, position'), $bind)->rows();
+		return $db->query($db->buildSelect('pref', '*', NULL, $where, NULL, NULL, $orderBy = 'group_name, section_name, position'), $bind)->rows();
 	}
 
 	//---------------------------------------------------------------------------

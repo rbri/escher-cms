@@ -41,6 +41,7 @@ $plugs = array
 	'sparkpagecache',
 	'sparkpagination',
 	'sparksanitizer',
+	'sparktext',
 );
 
 $config = array

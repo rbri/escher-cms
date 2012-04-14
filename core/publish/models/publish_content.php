@@ -326,11 +326,11 @@ class _PublishContentModel extends EscherModel
 			$bind[] = $typeID;
 			$joins = array();
 			$this->buildCategoriesJoin($type, $joins);
-			$rows = $db->query($db->buildSelect($type, '{category}.*', $joins, implode(' AND ', $where), NULL, $orderBy), $bind)->rows();
+			$rows = $db->query($db->buildSelect($type, '{category}.*', $joins, implode(' AND ', $where), NULL, NULL, $orderBy), $bind)->rows();
 		}
 		else
 		{
-			$rows = $db->query($db->buildSelect('category', '*', NULL, implode(' AND ', $where), NULL, $orderBy), $bind)->rows();
+			$rows = $db->query($db->buildSelect('category', '*', NULL, implode(' AND ', $where), NULL, NULL, $orderBy), $bind)->rows();
 		}
 
 		$categories = array();
@@ -979,7 +979,7 @@ class _PublishContentModel extends EscherModel
 		
 		$where = implode(' AND ', $where);
 
-		$sql = $db->buildSelect('page', '{page}.*, {user}.name AS author_name', $joins, $where, NULL, $orderBy, $limit, $offset, true);
+		$sql = $db->buildSelect('page', '{page}.*, {user}.name AS author_name', $joins, $where, NULL, NULL, $orderBy, $limit, $offset, true);
 
 		return $db->query($sql, $bind)->rows();
 	}
@@ -1034,7 +1034,7 @@ class _PublishContentModel extends EscherModel
 	
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 		
-		$sql = $db->buildSelect('page', 'id, parent_id, level', NULL, NULL, NULL, $this->buildOrderBy('level, position', 'ASC, DESC', 'filterPageColumn'));
+		$sql = $db->buildSelect('page', 'id, parent_id, level', NULL, NULL, NULL, NULL, $this->buildOrderBy('level, position', 'ASC, DESC', 'filterPageColumn'));
 		$rows = $db->query($sql)->rows();
 
 		// create parents array and levels array
@@ -1149,7 +1149,7 @@ class _PublishContentModel extends EscherModel
 		
 		$where = implode(' AND ', $where);
 
-		$sql = $db->buildSelect('page', '{page}.*, {user}.name AS author_name', $joins, $where, NULL, $orderBy, $limit, $offset, true);
+		$sql = $db->buildSelect('page', '{page}.*, {user}.name AS author_name', $joins, $where, NULL, NULL, $orderBy, $limit, $offset, true);
 
 		$result = $db->query($sql, $bind);
 		$rows = $result->rows();
@@ -1423,14 +1423,14 @@ class _PublishContentModel extends EscherModel
 
 		if (empty($categories))
 		{
-			$rows = $db->query($db->buildSelect('block', '*', NULL, NULL, NULL, $orderBy))->rows();
+			$rows = $db->query($db->buildSelect('block', '*', NULL, NULL, NULL, NULL, $orderBy))->rows();
 		}
 		else
 		{	
 			$joins = array();
 			$this->buildCategoriesJoin('block', $joins);
 			$where = $db->buildFieldIn('category', 'slug', $categories);
-			$rows = $db->query($db->buildSelect('block', '{block}.*', $joins, $where, NULL, $orderBy), $categories)->rows();
+			$rows = $db->query($db->buildSelect('block', '{block}.*', $joins, $where, NULL, NULL, $orderBy), $categories)->rows();
 		}
 
 		$blocks = array();
@@ -1533,14 +1533,14 @@ class _PublishContentModel extends EscherModel
 
 		if (empty($categories))
 		{
-			$rows = $db->query($db->buildSelect('image', $select, NULL, 'theme_id = -1', NULL, $orderBy))->rows();
+			$rows = $db->query($db->buildSelect('image', $select, NULL, 'theme_id = -1', NULL, NULL, $orderBy))->rows();
 		}
 		else
 		{	
 			$joins = array();
 			$this->buildCategoriesJoin('image', $joins);
 			$where = $db->buildFieldIn('category', 'slug', $categories) . ' AND theme_id = -1';
-			$rows = $db->query($db->buildSelect('image', $select, $joins, $where, NULL, $orderBy), $categories)->rows();
+			$rows = $db->query($db->buildSelect('image', $select, $joins, $where, NULL, NULL, $orderBy), $categories)->rows();
 		}
 
 		$images = array();
@@ -1730,7 +1730,7 @@ class _PublishContentModel extends EscherModel
 			$select = '{file}.id, {file}.slug, {file}.ctype, {file}.url, {file}.title, {file}.description, {file}.status, {file}.download, {file}.size, {file}.rev';
 		}
 
-		$sql = $db->buildSelect('file', $select, $joins, $where, NULL, $orderBy, $limit, $offset, true);
+		$sql = $db->buildSelect('file', $select, $joins, $where, NULL, NULL, $orderBy, $limit, $offset, true);
 		$result = $db->query($sql, $bind);
 		$rows = $result->rows();
 
@@ -1859,14 +1859,14 @@ class _PublishContentModel extends EscherModel
 
 		if (empty($categories))
 		{
-			$rows = $db->query($db->buildSelect('link', '*', NULL, NULL, NULL, $orderBy))->rows();
+			$rows = $db->query($db->buildSelect('link', '*', NULL, NULL, NULL, NULL, $orderBy))->rows();
 		}
 		else
 		{	
 			$joins = array();
 			$this->buildCategoriesJoin('link', $joins);
 			$where = $db->buildFieldIn('category', 'slug', $categories);
-			$rows = $db->query($db->buildSelect('link', '{link}.*', $joins, $where, NULL, $orderBy), $categories)->rows();
+			$rows = $db->query($db->buildSelect('link', '{link}.*', $joins, $where, NULL, NULL, $orderBy), $categories)->rows();
 		}
 
 		$links = array();
@@ -2034,7 +2034,7 @@ class _PublishContentModel extends EscherModel
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
 		$where = $this->buildThemeSearchWhere($db, 'tag', 'name',  NULL, $lineage, $branch, $bind);
-		$sql = $db->buildSelect('tag', '*', NULL, $where, NULL, 'theme_id ASC, branch DESC');
+		$sql = $db->buildSelect('tag', '*', NULL, $where, NULL, NULL, 'theme_id ASC, branch DESC');
 		
 		$tags = array(); $deleted = array();
 		foreach ($db->query($sql, $bind)->rows() as $row)
@@ -2354,7 +2354,7 @@ class _PublishContentModel extends EscherModel
 		}
 		$bind[] = $themeSlugOrID;
 
-		$sql = $db->buildSelect($table, $select, $joins, $where, NULL, "{{$table}}.theme_id DESC, {{$table}}.branch DESC", 1);
+		$sql = $db->buildSelect($table, $select, $joins, $where, NULL, NULL, "{{$table}}.theme_id DESC, {{$table}}.branch DESC", 1);
 		$row = $db->query($sql, $bind)->row();
 		
 		if ($row && ($row['asset_branch_status'] == ContentObject::branch_status_deleted))
@@ -2423,7 +2423,7 @@ class _PublishContentModel extends EscherModel
 		while (true)
 		{
 			$where = $this->buildThemeSearchWhere($db, $table, $nameCol, $name, $lineage, $branch, $bind);
-			$sql = $db->buildSelect($table, $select, NULL, $where, NULL, $orderBy, 1);
+			$sql = $db->buildSelect($table, $select, NULL, $where, NULL, NULL, $orderBy, 1);
 			$row = $db->query($sql, $bind)->row();
 
 			if ($row && ($row['asset_branch_status'] == ContentObject::branch_status_deleted))
@@ -2481,7 +2481,7 @@ class _PublishContentModel extends EscherModel
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
 		$where = $this->buildThemeSearchWhere($db, $table, $nameCol, NULL, $lineage, $branch, $bind);
-		$sql = $db->buildSelect($table, $select, NULL, $where, NULL, 'theme_id DESC, branch DESC');
+		$sql = $db->buildSelect($table, $select, NULL, $where, NULL, NULL, 'theme_id DESC, branch DESC');
 
 		$assets = array();
 
@@ -2541,7 +2541,7 @@ class _PublishContentModel extends EscherModel
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
 
 		$where = $this->buildThemeSearchWhere($db, $table, $nameCol, $name, $lineage, $branch, $bind);
-		$sql = $db->buildSelect($table, $select, $joins, $where, NULL, "theme_id ASC, {{$table}}.branch DESC");
+		$sql = $db->buildSelect($table, $select, $joins, $where, NULL, NULL, "theme_id ASC, {{$table}}.branch DESC");
 
 		$names = array();
 		foreach ($db->query($sql, $bind)->rows() as $row)

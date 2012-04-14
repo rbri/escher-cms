@@ -308,7 +308,7 @@ class _BranchModel extends EscherModel
 			$joins[] = array('type'=>'left', 'leftTable'=>$table, 'table'=>'theme', 'conditions'=>array(array('leftField'=>'theme_id', 'rightField'=>'id', 'joinOp'=>'=')));
 		}
 
-		$rows = $db->query($db->buildSelect($table, $select, $joins, $where, NULL, $orderBy, NULL, NULL, true), $bind)->rows();
+		$rows = $db->query($db->buildSelect($table, $select, $joins, $where, NULL, NULL, $orderBy, NULL, NULL, true), $bind)->rows();
 		foreach ($rows as &$row)
 		{
 			$row['status'] = ContentObject::branchStatusToText($row['status']);

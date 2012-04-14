@@ -159,7 +159,7 @@ class _AdminContentModel extends _PublishContentModel
 		$allCategories = array();
 		$rootCategories = array();
 
-		foreach ($db->query($db->buildSelect('category', '*', NULL, NULL, NULL, 'id ASC, title'))->rows() as $row)
+		foreach ($db->query($db->buildSelect('category', '*', NULL, NULL, NULL, NULL, 'id ASC, title'))->rows() as $row)
 		{
 			$allCategories[$row['id']] = $category = $this->factory->manufacture('Category', $row);
 			if (!$row['parent_id'])
@@ -237,7 +237,7 @@ class _AdminContentModel extends _PublishContentModel
 			$db = $this->loadDBWithPerm(EscherModel::PermRead);
 		}
 		
-		$result = $db->query($db->buildSelect('category', 'id, title', NULL, 'parent_id=?', NULL, 'title ASC'), $parent->id);
+		$result = $db->query($db->buildSelect('category', 'id, title', NULL, 'parent_id=?', NULL, NULL, 'title ASC'), $parent->id);
 
 		foreach ($result->rows() as $row)
 		{
@@ -395,7 +395,7 @@ class _AdminContentModel extends _PublishContentModel
 
 		$models = array();
 		
-		foreach ($db->query($db->buildSelect('model', '*', NULL, NULL, NULL, 'name'))->rows() as $row)
+		foreach ($db->query($db->buildSelect('model', '*', NULL, NULL, NULL, NULL, 'name'))->rows() as $row)
 		{
 			$models[$row['id']] = $this->factory->manufacture('PageModel', $row);
 		}
@@ -643,7 +643,7 @@ class _AdminContentModel extends _PublishContentModel
 
 		$parts = array();
 		
-		foreach ($db->query($db->buildSelect('model_part', '*', NULL, 'model_id=?', NULL, 'position'), $pageModel->id)->rows() as $row)
+		foreach ($db->query($db->buildSelect('model_part', '*', NULL, 'model_id=?', NULL, NULL, 'position'), $pageModel->id)->rows() as $row)
 		{
 			$parts[$row['name']] = $this->factory->manufacture('Part', $row);
 		}
@@ -920,7 +920,7 @@ class _AdminContentModel extends _PublishContentModel
 			$db = $this->loadDBWithPerm(EscherModel::PermRead);
 		}
 		
-		$result = $db->query($db->buildSelect('page', 'id, title, type', NULL, 'parent_id=?', NULL, 'position, created DESC'), $parent->id);
+		$result = $db->query($db->buildSelect('page', 'id, title, type', NULL, 'parent_id=?', NULL, NULL, 'position, created DESC'), $parent->id);
 
 		foreach ($result->rows() as $row)
 		{
@@ -1246,7 +1246,7 @@ class _AdminContentModel extends _PublishContentModel
 
 		$parts = array();
 		
-		foreach ($db->query($db->buildSelect('page_part', '*', NULL, 'page_id=?', NULL, 'position'), $page->id)->rows() as $row)
+		foreach ($db->query($db->buildSelect('page_part', '*', NULL, 'page_id=?', NULL, NULL, 'position'), $page->id)->rows() as $row)
 		{
 			$parts[$row['name']] = $this->factory->manufacture('Part', $row);
 		}
@@ -2655,7 +2655,7 @@ class _AdminContentModel extends _PublishContentModel
 		$rootThemes = array();
 
 		$joins[] = array('table'=>'user', 'type'=>'left', 'conditions'=>array(array('leftField'=>'author_id', 'rightField'=>'id', 'joinOp'=>'=')));
-		foreach ($db->query($db->buildSelect('theme', '{theme}.*, {user}.name AS author_name', $joins, NULL, NULL, '{theme}.id ASC, title'))->rows() as $row)
+		foreach ($db->query($db->buildSelect('theme', '{theme}.*, {user}.name AS author_name', $joins, NULL, NULL, NULL, '{theme}.id ASC, title'))->rows() as $row)
 		{
 			$allThemes[$row['id']] = $theme = $this->factory->manufacture('Theme', $row);
 			if (!$row['parent_id'])
@@ -2714,7 +2714,7 @@ class _AdminContentModel extends _PublishContentModel
 			$db = $this->loadDBWithPerm(EscherModel::PermRead);
 		}
 		
-		$result = $db->query($db->buildSelect('theme', 'id, title', NULL, 'parent_id=?', NULL, 'title ASC'), $parent->id);
+		$result = $db->query($db->buildSelect('theme', 'id, title', NULL, 'parent_id=?', NULL, NULL, 'title ASC'), $parent->id);
 
 		foreach ($result->rows() as $row)
 		{
@@ -3356,7 +3356,7 @@ class _AdminContentModel extends _PublishContentModel
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermWrite);
 		
-		$row = $db->query($db->buildSelect($table, '*', NULL, "{$nameCol}=? AND theme_id=? AND branch<=?", NULL, 'branch DESC', 1), array($name, $themeID, $branch))->row();
+		$row = $db->query($db->buildSelect($table, '*', NULL, "{$nameCol}=? AND theme_id=? AND branch<=?", NULL, NULL, 'branch DESC', 1), array($name, $themeID, $branch))->row();
 		if (empty($row))
 		{
 			throw new SparkHTTPException_NotFound(NULL, array('reason'=>"{$table} not found"));
@@ -3396,7 +3396,7 @@ class _AdminContentModel extends _PublishContentModel
 	public function designAssetExists($table, $nameCol, $name, $themeID, $branch, &$info)
 	{
 		$db = $this->loadDBWithPerm(EscherModel::PermRead);
-		$row = $db->query($db->buildSelect($table, 'id,branch,branch_status', NULL, "{$nameCol}=? AND theme_id=? AND branch<=?", NULL, 'branch DESC', 1), array($name, $themeID, $branch))->row();
+		$row = $db->query($db->buildSelect($table, 'id,branch,branch_status', NULL, "{$nameCol}=? AND theme_id=? AND branch<=?", NULL, NULL, 'branch DESC', 1), array($name, $themeID, $branch))->row();
 		if (isset($row['id']))
 		{
 			$info['id'] = $row['id'];
@@ -3429,7 +3429,7 @@ class _AdminContentModel extends _PublishContentModel
 		$bind[] = $branch ? $branch : 0;
 		
 		$names = array(); $deleted = array();
-		foreach ($db->query($db->buildSelect($table, "id,{$nameColumn},branch_status", NULL, $where, NULL, "{$nameColumn}, theme_id DESC, branch DESC"), $bind)->rows() as $row)
+		foreach ($db->query($db->buildSelect($table, "id,{$nameColumn},branch_status", NULL, $where, NULL, NULL, "{$nameColumn}, theme_id DESC, branch DESC"), $bind)->rows() as $row)
 		{
 			if (!isset($names[$name = $row[$nameColumn]]))
 			{

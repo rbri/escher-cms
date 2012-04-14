@@ -200,7 +200,7 @@ class _CommentModel extends EscherModel
 				$order = 'ASC';
 		}
 		
-		$sql = $db->buildSelect('comment', '*', NULL, $where, NULL, "time {$order}, id {$order}", $limit, $offset);
+		$sql = $db->buildSelect('comment', '*', NULL, $where, NULL, NULL, "time {$order}, id {$order}", $limit, $offset);
 		
 		$comments = array();
 		foreach ($db->query($sql, $bind)->rows() as $row)
