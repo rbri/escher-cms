@@ -4,7 +4,7 @@
 	View Event Log
 </div>
 
-<?= $pagination = $this->renderPagination(array('class'=>'event-pagination', 'wrapper'=>'', 'list'=>'ol', 'class_active'=>'selected', 'always_show_labels'=>false, 'label_prev'=>'&larr; Newer', 'label_next'=>'Older &rarr;', 'page_url'=>$page_url, 'cur_page'=>$cur_page, 'last_page'=>$last_page,), true); ?>
+<?= $pagination = $this->renderPagination(array('class'=>'event-pagination', 'wrapper'=>'', 'list'=>'ol', 'class_active'=>'selected', 'label_prev'=>'&larr; Newer', 'label_next'=>'Older &rarr;', 'page_url'=>$page_url,), true); ?>
 <table id="event-list">
 	<thead>
 		<tr>

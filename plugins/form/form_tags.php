@@ -77,12 +77,24 @@ class FormTags extends EscherParser
 			$id = @$this->tag_form_id;
 		}
 
-		if (($alt = @$this->form_data[$id]['options'][$name][$val]) === NULL)
+		if (isset($this->form_data[$id]['options'][$name]))
 		{
-			return $val;
+			$options =& $this->form_data[$id]['options'][$name];
+			
+			if (!is_array($val))
+			{
+				return isset($options[$val]) ? $options[$val] : $val;
+			}
+			
+			$alt = array();
+			foreach ($val as $key)
+			{
+				$alt[$key] = isset($options[$key]) ? $options[$key] : $key;
+			}
+			return $alt;
 		}
 
-		return $alt;
+		return $val;
 	}
 
 	//---------------------------------------------------------------------------
@@ -324,6 +336,7 @@ class FormTags extends EscherParser
 			'name' => '',
 			'alt' => false,
 			'escape' => false,
+			'delim' => '|',
 		),$atts));
 
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:value')));
@@ -333,7 +346,14 @@ class FormTags extends EscherParser
 			return $this->gfval($name, $this->truthy($alt), NULL, $id);
 		}
 
-		return $this->truthy($alt) ? $this->gfvaralt($name, NULL, $id) : $this->gfvar($name, NULL, $id);
+		$value = $this->truthy($alt) ? $this->gfvaralt($name, NULL, $id) : $this->gfvar($name, NULL, $id);
+		
+		if (is_array($value))
+		{
+			$value = implode($delim, $value);
+		}
+		
+		return $value;
 	}
 		
 	//---------------------------------------------------------------------------
@@ -541,6 +561,8 @@ class FormTags extends EscherParser
 			'label' => '',
 			'default' => '',
 			'options' => '',
+			'multiple' => '',
+			'size' => '',
 			'delim' => '|',
 			'kvdelim' => ';',
 			'gdelim' => ':',
@@ -550,7 +572,13 @@ class FormTags extends EscherParser
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:select')));
 		$options || check($options, $this->output->escape(self::$lang->get('attribute_required', 'options', 'form:select')));
 		
-		// check fopr OPTGROUP
+		$origName = $name;
+		if ($multiple !== '')
+		{
+			$name .= '[]';
+		}
+
+		// check for OPTGROUP
 		
 		if (strpos($options, $gdelim) !== false)
 		{
@@ -576,7 +604,7 @@ class FormTags extends EscherParser
 			 $options = $groups[''] = $this->kvlist($options, $delim, $kvdelim);
 		}
 		
-		$this->form_data[$this->tag_form_id]['options'][$name] = $options;	// save this for later lookups in <value_option> tag
+		$this->form_data[$this->tag_form_id]['options'][$origName] = $options;	// save this for later lookups in gfvaralt()
 		
 		if ($rule != '')
 		{
@@ -585,14 +613,14 @@ class FormTags extends EscherParser
 		$rules[] = self::makeInListRule(array_keys($options));	// anti-spoofing rule
 		$rule = implode('|', $rules);
 
-		$selected = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : $default);
+		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : $this->glist($default);
 
 		if (strpos($rule, 'required') !== false)
 		{
 			$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['required_class'];
 		}
 
-		if ($this->input->isError($name))
+		if ($this->input->isError($origName))
 		{
 			$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['error_class'];
 		}
@@ -611,7 +639,7 @@ class FormTags extends EscherParser
 				$key = $option[0];
 				$val = $option[1];
 				$atts = 'value='.'"'.$key.'"';
-				if ((string)$key === $selected)
+				if (in_array((string)$key, (array)$selected, true))
 				{
 					$atts .= ' selected="selected"';
 				}
@@ -623,7 +651,7 @@ class FormTags extends EscherParser
 			}
 		}
 		
-		$atts = $this->matts(compact('name', 'multiple', 'style'), true);
+		$atts = $this->matts(compact('name', 'multiple', 'size', 'style'), true);
 		return ($label && $id ? $this->output->label($label, $id, $class) : '') . $this->output->tag($values, 'select', $class, $id, $atts);
 	}
 	
@@ -653,7 +681,7 @@ class FormTags extends EscherParser
 		
 		$options = $this->kvlist($options, $delim, $kvdelim);
 
-		$this->form_data[$this->tag_form_id]['options'][$name] = $options;	// save this for later lookups in <value_option> tag
+		$this->form_data[$this->tag_form_id]['options'][$name] = $options;	// save this for later lookups in gfvaralt()
 		
 		if ($rule != '')
 		{
@@ -737,7 +765,7 @@ class FormTags extends EscherParser
 		
 		$options = $this->kvlist($options, $delim, $kvdelim);
 
-		$this->form_data[$this->tag_form_id]['options'][$name] = $options;	// save this for later lookups in <value_option> tag
+		$this->form_data[$this->tag_form_id]['options'][$origName] = $options;	// save this for later lookups in gfvaralt()
 		
 		if ($rule != '')
 		{

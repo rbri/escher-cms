@@ -68,7 +68,7 @@ class _SettingsController extends EscherAdminController
 		else
 		{
 			$this->getCommonVars($vars);
-			throw new SparkHTTPException_Forbidden(NULL, $vars);
+			throw new EscherPermissionException($vars);
 		}
 	}
 
@@ -115,7 +115,7 @@ class _SettingsController extends EscherAdminController
 		
 		if (empty($prefs))
 		{
-			throw new SparkHTTPException_Forbidden(NULL, $vars);
+			throw new EscherPermissionException($vars);
 		}
 
 		if (!isset($prefs[$prefstab]))
@@ -271,7 +271,7 @@ class _SettingsController extends EscherAdminController
 				}
 		}
 	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
+		throw new SparkHTTPException_NotFound(NULL, 0, "action not found: {$params[0]}");
 	}
 
 	//---------------------------------------------------------------------------
@@ -293,7 +293,7 @@ class _SettingsController extends EscherAdminController
 				}
 		}
 	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
+		throw new SparkHTTPException_NotFound(NULL, 0, "action not found: {$params[0]}");
 	}
 
 	//---------------------------------------------------------------------------
@@ -318,7 +318,7 @@ class _SettingsController extends EscherAdminController
 
 		if (!$curUser->allowed('settings:upgrade'))
 		{
-			throw new SparkHTTPException_Forbidden(NULL, $vars);
+			throw new EscherPermissionException($vars);
 		}
 		
 		if (EscherVersion::validateSchemaVersion($this->app->get_pref('schema')))
@@ -533,20 +533,20 @@ class _SettingsController extends EscherAdminController
 		{
 			if (!$roleID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'role not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'role not found');
 			}
 		}
 		
 		if ($roleID == 1)
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'role not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'role not found');
 		}
 		
 		$model = $this->newModel('User');
 		
 		if (!$role = $model->fetchRole($roleID))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'role not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'role not found');
 		}
 		
 		$curUser = $this->app->get_user();
@@ -644,20 +644,20 @@ class _SettingsController extends EscherAdminController
 		{
 			if (!$roleID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'role not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'role not found');
 			}
 		}
 
 		if ($roleID == 1)
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'role not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'role not found');
 		}
 
 		$model = $this->newModel('User');
 
 		if (!$role = $model->fetchRole($roleID))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'role not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'role not found');
 		}
 		
 		$curUser = $this->app->get_user();
@@ -867,7 +867,7 @@ class _SettingsController extends EscherAdminController
 		{
 			if (!$userID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'user not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'user not found');
 			}
 		}
 		
@@ -875,7 +875,7 @@ class _SettingsController extends EscherAdminController
 		
 		if (!$user = $model->fetchUser($userID))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'user not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'user not found');
 		}
 
 		$user->password = '';
@@ -1005,20 +1005,20 @@ class _SettingsController extends EscherAdminController
 		{
 			if (!$userID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'user not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'user not found');
 			}
 		}
 
 		if ($userID == 1)
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'user not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'user not found');
 		}
 
 		$model = $this->newModel('User');
 
 		if (!$user = $model->fetchUser($userID))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'user not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'user not found');
 		}
 		
 		$curUser = $this->app->get_user();

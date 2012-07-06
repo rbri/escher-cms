@@ -934,7 +934,7 @@ class _EscherSchemaModel extends EscherModel
 
 		if (($xml = file_get_contents($file)) === false)
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'site xml file not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'site xml file not found');
 		}
 		
 		$xmlModel = $this->newModel('XMLImportExport');

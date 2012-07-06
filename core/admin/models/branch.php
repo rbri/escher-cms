@@ -91,7 +91,7 @@ class _BranchModel extends EscherModel
 	{
 		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'branch not found');
 		}
 		
 		$affected = array();
@@ -128,7 +128,7 @@ class _BranchModel extends EscherModel
 	{
 		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'branch not found');
 		}
 		
 		$affected = array();
@@ -180,7 +180,7 @@ class _BranchModel extends EscherModel
 	{
 		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'branch not found');
 		}
 		
 		$affected = array();
@@ -226,7 +226,7 @@ class _BranchModel extends EscherModel
 	{
 		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'branch not found');
 		}
 
 		$affected = array();
@@ -282,7 +282,7 @@ class _BranchModel extends EscherModel
 	{
 		if (!SparkUtil::valid_int($id) || ($id <= 1))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'branch not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'branch not found');
 		}
 		
 		$isTheme = ($table === 'theme');

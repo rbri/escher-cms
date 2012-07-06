@@ -137,7 +137,7 @@ class _ContentController extends EscherAdminController
 		else
 		{
 			$this->getCommonVars($vars);
-			throw new SparkHTTPException_Forbidden(NULL, $vars);
+			throw new EscherPermissionException($vars);
 		}
 	}
 
@@ -160,7 +160,7 @@ class _ContentController extends EscherAdminController
 				}
 		}
 	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
+		throw new SparkHTTPException_NotFound(NULL, 0, "action not found: {$params[0]}");
 	}
 
 	//---------------------------------------------------------------------------
@@ -184,7 +184,7 @@ class _ContentController extends EscherAdminController
 				}
 		}
 	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
+		throw new SparkHTTPException_NotFound(NULL, 0, "action not found: {$params[0]}");
 	}
 
 	//---------------------------------------------------------------------------
@@ -206,7 +206,7 @@ class _ContentController extends EscherAdminController
 				}
 		}
 	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
+		throw new SparkHTTPException_NotFound(NULL, 0, "action not found: {$params[0]}");
 	}
 
 	//---------------------------------------------------------------------------
@@ -230,7 +230,7 @@ class _ContentController extends EscherAdminController
 				}
 		}
 	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
+		throw new SparkHTTPException_NotFound(NULL, 0, "action not found: {$params[0]}");
 	}
 
 	//---------------------------------------------------------------------------
@@ -252,7 +252,7 @@ class _ContentController extends EscherAdminController
 				}
 		}
 	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
+		throw new SparkHTTPException_NotFound(NULL, 0, "action not found: {$params[0]}");
 	}
 
 	//---------------------------------------------------------------------------
@@ -274,7 +274,7 @@ class _ContentController extends EscherAdminController
 				}
 		}
 	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
+		throw new SparkHTTPException_NotFound(NULL, 0, "action not found: {$params[0]}");
 	}
 
 	//---------------------------------------------------------------------------
@@ -296,7 +296,7 @@ class _ContentController extends EscherAdminController
 				}
 		}
 	
-		throw new SparkHTTPException_NotFound(NULL, array('reason'=>"action not found: {$params[0]}"));
+		throw new SparkHTTPException_NotFound(NULL, 0, "action not found: {$params[0]}");
 	}
 
 	//---------------------------------------------------------------------------
@@ -442,7 +442,7 @@ class _ContentController extends EscherAdminController
 		{
 			if (!$modelID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'model not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'model not found');
 			}
 		}
 
@@ -450,7 +450,7 @@ class _ContentController extends EscherAdminController
 
 		if (!$pageModel = $model->fetchModelByID($modelID))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'model not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'model not found');
 		}
 
 		$theme = intval($this->app->get_pref('theme'));
@@ -570,14 +570,14 @@ class _ContentController extends EscherAdminController
 
 		if (!$modelID)
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'model not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'model not found');
 		}
 		
 		$model = $this->newAdminContentModel();
 
 		if (!$pageModel = $model->fetchModelByID($modelID))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'model not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'model not found');
 		}
 		
 		$this->getCommonVars($vars);
@@ -752,7 +752,7 @@ class _ContentController extends EscherAdminController
 		{
 			if (!$parentPage = $model->fetchSimplePageByID($parentID))
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'page not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'page not found');
 			}
 		}
 
@@ -763,7 +763,7 @@ class _ContentController extends EscherAdminController
 		if (!$vars['can_save'])
 		{
 			$vars['selected_subtab'] = 'pages';
-			throw new SparkHTTPException_Forbidden(NULL, $vars);
+			throw new EscherPermissionException($vars);
 		}
 
 		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
@@ -864,7 +864,7 @@ class _ContentController extends EscherAdminController
 		{
 			if (!$pageID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'page not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'page not found');
 			}
 		}
 
@@ -872,7 +872,7 @@ class _ContentController extends EscherAdminController
 
 		if (!$page = $model->fetchPageByID($pageID))	// we want the entire page chain for displaying URI, so can't use fetchSimplePageByID()
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'page not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'page not found');
 		}
 
 		$pageType = isset($params['pv']['page_type']) && isset($this->_pageTypes[$params['pv']['page_type']]) ? $params['pv']['page_type'] : $page->type;
@@ -910,7 +910,7 @@ class _ContentController extends EscherAdminController
 		if (!$vars['can_save'])
 		{
 			$vars['selected_subtab'] = 'pages';
-			throw new SparkHTTPException_Forbidden(NULL, $vars);
+			throw new EscherPermissionException($vars);
 		}
 
 		if (isset($params['pv']['save']) || isset($params['pv']['continue']))
@@ -1015,14 +1015,14 @@ class _ContentController extends EscherAdminController
 
 		if (!$pageID)
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'page not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'page not found');
 		}
 		
 		$model = $this->newAdminContentModel();
 
 		if (!$rootPage = $model->fetchSimplePageByID($pageID))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'page not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'page not found');
 		}
 		
 		$this->getCommonVars($vars);
@@ -1103,7 +1103,7 @@ class _ContentController extends EscherAdminController
 
 		if (!$vars['can_move'])
 		{
-			throw new SparkHTTPException_Forbidden(NULL, $vars);
+			throw new EscherPermissionException($vars);
 		}
 
 		$model = $this->newAdminContentModel();
@@ -1160,11 +1160,11 @@ class _ContentController extends EscherAdminController
 				
 				if (!isset($oldTree[$movedPageID]))
 				{
-					throw new SparkHTTPException_BadRequest(NULL, array('reason'=>'page does not exist'));
+					throw new SparkHTTPException_BadRequest(NULL, 0, 'page does not exist');
 				}
 				if (!isset($oldTree[$affectedParentID]))
 				{
-					throw new SparkHTTPException_BadRequest(NULL, array('reason'=>'new parent page does not exist'));
+					throw new SparkHTTPException_BadRequest(NULL, 0, 'new parent page does not exist');
 				}
 				
 				// check that we have permission to make ordering changes under the affected parent pages
@@ -1175,7 +1175,7 @@ class _ContentController extends EscherAdminController
 				}
 				if (!$parentPage || !$vars['can_move'])
 				{
-					throw new SparkHTTPException_Forbidden(NULL, $vars);
+					throw new EscherPermissionException($vars);
 				}
 				
 				// are we moving page from one parent to a different parent?
@@ -1188,7 +1188,7 @@ class _ContentController extends EscherAdminController
 					}
 					if (!$parentPage || !$vars['can_move'])
 					{
-						throw new SparkHTTPException_Forbidden(NULL, $vars);
+						throw new EscherPermissionException($vars);
 					}
 					
 					$changedParent = true;
@@ -1202,7 +1202,7 @@ class _ContentController extends EscherAdminController
 				{
 					if (!isset($oldTree[$pageID]))
 					{
-						throw new SparkHTTPException_BadRequest(NULL, array('reason'=>'sibling page does not exist'));
+						throw new SparkHTTPException_BadRequest(NULL, 0, 'sibling page does not exist');
 					}
 					if ($parentID == $affectedParentID)
 					{
@@ -1749,7 +1749,7 @@ class _ContentController extends EscherAdminController
 		{
 			if (!$blockID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'block not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'block not found');
 			}
 		}
 
@@ -1757,7 +1757,7 @@ class _ContentController extends EscherAdminController
 
 		if (!$block = $model->fetchBlock(intval($blockID)))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'block not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'block not found');
 		}
 		
 		$this->getCommonVars($vars);
@@ -1937,7 +1937,7 @@ class _ContentController extends EscherAdminController
 
 		if ($image && ($image->theme_id != -1))	// this is a design image!
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'image not found');
 		}
 
 		$this->getCommonVars($vars);
@@ -2044,7 +2044,7 @@ class _ContentController extends EscherAdminController
 		{
 			if (!$imageID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'image not found');
 			}
 		}
 
@@ -2052,12 +2052,12 @@ class _ContentController extends EscherAdminController
 
 		if (!$image = $model->fetchImage(intval($imageID), NULL, NULL, false))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'image not found');
 		}
 		
 		if ($image->theme_id != -1)	// this is a design image!
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'image not found');
 		}
 		
 		$this->getCommonVars($vars);
@@ -2093,7 +2093,7 @@ class _ContentController extends EscherAdminController
 	{
 		if (!$imageID = intval(@$params[0]))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'image not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'image not found');
 		}
 		
 		$model = $this->newAdminContentModel();
@@ -2343,7 +2343,7 @@ class _ContentController extends EscherAdminController
 		{
 			if (!$fileID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'file not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'file not found');
 			}
 		}
 
@@ -2351,7 +2351,7 @@ class _ContentController extends EscherAdminController
 
 		if (!$file = $model->fetchFile(intval($fileID)))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'file not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'file not found');
 		}
 		
 		$this->getCommonVars($vars);
@@ -2570,7 +2570,7 @@ class _ContentController extends EscherAdminController
 		{
 			if (!$linkID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'link not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'link not found');
 			}
 		}
 
@@ -2578,7 +2578,7 @@ class _ContentController extends EscherAdminController
 
 		if (!$link = $model->fetchLink(intval($linkID)))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'link not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'link not found');
 		}
 		
 		$this->getCommonVars($vars);
@@ -2694,7 +2694,7 @@ class _ContentController extends EscherAdminController
 				{
 					if (!$parentCategory = $model->fetchCategory(intval($parentID)))
 					{
-						throw new SparkHTTPException_NotFound(NULL, array('reason'=>'category not found'));
+						throw new SparkHTTPException_NotFound(NULL, 0, 'category not found');
 					}
 					$category->level = $parentCategory->level + 1;
 				}
@@ -2741,7 +2741,7 @@ class _ContentController extends EscherAdminController
 		{
 			if (!$categoryID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'category not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'category not found');
 			}
 		}
 
@@ -2749,7 +2749,7 @@ class _ContentController extends EscherAdminController
 
 		if (!$category = $model->fetchCategory(intval($categoryID)))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'category not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'category not found');
 		}
 
 		$this->getCommonVars($vars);
@@ -2813,7 +2813,7 @@ class _ContentController extends EscherAdminController
 		{
 			if (!$categoryID = @$params[0])
 			{
-				throw new SparkHTTPException_NotFound(NULL, array('reason'=>'category not found'));
+				throw new SparkHTTPException_NotFound(NULL, 0, 'category not found');
 			}
 		}
 
@@ -2821,7 +2821,7 @@ class _ContentController extends EscherAdminController
 
 		if (!$category = $model->fetchCategory(intval($categoryID)))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>'category not found'));
+			throw new SparkHTTPException_NotFound(NULL, 0, 'category not found');
 		}
 		
 		$this->getCommonVars($vars);

@@ -594,8 +594,7 @@ class CoreTagParser extends Parser
 		),$atts));
 
 		$this->setStatus($status, $message);
-
-		throw new SparkHTTPException($this->_error_code, $this->_error_text, $this->_error_message, array('code'=>$this->_error_code, 'status'=>$this->_error_status, 'message'=>$this->_error_message));
+		throw new SparkHTTPException($this->_error_code, $this->_error_text, $this->_error_message, $this->_error_status);
 	}
 
 	//---------------------------------------------------------------------------

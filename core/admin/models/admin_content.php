@@ -3359,7 +3359,7 @@ class _AdminContentModel extends _PublishContentModel
 		$row = $db->query($db->buildSelect($table, '*', NULL, "{$nameCol}=? AND theme_id=? AND branch<=?", NULL, NULL, 'branch DESC', 1), array($name, $themeID, $branch))->row();
 		if (empty($row))
 		{
-			throw new SparkHTTPException_NotFound(NULL, array('reason'=>"{$table} not found"));
+			throw new SparkHTTPException_NotFound(NULL, 0, "{$table} not found");
 		}
 		
 		if ($delete)

@@ -28,6 +28,16 @@ if (!defined('escher'))
 
 //------------------------------------------------------------------------------
 
+class EscherPermissionException extends SparkHTTPException_Forbidden
+{
+	public function __construct($data)
+	{
+		parent::__construct(NULL, 0, NULL, $data);
+	}
+}
+
+//------------------------------------------------------------------------------
+
 class EscherAdminController extends SparkController
 {
 	private $_vars;
@@ -119,7 +129,7 @@ class EscherAdminController extends SparkController
 		if (!$curUser->allowed($perm))
 		{
 			$this->_vars['subtabs'] = array();
-			throw new SparkHTTPException_Forbidden(NULL, $this->_vars);
+			throw new EscherPermissionException($this->_vars);
 		}
 
 		if (!empty($subTab))
@@ -128,7 +138,7 @@ class EscherAdminController extends SparkController
 			if (!$curUser->allowed($perm))
 			{
 				$this->_vars['subtabs'] = $this->get_tabs();
-				throw new SparkHTTPException_Forbidden(NULL, $this->_vars);
+				throw new EscherPermissionException($this->_vars);
 			}
 		}
 		
@@ -138,7 +148,7 @@ class EscherAdminController extends SparkController
 			if (!$curUser->allowed($perm))
 			{
 				$this->_vars['subtabs'] = $this->get_tabs();
-				throw new SparkHTTPException_Forbidden(NULL, $this->_vars);
+				throw new EscherPermissionException($this->_vars);
 			}
 		}
 		
@@ -198,7 +208,7 @@ class EscherAdminController extends SparkController
 	protected function getDBErrorMsg($e)
 	{
 		$msg = $e->getMessage();
-		if ($e->dbErrorCode() == SparkDBException::kDuplicateRecord)
+		if ($e->getCode() == SparkDBException::kDuplicateRecord)
 		{
 			$msg = 'Attempt to create a duplicate record (' . $msg . ').';
 		}

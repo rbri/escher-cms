@@ -183,7 +183,7 @@ class _PublishController extends SparkController
 					}
 					else
 					{
-						throw new SparkHTTPException_NotFound(NULL, array('reason'=>'host mismatch'));
+						throw new SparkHTTPException_NotFound(NULL, 0, 'host mismatch');
 					}
 				}
 			}
