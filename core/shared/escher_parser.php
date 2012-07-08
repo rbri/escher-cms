@@ -1605,7 +1605,7 @@ class _EscherParser extends CoreTagParser
 	// Meta Helpers
 	//---------------------------------------------------------------------------
 
-	final protected function meta($atts, $meta)
+	protected final function meta($atts, $meta)
 	{
 		extract($this->gatts(array(
 			'name' => '',

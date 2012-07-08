@@ -171,7 +171,7 @@ class CoreTagParser extends Parser
 	// Variable Helpers
 	//---------------------------------------------------------------------------
 	
-	final protected function &find_var($name, $update = NULL, $default = NULL)
+	protected final function &find_var($name, $update = NULL, $default = NULL)
 	{
 		$top = count($this->_page_vars) - 1;
 		$topScope =& $this->_page_vars[$top];

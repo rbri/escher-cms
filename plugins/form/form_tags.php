@@ -28,16 +28,37 @@ if (!defined('escher'))
 
 // -----------------------------------------------------------------------------
 
+class Form
+{
+	public $id;
+	public $errors;
+	public $data;
+
+	//---------------------------------------------------------------------------
+
+	public function __construct($id)
+	{
+		$this->id = $id;
+		$this->errors = array();
+	}
+}
+
+// -----------------------------------------------------------------------------
+
 class FormTags extends EscherParser
 {
-	protected $form_data;
-	protected $form_errs;
+	private $_forms;			// array of all forms created for the current page, indexed by id
+	private $_open_forms;	// currenty open (nested) forms
+	private $_form_stack;	// form context stack
 
 	//---------------------------------------------------------------------------
 
 	public function __construct($params, $cacher, $content, $currentURI)
 	{
 		parent::__construct($params, $cacher, $content, $currentURI);
+
+		$this->_form_stack = array(new Form(NULL));	// push an unused sentinel to avoid constant checks for non-NULL current form
+
 		$info = $this->factory->getPlug('FormTags');
 		$langDir = dirname($info['file']) . '/languages';
 		self::$lang->load('form', $langDir);
@@ -46,40 +67,87 @@ class FormTags extends EscherParser
 	//---------------------------------------------------------------------------
 	// Form Helpers
 	//---------------------------------------------------------------------------
-
-	final protected function fsub($id = NULL)
+	
+	protected final function pushForm($form)
 	{
-		if ($id === NULL)
+		if (!($form instanceof Form))
 		{
-			$id = @$this->tag_form_id;
+			$this->reportError(self::$lang->get('not_a_form'), E_USER_WARNING);
+			return;
 		}
-		return ($submitted = $this->input->post('esc_submitted')) && isset($id) && ($submitted == $id);
+		
+		$this->_form_stack[] = $form;
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected final function popForm()
+	{
+		if (count($this->_form_stack) > 1)	// don't pop sentinel!
+		{
+			array_pop($this->_form_stack);
+		}
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected final function currentForm()
+	{
+		return end($this->_form_stack);
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected final function findForm($id)
+	{
+		return @$this->_forms[$id];
+	}
+	
+	//---------------------------------------------------------------------------
+
+	protected final function fsub()
+	{
+		if (!$submitted = $this->input->post('esc_submitted'))
+		{
+			return false;
+		}
+
+		return $this->currentForm()->id == $submitted;
 	}
 
 	//---------------------------------------------------------------------------
 
-	final protected function gfvar($name, $default = NULL, $id = NULL)
+	protected final function psub()
 	{
-		return $this->fsub($id) ? $this->input->post($name, $default) : NULL;
+		if (!$submitted = $this->input->post('esc_prev_submitted'))
+		{
+			return false;
+		}
+
+		return is_array($submitted) ? in_array($this->currentForm()->id, $submitted) : ($this->currentForm()->id === $submitted);
 	}
 
 	//---------------------------------------------------------------------------
 
-	final protected function gfvaralt($name, $default = NULL, $id = NULL)
+	protected final function gfvar($name, $default = NULL)
 	{
-		if (($val = $this->gfvar($name, NULL, $id)) === NULL)
+		return $this->fsub() ? $this->input->post($name, $default) : NULL;
+	}
+
+	//---------------------------------------------------------------------------
+
+	protected final function gfvaralt($name, $default = NULL)
+	{
+		if (($val = $this->gfvar($name)) === NULL)
 		{
 			return $default;
 		}
+		
+		$currentForm = $this->currentForm();
 
-		if ($id === NULL)
+		if (isset($currentForm->data['options'][$name]))
 		{
-			$id = @$this->tag_form_id;
-		}
-
-		if (isset($this->form_data[$id]['options'][$name]))
-		{
-			$options =& $this->form_data[$id]['options'][$name];
+			$options =& $currentForm->data['options'][$name];
 			
 			if (!is_array($val))
 			{
@@ -99,9 +167,9 @@ class FormTags extends EscherParser
 
 	//---------------------------------------------------------------------------
 
-	final protected function gfval($name, $alt = false, $default = NULL, $id = NULL)
+	protected final function gfval($name, $alt = false, $default = NULL)
 	{
-		$val = $alt ? $this->gfvaralt($name, $default, $id) : $this->gfvar($name, $default, $id);
+		$val = $alt ? $this->gfvaralt($name, $default) : $this->gfvar($name, $default);
 
 		if (is_array($val))
 		{
@@ -113,32 +181,40 @@ class FormTags extends EscherParser
 
 	//---------------------------------------------------------------------------
 
-	final protected function sferr($name, $err)
+	protected final function sferr($name, $err)
 	{
-		$this->form_errs[$name] = $err;
+		$currentForm = $this->currentForm();
+		$currentForm->errors[$name] = $err;
 	}
 
 	//---------------------------------------------------------------------------
 
-	final protected function gferr($name)
+	protected final function gferr($name)
 	{
-		return isset($this->form_errs[$name]) ? $this->output->escape($this->form_errs[$name]) : '';
+		$currentForm = $this->currentForm();
+		if (isset($currentForm->errors[$name]))
+		{
+			return $this->output->escape($currentForm->errors[$name]);
+		}
+		return '';
 	}
 
 	//---------------------------------------------------------------------------
 
-	final protected function gferrs()
+	protected final function gferrs()
 	{
 		// specially named error '*' gets displayed first
 		
-		if (isset($this->form_errs['*']))
+		$currentForm = $this->currentForm();
+
+		if (isset($currentForm->errors['*']))
 		{
-			$firstErr = $this->form_errs['*'];
-			unset($this->form_errs['*']);
-			array_unshift($this->form_errs, $firstErr);
+			$firstErr = $currentForm->errors['*'];
+			unset($currentForm->errors['*']);
+			array_unshift($currentForm->errors, $firstErr);
 		}
-		
-		return $this->form_errs;
+	
+		return $currentForm->errors;
 	}
 
 	//---------------------------------------------------------------------------
@@ -164,6 +240,32 @@ class FormTags extends EscherParser
 	}
 		
 	//---------------------------------------------------------------------------
+	
+	protected function _tag_form_form($atts)
+	{
+		extract($this->gatts(array(
+			'id' => '',
+		),$atts));
+
+		$id || check($id, $this->output->escape(self::$lang->get('attribute_required', 'id', 'form:form')));
+
+		if (!$form = $this->findForm($id))
+		{
+			$this->dup($this->_form_stack);
+			$this->reportError(self::$lang->get('form_not_found', $id), E_USER_WARNING);
+			return false;
+		}
+
+		$this->pushForm($form);
+		return true;
+	}
+	
+	protected function _xtag_form_form($atts)
+	{
+		$this->popForm();
+	}
+
+	//---------------------------------------------------------------------------
 
 	protected function _tag_form_open($atts, $if = false)
 	{
@@ -174,7 +276,7 @@ class FormTags extends EscherParser
 			'action' => '',
 			'method' => 'post',
 			'nonce' => '1',
-			'nonce_lifetime' => '600',
+			'nonce_lifetime' => '86400',	// 24 hours
 			'honeypot' => '1',
 			'required_class' => 'required',
 			'error_wraptag' => 'div',
@@ -187,52 +289,62 @@ class FormTags extends EscherParser
 			'on_success_do' => '',
 			'redirect' => '',
 		),$atts));
-		
-		!isset($this->tag_form_id) || check(false, $this->output->escape(self::$lang->get('illegal_tag_nesting', ($if ? 'form:if_open' : 'form:open'))));
+
 		$id || check($id, $this->output->escape(self::$lang->get('attribute_required', 'id', ($if ? 'form:if_open' : 'form:open'))));
 		$method || check($method, $this->output->escape(self::$lang->get('attribute_required', method, ($if ? 'form:if_open' : 'form:open'))));
+
+		if ($this->findForm($id))
+		{
+			check(false, $this->output->escape(self::$lang->get('illegal_tag_nesting', ($if ? 'form:if_open' : 'form:open'))));
+		}
 		
-		$this->form_errs = array();
-		$this->tag_form_id = $id;
+		$this->pushForm($this->_forms[$id] = $this->_open_forms[] = $currentForm = new Form($id));
 		
+		// if this form wasn't submitted, perhaps a nested child was...
+		
+		if ((!$submitted = $this->fsub()) && $this->psub())
+		{
+			return false;
+		}
+
 		// store form options where field tags can get to them
 		
-		$this->form_data[$this->tag_form_id]['required_class'] = $required_class;
-		$this->form_data[$this->tag_form_id]['error_class'] = $error_class;
+		$currentForm->data['required_class'] = $required_class;
+		$currentForm->data['error_class'] = $error_class;
 		
 		($useNonce = $this->truthy($nonce)) && ($noncer = $this->loadNoncer(array('adapter'=>'database', 'lifetime'=>$nonce_lifetime)));
 
 		$content = '';
 		$extra = '';
 
-		if ($submitted = $this->fsub())
+		if ($submitted)
 		{
 			$useNonce && $nonce = $noncer->getNonce($this->gfvar('esc_nonce'));
 
 			if ($this->gfvar('esc_honey') !== '')
 			{
-				$this->form_errs['bot'] = self::$lang->get('bot_submission_detected');
+				$currentForm->errors['bot'] = self::$lang->get('bot_submission_detected');
 				$suppressForm = true;
 			}
 
 			elseif ($useNonce && !$nonce)
 			{
 				$pageURI = $this->pageURI();
-				$this->form_errs['expired'] = self::$lang->get('form_expired') . ' ' . ucwords(self::$lang->get('please')) . ' <a href="' . $pageURI . '">' . self::$lang->get('try again') . '</a>.';
+				$currentForm->errors['expired'] = self::$lang->get('form_expired') . ' ' . ucwords(self::$lang->get('please')) . ' <a href="' . $pageURI . '">' . self::$lang->get('try again') . '</a>.';
 				$suppressForm = true;
 			}
 
 			elseif ($useNonce && $nonce['used'])
 			{
-				$this->form_errs['duplicate'] = self::$lang->get('duplicate_submission_detected');
+				$currentForm->errors['duplicate'] = self::$lang->get('duplicate_submission_detected');
 				$suppressForm = true;
 			}
 			
 			elseif (!$this->validate())
 			{
-				if (empty($this->form_errs))
+				if (empty($currentForm->errors))
 				{
-					$this->form_errs['*'] = self::$lang->get('form_error');
+					$currentForm->errors['*'] = self::$lang->get('form_error');
 				}
 			}
 		}
@@ -248,45 +360,51 @@ class FormTags extends EscherParser
 		{
 			if (empty($suppressForm))
 			{
-				$this->form_errs += $this->input->errors();
-
-				if (empty($this->form_errs))
+				if (empty($currentForm->errors) && !$this->input->hasErrors())
 				{
 					if ($on_submit_do)
 					{
 						$this->parseSnippet($on_submit_do);
 					}
-					if (empty($this->form_errs) && $useNonce)
+					if (empty($currentForm->errors) && !$this->input->hasErrors() && $useNonce)
 					{
 						$noncer->useNonce($nonce['nonce']);
 					}
 				}
 			}
 
-			if (!empty($this->form_errs))
+			if (empty($currentForm->errors) && !$this->input->hasErrors())
 			{
-				$extra .= $on_error_do
-					? $this->parseSnippet($on_error_do)
-					: $this->output->wrap($this->gferrs(), $error_wraptag, $error_class, $error_id, '', $error_breaktag, $error_breakclass)
-					;
-			}
-			elseif ($redirect)
-			{
-				$this->redirect($redirect);
-			}
-			elseif ($on_success_do)
-			{
-				$extra .= $this->parseSnippet($on_success_do);
-			}
-			elseif ($if)
-			{
-				return false;
+				if ($redirect)
+				{
+					$this->redirect($redirect);
+				}
+				elseif ($on_success_do)
+				{
+					$extra .= $this->parseSnippet($on_success_do);
+				}
+				elseif ($if)
+				{
+					return false;
+				}
 			}
 		}
 		
-		$id = $this->output->escape($id);
-
 		$extra .= $this->_tag_form_hidden(array('name'=>'esc_submitted', 'value'=>$id));
+
+		$prevSubmittedIDs = $this->input->post('esc_prev_submitted', $id);
+		if (is_array($prevSubmittedIDs))
+		{
+			if (!in_array($id, $prevSubmittedIDs))
+			{
+				$prevSubmittedIDs[] = $id;
+			}
+		}
+		elseif ($prevSubmittedIDs !== $id)
+		{
+			$prevSubmittedIDs = array($id, $prevSubmittedIDs);
+		}
+		$extra .= $this->_tag_form_hidden(array('name'=>'esc_prev_submitted', 'value'=>$prevSubmittedIDs));
 
 		if ($useNonce)
 		{
@@ -298,7 +416,7 @@ class FormTags extends EscherParser
 			{
 				$nonce = $nonce['nonce'];
 			}
-			$extra .= $this->_tag_form_hidden(array('name'=>'esc_nonce', 'value'=>$this->output->escape($nonce)));
+			$extra .= $this->_tag_form_hidden(array('name'=>'esc_nonce', 'value'=>$nonce));
 		}
 		
 		if ($this->truthy($honeypot))
@@ -306,13 +424,26 @@ class FormTags extends EscherParser
 			$extra .= $this->_tag_form_text(array('name'=>'esc_honey', 'style'=>'display:none;'));
 		}
 
+		if ($submitted)
+		{
+			$currentForm->errors += $this->input->errors();
+			if (!empty($currentForm->errors))
+			{
+				$extra .= $on_error_do
+					? $this->parseSnippet($on_error_do)
+					: $this->output->wrap($this->gferrs(), $error_wraptag, $error_class, $error_id, '', $error_breaktag, $error_breakclass)
+					;
+			}
+		}
+		
 		$atts = $this->matts(compact('action', 'method'));
 		return $this->output->tag($extra.$content, 'form', $class, $id, $atts);
 	}
 
 	protected function _xtag_form_open($atts)
 	{
-		unset($this->tag_form_id);
+		array_pop($this->_open_forms);
+		$this->popForm();
 	}
 	
 	//---------------------------------------------------------------------------
@@ -324,7 +455,8 @@ class FormTags extends EscherParser
 
 	protected function _xtag_form_if_open($atts)
 	{
-		unset($this->tag_form_id);
+		array_pop($this->_open_forms);
+		$this->popForm();
 	}
 	
 	//---------------------------------------------------------------------------
@@ -332,7 +464,6 @@ class FormTags extends EscherParser
 	protected function _tag_form_value($atts)
 	{
 		extract($this->gatts(array(
-			'id' => NULL,
 			'name' => '',
 			'alt' => false,
 			'escape' => false,
@@ -343,10 +474,10 @@ class FormTags extends EscherParser
 		
 		if ($this->truthy($escape))
 		{
-			return $this->gfval($name, $this->truthy($alt), NULL, $id);
+			return $this->gfval($name, $this->truthy($alt));
 		}
 
-		$value = $this->truthy($alt) ? $this->gfvaralt($name, NULL, $id) : $this->gfvar($name, NULL, $id);
+		$value = $this->truthy($alt) ? $this->gfvaralt($name) : $this->gfvar($name);
 		
 		if (is_array($value))
 		{
@@ -361,7 +492,6 @@ class FormTags extends EscherParser
 	protected function _tag_form_if_value($atts)
 	{
 		extract($this->gatts(array(
-			'id' => NULL,
 			'name' => '',
 			'alt' => false,
 			'value' => '',
@@ -369,7 +499,7 @@ class FormTags extends EscherParser
 		
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:if_value')));
 
-		$val = $this->truthy($alt) ? $this->gfvaralt($name, NULL, $id) : $this->gfvar($name, NULL, $id);
+		$val = $this->truthy($alt) ? $this->gfvaralt($name) : $this->gfvar($name);
 
 		if ($value === '')
 		{
@@ -406,7 +536,8 @@ class FormTags extends EscherParser
 
 		if ($this->hasContent())
 		{
-			$this->form_errs[$name] = $this->getContent();
+			$currentForm = $this->currentForm();
+			$currentForm->errors[$name] = $this->getContent();
 		}
 		
 		else
@@ -425,8 +556,9 @@ class FormTags extends EscherParser
 		extract($this->gatts(array(
 			'name' => '',
 		),$atts));
-		
-		return $name ? isset($this->form_errs[$name]) : !empty($this->form_errs);
+	
+		$currentForm = $this->currentForm();
+		return $name ? isset($currentForm->errors[$name]) : !empty($currentForm->errors);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -442,13 +574,38 @@ class FormTags extends EscherParser
 		
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:hidden')));
 
-		$rule = "equal[{$value}]";	// anti-spoofing rule
+		$origName = $name;
 
-		$value = $this->output->escape($this->fsub() ? $this->input->validate(NULL, $name, $rule) : $value);
+		if (is_array($value))
+		{
+			if (!empty($value))
+			{
+				$name .= '[]';
+				$rule = 'required|' . self::makeInListRule($value);	// anti-spoofing rule
+			}
+		}
+		elseif ($value !== '')
+		{
+			$rule = "required|equal[{$value}]";	// anti-spoofing rule
+		}
+		else
+		{
+			$rule = 'required';
+		}
+		
+		$values = $this->fsub() ? $this->input->validate(NULL, $origName, $rule) : $value;
 
 		$type = 'hidden';
-		$atts = $this->matts(compact('type', 'name', 'value'));
-		return $this->output->tag(NULL, 'input', $class, $id, $atts);
+		$out = '';
+		
+		$idx = 0;
+		foreach ((array)$values as $value)
+		{
+			$value = $this->output->escape($value);
+			$atts = $this->matts(compact('type', 'name', 'value'));
+			$out .= $this->output->tag(NULL, 'input', $class, $id ? ($id.'_'.$idx++) : '', $atts);
+		}
+		return $out;
 	}
 		
 	//---------------------------------------------------------------------------
@@ -471,6 +628,8 @@ class FormTags extends EscherParser
 
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:text')));
 
+		$currentForm = $this->currentForm();
+
 		// derive a maxlength value from the rule, if present
 		
 		if (!$maxlength && $rule)
@@ -485,12 +644,12 @@ class FormTags extends EscherParser
 
 		if (strpos($rule, 'required') !== false)
 		{
-			$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['required_class'];
+			$class .= ($class ? ' ' : '') . $currentForm->data['required_class'];
 		}
 
 		if ($this->input->isError($name))
 		{
-			$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['error_class'];
+			$class .= ($class ? ' ' : '') . $currentForm->data['error_class'];
 		}
 		
 		$atts = $this->matts(compact('type', 'name', 'value', 'size', 'maxlength', 'style', 'placeholder'), true);
@@ -533,16 +692,18 @@ class FormTags extends EscherParser
 
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:textarea')));
 
+		$currentForm = $this->currentForm();
+
 		$value = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : $default);
 
 		if (strpos($rule, 'required') !== false)
 		{
-			$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['required_class'];
+			$class .= ($class ? ' ' : '') . $currentForm->data['required_class'];
 		}
 
 		if ($this->input->isError($name))
 		{
-			$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['error_class'];
+			$class .= ($class ? ' ' : '') . $currentForm->data['error_class'];
 		}
 		
 		$atts = $this->matts(compact('name', 'rows', 'cols', 'style'), true);
@@ -572,6 +733,8 @@ class FormTags extends EscherParser
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:select')));
 		$options || check($options, $this->output->escape(self::$lang->get('attribute_required', 'options', 'form:select')));
 		
+		$currentForm = $this->currentForm();
+
 		$origName = $name;
 		if ($multiple !== '')
 		{
@@ -604,7 +767,7 @@ class FormTags extends EscherParser
 			 $options = $groups[''] = $this->kvlist($options, $delim, $kvdelim);
 		}
 		
-		$this->form_data[$this->tag_form_id]['options'][$origName] = $options;	// save this for later lookups in gfvaralt()
+		$currentForm->data['options'][$origName] = $options;	// save this for later lookups in gfvaralt()
 		
 		if ($rule != '')
 		{
@@ -617,12 +780,12 @@ class FormTags extends EscherParser
 
 		if (strpos($rule, 'required') !== false)
 		{
-			$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['required_class'];
+			$class .= ($class ? ' ' : '') . $currentForm->data['required_class'];
 		}
 
 		if ($this->input->isError($origName))
 		{
-			$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['error_class'];
+			$class .= ($class ? ' ' : '') . $currentForm->data['error_class'];
 		}
 		
 		$values = '';
@@ -679,9 +842,11 @@ class FormTags extends EscherParser
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:radio')));
 		$options || check($options, $this->output->escape(self::$lang->get('attribute_required', 'options', 'form:radio')));
 		
+		$currentForm = $this->currentForm();
+
 		$options = $this->kvlist($options, $delim, $kvdelim);
 
-		$this->form_data[$this->tag_form_id]['options'][$name] = $options;	// save this for later lookups in gfvaralt()
+		$currentForm->data['options'][$name] = $options;	// save this for later lookups in gfvaralt()
 		
 		if ($rule != '')
 		{
@@ -696,11 +861,11 @@ class FormTags extends EscherParser
 		{
 			if ($wraptag && $label)
 			{
-				$wrapclass .= ($wrapclass ? ' ' : '') . $this->form_data[$this->tag_form_id]['required_class'];
+				$wrapclass .= ($wrapclass ? ' ' : '') . $currentForm->data['required_class'];
 			}
 			else
 			{
-				$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['required_class'];
+				$class .= ($class ? ' ' : '') . $currentForm->data['required_class'];
 			}
 		}
 
@@ -708,11 +873,11 @@ class FormTags extends EscherParser
 		{
 			if ($wraptag && $label)
 			{
-				$wrapclass .= ($wrapclass ? ' ' : '') . $this->form_data[$this->tag_form_id]['error_class'];
+				$wrapclass .= ($wrapclass ? ' ' : '') . $currentForm->data['error_class'];
 			}
 			else
 			{
-				$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['error_class'];
+				$class .= ($class ? ' ' : '') . $currentForm->data['error_class'];
 			}
 		}
 		
@@ -760,12 +925,14 @@ class FormTags extends EscherParser
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:checkbox')));
 		$options || check($options, $this->output->escape(self::$lang->get('attribute_required', 'options', 'form:checkbox')));
 		
+		$currentForm = $this->currentForm();
+
 		$origName = $name;
 		$name .= '[]';
 		
 		$options = $this->kvlist($options, $delim, $kvdelim);
 
-		$this->form_data[$this->tag_form_id]['options'][$origName] = $options;	// save this for later lookups in gfvaralt()
+		$currentForm->data['options'][$origName] = $options;	// save this for later lookups in gfvaralt()
 		
 		if ($rule != '')
 		{
@@ -780,11 +947,11 @@ class FormTags extends EscherParser
 		{
 			if ($wraptag && $label)
 			{
-				$wrapclass .= ($wrapclass ? ' ' : '') . $this->form_data[$this->tag_form_id]['required_class'];
+				$wrapclass .= ($wrapclass ? ' ' : '') . $currentForm->data['required_class'];
 			}
 			else
 			{
-				$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['required_class'];
+				$class .= ($class ? ' ' : '') . $currentForm->data['required_class'];
 			}
 		}
 
@@ -792,11 +959,11 @@ class FormTags extends EscherParser
 		{
 			if ($wraptag && $label)
 			{
-				$wrapclass .= ($wrapclass ? ' ' : '') . $this->form_data[$this->tag_form_id]['error_class'];
+				$wrapclass .= ($wrapclass ? ' ' : '') . $currentForm->data['error_class'];
 			}
 			else
 			{
-				$class .= ($class ? ' ' : '') . $this->form_data[$this->tag_form_id]['error_class'];
+				$class .= ($class ? ' ' : '') . $currentForm->data['error_class'];
 			}
 		}
 		
@@ -927,11 +1094,11 @@ class FormTags extends EscherParser
 
 		if (empty($atts['rule']))
 		{
-			$atts['rule'] = 'zip_code';
+			$atts['rule'] = 'zipcode';
 		}
-		elseif (strpos($atts['rule'], 'zip_code') === false)
+		elseif (strpos($atts['rule'], 'zipcode') === false)
 		{
-			$atts['rule'] .= '|zip_code';
+			$atts['rule'] .= '|zipcode';
 		}
 
 		return $this->_tag_form_text($atts);
@@ -1044,7 +1211,7 @@ class FormTags extends EscherParser
 
 	protected static function makeInListRule($value)
 	{
-		// construct an in_list rule for one or more values, escaping all commas as requried
+		// construct an inlist rule for one or more values, escaping all commas as requried
 		
 		if (is_array($value))
 		{
@@ -1052,11 +1219,11 @@ class FormTags extends EscherParser
 			{
 				$value[$key] = str_replace(',', '\,', $value[$key]);
 			}
-			return 'in_list[' . implode($value, ',') . ']';
+			return 'inlist[' . implode($value, ',') . ']';
 		}
 		else
 		{
-			return 'in_list[' . str_replace(',', '\,', $value) . ']';
+			return 'inlist[' . str_replace(',', '\,', $value) . ']';
 		}
 	}
 	

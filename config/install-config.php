@@ -37,6 +37,7 @@ $plugs = array
 	'sparklang',
 	'sparkdb',
 	'sparksession',
+	'sparkvalidator',
 );
 
 $config = array

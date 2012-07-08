@@ -43,6 +43,7 @@ $plugs = array
 //	'sparksanitizer',
 	'sparksession',
 	'sparktext',
+	'sparkvalidator',
 );
 
 $config = array
