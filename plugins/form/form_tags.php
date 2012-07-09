@@ -570,27 +570,31 @@ class FormTags extends EscherParser
 			'id' => '',
 			'name' => '',
 			'value' => '',
+			'required' => false,
 		),$atts));
 		
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:hidden')));
 
 		$origName = $name;
 
+		$rule = '';
+		
 		if (is_array($value))
 		{
 			if (!empty($value))
 			{
 				$name .= '[]';
-				$rule = 'required|' . self::makeInListRule($value);	// anti-spoofing rule
+				$rule = self::makeInListRule($value);	// anti-spoofing rule
 			}
 		}
 		elseif ($value !== '')
 		{
-			$rule = "required|equal[{$value}]";	// anti-spoofing rule
+			$rule = "equal[{$value}]";	// anti-spoofing rule
 		}
-		else
+
+		if ($this->truthy($required))
 		{
-			$rule = 'required';
+			$rule = 'required' . (($rule !== '') ? "|{$rule}" : '');
 		}
 		
 		$values = $this->fsub() ? $this->input->validate(NULL, $origName, $rule) : $value;
