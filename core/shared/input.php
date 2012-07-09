@@ -38,14 +38,14 @@ class _Input extends SparkPlug
 	
 	//---------------------------------------------------------------------------
 
-	public function __construct($get, $post, $cookie)
+	public function __construct($get, $post, $cookie, $validator = NULL)
 	{
 		parent::__construct();
 		$this->_get = $get;
 		$this->_post = $post;
 		$this->_cookie = $cookie;
 		$this->_errors = array();
-		$this->_validator = $this->factory->manufacture('SparkValidator');
+		$this->_validator = $validator ? $validator : $this->factory->manufacture('SparkValidator');
 	}
 
 	//---------------------------------------------------------------------------

@@ -66,7 +66,7 @@ class Parser extends SparkPlug
 		$this->_content_stack = array();
 
 		$this->cacher = $cacher;
-		$this->input = $this->factory->manufacture('Input', (array)$params['qv'], (array)$params['pv'], (array)$params['cv']);
+		$this->input = $this->factory->manufacture('Input', (array)$params['qv'], (array)$params['pv'], (array)$params['cv'], $this->factory->manufacture('SparkValidator')->validator($this));
 		$this->output = $this->factory->manufacture('Output');
 		
 		self::$lang->load('parse');
@@ -86,6 +86,34 @@ class Parser extends SparkPlug
 		$out = $this->parseRange(0, count($parsed)-1);
 		array_pop($this->_parse_stack);
 		return $out;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// Callbacks for Input Validator
+	//
+	//---------------------------------------------------------------------------
+	
+	public final function canValidate($rule)
+	{
+		$method = "_tag_user_validate_{$rule}";
+		return method_exists($this, $method);
+	}
+
+	//---------------------------------------------------------------------------
+	
+	public final function validateField($rule, $item, $param, $input, &$overrideError)
+	{
+		$method = "_tag_user_validate_{$rule}";
+		$result = $this->$method(array('item'=>$item, 'param'=>$param));
+
+		if (is_array($result))
+		{
+			$overrideError = $result[0];
+			$result = false;
+		}
+		
+		return $result;
 	}
 
 	//---------------------------------------------------------------------------
