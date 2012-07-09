@@ -66,7 +66,7 @@ class Parser extends SparkPlug
 		$this->_content_stack = array();
 
 		$this->cacher = $cacher;
-		$this->input = $this->factory->manufacture('Input', (array)$params['qv'], (array)$params['pv'], (array)$params['cv'], $this->factory->manufacture('SparkValidator')->validator($this));
+		$this->input = $this->factory->manufacture('Input', (array)$params['qv'], (array)$params['pv'], (array)$params['cv'], $this->factory->manufacture('SparkValidator', NULL, NULL, $this));
 		$this->output = $this->factory->manufacture('Output');
 		
 		self::$lang->load('parse');
@@ -97,7 +97,7 @@ class Parser extends SparkPlug
 	public final function canValidate($rule)
 	{
 		$method = "_tag_user_validate_{$rule}";
-		return method_exists($this, $method);
+		return is_callable(array($this, $method));
 	}
 
 	//---------------------------------------------------------------------------
@@ -217,7 +217,7 @@ class Parser extends SparkPlug
 		{
 			$tag = str_replace(':', '_', $tag);
 			$method = '_tag_' . $tag;
-			return method_exists($this, $method) ? $method : false;
+			return is_callable(array($this, $method)) ? $method : false;
 		}
 
 		// otherwise, search through current namespaces for the method and build its name
@@ -227,7 +227,7 @@ class Parser extends SparkPlug
 			$namespace = $this->_namespace_stack[$nsIndex];
 			$method = '_tag_' . $namespace . '_' . $tag;
 
-			if (method_exists($this, $method))
+			if (is_callable(array($this, $method)))
 			{
 				return $method;
 			}
@@ -268,7 +268,7 @@ class Parser extends SparkPlug
 			
 			// allow tag to clean up after itself if necessary
 
-			if ($inner && method_exists($this, $method = '_x' . ltrim($method, '_')))
+			if ($inner && is_callable(array($this, $method = '_x' . ltrim($method, '_'))))
 			{
 				$extra = $this->$method($atts);
 				if (!empty($extra))

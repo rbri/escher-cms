@@ -128,7 +128,7 @@ class _PublishController extends SparkController
 		// set up the cacher
 
 		$this->_cacher = NULL;
-		if (($prefs['partial_cache_active']) && method_exists($this, 'loadCacher'))
+		if (($prefs['partial_cache_active']) && is_callable(array($this, 'loadCacher')))
 		{
 			if ($cache_params = $this->config->get('cache'))
 			{

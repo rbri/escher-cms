@@ -52,7 +52,7 @@ class _EscherSchemaUpgradeModel extends EscherModel
 			for ($upgrade = $upgradeFrom+1; $upgrade <= $upgradeTo; ++$upgrade)
 			{
 				$method = 'upgrade_' . $upgrade;
-				if (!method_exists($this, $method))
+				if (!is_callable(array($this, $method)))
 				{
 					throw new SparkException('No update available for this version.');
 				}

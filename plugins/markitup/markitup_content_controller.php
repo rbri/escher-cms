@@ -73,7 +73,7 @@ class MarkitupContentController extends ContentController
 			if ($parser = @$params[0])
 			{
 				$method = 'preview_'.$parser;
-				if (method_exists($this, $method))
+				if (is_callable(array($this, $method)))
 				{
 					$data = $this->{$method}($data);
 				}
