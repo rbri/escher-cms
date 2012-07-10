@@ -633,8 +633,6 @@ class FormTags extends EscherParser
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:hidden')));
 
 		$origName = $name;
-
-		$rule = '';
 		
 		if (is_array($value))
 		{
@@ -1319,7 +1317,7 @@ class FormTags extends EscherParser
 		// We override this rule implementation to provide more user-friendly date_create()
 		// validation then the SparkPlug default.
 
-		if (!preg_match('/^(\d{2}).(\d{2}).(\d{4})$/', $item, $matches))
+		if (!preg_match('#^(\d{2})/(\d{2})/(\d{4})$#', $item, $matches))
 		{
 			return false;
 		}
