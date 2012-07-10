@@ -627,6 +627,7 @@ class FormTags extends EscherParser
 			'name' => '',
 			'value' => '',
 			'required' => false,
+			'rule' => '',
 		),$atts));
 		
 		$name || check($name, $this->output->escape(self::$lang->get('attribute_required', 'name', 'form:hidden')));
@@ -639,16 +640,25 @@ class FormTags extends EscherParser
 		{
 			if (!empty($value))
 			{
+				if ($rule === '')
+				{
+					$rule = self::makeInListRule($value);	// anti-spoofing rule
+				}
 				$name .= '[]';
-				$rule = self::makeInListRule($value);	// anti-spoofing rule
 			}
 		}
-		elseif ($value !== '')
+		else
 		{
-			$rule = "equal[{$value}]";	// anti-spoofing rule
+			if ($value !== '')
+			{
+				if ($rule === '')
+				{
+					$rule = "equal[{$value}]";	// anti-spoofing rule
+				}
+			}
 		}
 
-		if ($this->truthy($required))
+		if ($this->truthy($required) && (strpos($rule, 'required') === false))
 		{
 			$rule = 'required' . (($rule !== '') ? "|{$rule}" : '');
 		}
@@ -712,6 +722,11 @@ class FormTags extends EscherParser
 			$class .= ($class ? ' ' : '') . $currentForm->data['error_class'];
 		}
 		
+		if (($label !== '') && ($id === ''))
+		{
+			$id = $name;	// create a default ID since it is needed for the label
+		}
+		
 		$atts = $this->matts(compact('type', 'name', 'value', 'size', 'maxlength', 'style', 'placeholder'), true);
 		return ($label && $id ? $this->output->label($label, $id, $class) : '') . $this->output->tag(NULL, 'input', $class, $id, $atts);
 	}
@@ -764,6 +779,11 @@ class FormTags extends EscherParser
 		if ($this->input->isError($name))
 		{
 			$class .= ($class ? ' ' : '') . $currentForm->data['error_class'];
+		}
+		
+		if (($label !== '') && ($id === ''))
+		{
+			$id = $name;	// create a default ID since it is needed for the label
 		}
 		
 		$atts = $this->matts(compact('name', 'rows', 'cols', 'style'), true);
@@ -872,6 +892,11 @@ class FormTags extends EscherParser
 			{
 				$values .= '</optgroup>';
 			}
+		}
+		
+		if (($label !== '') && ($id === ''))
+		{
+			$id = $name;	// create a default ID since it is needed for the label
 		}
 		
 		$atts = $this->matts(compact('name', 'multiple', 'size', 'style'), true);
