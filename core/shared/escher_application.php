@@ -207,7 +207,9 @@ abstract class EscherApplication extends SparkApplication
 		
 		if ($fp !== false)
 		{
-			$out = "GET {$parts['path']} HTTP/1.1\r\n";
+			$path = $parts['path'] . ($parts['query'] !== '' ? "?{$parts['query']}" : '');
+			
+			$out = "GET {$path} HTTP/1.1\r\n";
 			$out .= "Host: {$parts['host']}\r\n";
 			$out .= "User-Agent: {$userAgent}\r\n";
 			$out .= "Referer: {$referrer}\r\n";

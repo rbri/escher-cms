@@ -501,7 +501,7 @@ class Parser extends SparkPlug
 
 		foreach ($atts as $key=>$val)
 		{
-			if (!$dropIfEmpty || !empty($val))
+			if (!$dropIfEmpty || $val !== '')
 			{
 				$matts .= " {$key}=\"{$val}\"";
 			}

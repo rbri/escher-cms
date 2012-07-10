@@ -104,34 +104,93 @@ class FormTags extends EscherParser
 	}
 	
 	//---------------------------------------------------------------------------
+	
+	protected final function fsubmitted()
+	{
+		return $this->input->post('esc_submitted');
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected final function fback()
+	{
+		return $this->input->post('esc_back');
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected final function fnext()
+	{
+		return $this->input->post('esc_next');
+	}
+	
+	//---------------------------------------------------------------------------
 
 	protected final function fsub()
 	{
-		if (!$submitted = $this->input->post('esc_submitted'))
-		{
-			return false;
-		}
-
-		return $this->currentForm()->id == $submitted;
+		return ($fsubmitted = $this->fsubmitted()) && ($this->currentForm()->id === $fsubmitted);
 	}
 
 	//---------------------------------------------------------------------------
 
-	protected final function psub()
+	protected final function fskip(&$submitted)
 	{
-		if (!$submitted = $this->input->post('esc_prev_submitted'))
+		if (!$fsubmitted = $this->fsubmitted())
+		{
+			$submitted = false;
+			return false;
+		}
+		
+		// skip processing a form unless:
+		// 1) the current form was submitted (and therefore needs validation), or
+		// 2) the current form is the target of a "back" operation (in case we display but do not validate), or
+		// 3) the current form is the target of a "next" operation (in case we display but do not validate)
+		
+		$currentFormID = $this->currentForm()->id;
+
+		if ($currentFormID === $fsubmitted)
+		{
+			$submitted = true;
+			return false;
+		}
+		
+		if (($fsubmitted = $this->fback()) && ($currentFormID === $fsubmitted))
+		{
+			$submitted = false;
+			return false;
+		}
+		
+		if (($fsubmitted = $this->fnext()) && ($currentFormID === $fsubmitted))
+		{
+			$submitted = false;
+			return false;
+		}
+		
+		return true;
+	}
+
+	//---------------------------------------------------------------------------
+
+	protected final function varsAvailable()
+	{
+		if (!$fsubmitted = $this->fsubmitted())
 		{
 			return false;
 		}
 
-		return is_array($submitted) ? in_array($this->currentForm()->id, $submitted) : ($this->currentForm()->id === $submitted);
+		$currentFormID = $this->currentForm()->id;
+
+		return
+			($currentFormID === $fsubmitted) ||
+			(($fsubmitted = $this->fback()) && ($currentFormID === $fsubmitted)) ||
+			(($fsubmitted = $this->fnext()) && ($currentFormID === $fsubmitted));
 	}
 
 	//---------------------------------------------------------------------------
 
 	protected final function gfvar($name, $default = NULL)
 	{
-		return $this->fsub() ? $this->input->post($name, $default) : NULL;
+		return $this->varsAvailable() ? $this->input->post($name, $default) : NULL;
 	}
 
 	//---------------------------------------------------------------------------
@@ -302,7 +361,7 @@ class FormTags extends EscherParser
 		
 		// if this form wasn't submitted, perhaps a nested child was...
 		
-		if ((!$submitted = $this->fsub()) && $this->psub())
+		if ($this->fskip($submitted))
 		{
 			return false;
 		}
@@ -391,20 +450,6 @@ class FormTags extends EscherParser
 		}
 		
 		$extra .= $this->_tag_form_hidden(array('name'=>'esc_submitted', 'value'=>$id));
-
-		$prevSubmittedIDs = $this->input->post('esc_prev_submitted', $id);
-		if (is_array($prevSubmittedIDs))
-		{
-			if (!in_array($id, $prevSubmittedIDs))
-			{
-				$prevSubmittedIDs[] = $id;
-			}
-		}
-		elseif ($prevSubmittedIDs !== $id)
-		{
-			$prevSubmittedIDs = array($id, $prevSubmittedIDs);
-		}
-		$extra .= $this->_tag_form_hidden(array('name'=>'esc_prev_submitted', 'value'=>$prevSubmittedIDs));
 
 		if ($useNonce)
 		{
@@ -596,8 +641,8 @@ class FormTags extends EscherParser
 		{
 			$rule = 'required' . (($rule !== '') ? "|{$rule}" : '');
 		}
-		
-		$values = $this->fsub() ? $this->input->validate(NULL, $origName, $rule) : $value;
+	
+		$values = $this->fsub() ? $this->input->validate(NULL, $origName, $rule) : $value;	// don't use posted value as this will break back/next
 
 		$type = 'hidden';
 		$out = '';
@@ -644,7 +689,7 @@ class FormTags extends EscherParser
 			}
 		}
 		
-		$value = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : $default);
+		$value = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : ($this->fsubmitted() ? $this->gfvar($name) : $default));
 
 		if (strpos($rule, 'required') !== false)
 		{
@@ -698,7 +743,7 @@ class FormTags extends EscherParser
 
 		$currentForm = $this->currentForm();
 
-		$value = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : $default);
+		$value = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : ($this->fsubmitted() ? $this->gfvar($name) : $default));
 
 		if (strpos($rule, 'required') !== false)
 		{
@@ -780,7 +825,7 @@ class FormTags extends EscherParser
 		$rules[] = self::makeInListRule(array_keys($options));	// anti-spoofing rule
 		$rule = implode('|', $rules);
 
-		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : $this->glist($default);
+		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : ($this->fsubmitted() ? $this->gfvar($origName) : $this->glist($default));
 
 		if (strpos($rule, 'required') !== false)
 		{
@@ -859,7 +904,7 @@ class FormTags extends EscherParser
 		$rules[] = self::makeInListRule(array_keys($options));	// anti-spoofing rule
 		$rule = implode('|', $rules);
 
-		$selected = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : $default);
+		$selected = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : ($this->fsubmitted() ? $this->gfvar($name) : $default));
 
 		if (strpos($rule, 'required') !== false)
 		{
@@ -945,7 +990,7 @@ class FormTags extends EscherParser
 		$rules[] = self::makeInListRule(array_keys($options));	// anti-spoofing rule
 		$rule = implode('|', $rules);
 
-		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : $this->glist($default);
+		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : ($this->fsubmitted() ? $this->gfvar($origName) : $this->glist($default));
 
 		if (strpos($rule, 'required') !== false)
 		{
@@ -1001,15 +1046,22 @@ class FormTags extends EscherParser
 		extract($this->gatts(array(
 			'class' => '',
 			'id' => '',
+			'type' => 'button',
 			'name' => '',
 			'value' => 'Go',
 		),$atts));
 
 		$value || check($value, $this->output->escape(self::$lang->get('attribute_required', 'value', 'form:button')));
+		
+		if ($type === 'submit')
+		{
+			$rule = "equal[{$value}]";	// anti-spoofing rule
+		}
 
-		$type = 'button';
+		$value = $this->output->escape($value);
+			
 		$atts = $this->matts(compact('type', 'name', 'value'));
-		return $this->output->tag(NULL, 'button', $class, $id, $atts);
+		return $this->output->tag($this->hasCOntent() ? $this->getContent() : $value, 'button', $class, $id, $atts);
 	}
 	
 	//---------------------------------------------------------------------------
@@ -1027,7 +1079,7 @@ class FormTags extends EscherParser
 		$value || check($value, $this->output->escape(self::$lang->get('attribute_required', 'value', 'form:submit')));
 
 		$rule = "equal[{$value}]";	// anti-spoofing rule
-		$value = $this->output->escape($this->fsub() ? $this->input->validate(NULL, $name, $rule) : $value);
+		$value = $this->output->escape($value);
 
 		$type = 'submit';
 		$atts = $this->matts(compact('type', 'name', 'value'));
