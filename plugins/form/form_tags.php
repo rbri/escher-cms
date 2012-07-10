@@ -26,7 +26,7 @@ if (!defined('escher'))
 	exit('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>403 Forbidden</title></head><body><h1>Forbidden</h1><p>You don\'t have permission to access the requested resource on this server.</p></body></html>');
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class Form
 {
@@ -43,7 +43,7 @@ class Form
 	}
 }
 
-// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class FormTags extends EscherParser
 {
@@ -275,16 +275,27 @@ class FormTags extends EscherParser
 	
 		return $currentForm->errors;
 	}
-
+	
 	//---------------------------------------------------------------------------
 
-	protected function validate()
+	protected static function makeInListRule($value)
 	{
-		// a validation hook for derived classes
+		// construct an inlist rule for one or more values, escaping all commas as requried
 		
-		return true;
+		if (is_array($value))
+		{
+			foreach (array_keys($value) as $key)
+			{
+				$value[$key] = str_replace(',', '\,', $value[$key]);
+			}
+			return 'inlist[' . implode($value, ',') . ']';
+		}
+		else
+		{
+			return 'inlist[' . str_replace(',', '\,', $value) . ']';
+		}
 	}
-
+	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_ns_form()
@@ -297,7 +308,7 @@ class FormTags extends EscherParser
 	{
 		$this->popNamespace('form');
 	}
-		
+	
 	//---------------------------------------------------------------------------
 	
 	protected function _tag_form_form($atts)
@@ -323,7 +334,7 @@ class FormTags extends EscherParser
 	{
 		$this->popForm();
 	}
-
+	
 	//---------------------------------------------------------------------------
 
 	protected function _tag_form_open($atts, $if = false)
@@ -1039,7 +1050,7 @@ class FormTags extends EscherParser
 		return $this->output->wrap($checkboxes, $wraptag, $wrapclass, $wid, '', $breaktag, $breakclass);
 	}
 	
-	// --------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	protected function _tag_form_button($atts)
 	{
@@ -1263,25 +1274,89 @@ class FormTags extends EscherParser
 		return $this->_tag_form_select($atts);
 	}
 	
-	// --------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
-	protected static function makeInListRule($value)
+	protected function validate()
 	{
-		// construct an inlist rule for one or more values, escaping all commas as requried
+		// a validation hook for derived classes
 		
-		if (is_array($value))
+		return true;
+	}
+
+	//---------------------------------------------------------------------------
+
+	// Built-in Validation Rules (and Overrides)
+
+	//---------------------------------------------------------------------------
+
+	public function validate_date($item, &$param, $input)
+	{
+		// We override this rule implementation to provide more user-friendly date_create()
+		// validation then the SparkPlug default.
+
+		if (!preg_match('/^(\d{2}).(\d{2}).(\d{4})$/', $item, $matches))
 		{
-			foreach (array_keys($value) as $key)
+			return false;
+		}
+		
+		$year = $matches[3];
+		$month = $matches[1];
+		$day = $matches[2];
+		
+		if (!checkdate($month, $day, $year))
+		{
+			return false;
+		}
+		
+		if (!empty($param))
+		{
+			$date = "{$year}{$month}{$day}";
+			$today = gmdate('Ymd');
+			switch ($param)
 			{
-				$value[$key] = str_replace(',', '\,', $value[$key]);
+				case 'now':
+				case 'today':
+					return $date === $today;
+				case 'past':
+					return $date < $today;
+				case 'future':
+					return $date > $today;
 			}
-			return 'inlist[' . implode($value, ',') . ']';
 		}
-		else
-		{
-			return 'inlist[' . str_replace(',', '\,', $value) . ']';
-		}
+		
+		return true;
 	}
 	
 	//---------------------------------------------------------------------------
+
+	public function validate_match($item, &$param, $input)
+	{
+		// We override this rule implementation because we handle label substitution
+		// differently. (Label is specified in the rule param since we don't have a
+		// pre-built set of field info.
+
+		if (($pos = strpos($param, ',')) !== false)
+		{
+			$name = substr($param, 0, $pos-1);
+			$param = substr($param, $pos+1);
+		}
+		else
+		{
+			$name = $param;
+		}
+		
+		if (!isset($input[$name]))
+		{
+			return false;
+		}
+		else
+		{
+			$result = ($item !== $input[$name]) ? false : ($item === '' ? NULL : true);
+		}
+		
+		return $result;
+	}
+
+	//---------------------------------------------------------------------------
 }
+
