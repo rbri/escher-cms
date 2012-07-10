@@ -1337,7 +1337,7 @@ class FormTags extends EscherParser
 
 		if (($pos = strpos($param, ',')) !== false)
 		{
-			$name = substr($param, 0, $pos-1);
+			$name = substr($param, 0, $pos);
 			$param = substr($param, $pos+1);
 		}
 		else
