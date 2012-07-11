@@ -148,17 +148,22 @@ class FormTags extends EscherParser
 	}
 
 	//---------------------------------------------------------------------------
-/*
-	protected final function fvisited($id)
+
+	protected final function fvisited($id = NULL)
 	{
 		if (!$visited = $this->input->post('esc_visited'))
 		{
 			return false;
 		}
+		
+		if ($id === NULL)
+		{
+			$id = $this->currentForm()->id;
+		}
 
 		return is_array($visited) ? in_array($id, $visited) : ($id === $visited);
 	}
-*/
+
 	//---------------------------------------------------------------------------
 
 	protected final function fskip($conditional, &$submitted)
@@ -231,7 +236,19 @@ class FormTags extends EscherParser
 
 	protected final function gfvar($name, $default = NULL)
 	{
-		return $this->varsAvailable() ? $this->input->post($name, $default) : NULL;
+		if (!$this->varsAvailable())
+		{
+			return NULL;
+		}
+		
+		$val = $this->input->post($name, $default);
+		
+		if (($val === '') && !$this->fvisited())
+		{
+			$val = $default;
+		}
+		
+		return $val;
 	}
 
 	//---------------------------------------------------------------------------
@@ -508,7 +525,7 @@ class FormTags extends EscherParser
 		{
 			$extra .= $this->_tag_form_hidden(array('name'=>'esc_group', 'value'=>$group));
 		}
-/*
+
 		$visitedIDs = $this->input->post('esc_visited', $id);
 		if (is_array($visitedIDs))
 		{
@@ -522,7 +539,7 @@ class FormTags extends EscherParser
 			$visitedIDs = array($id, $visitedIDs);
 		}
 		$extra .= $this->_tag_form_hidden(array('name'=>'esc_visited', 'value'=>$visitedIDs));
-*/
+
 		if ($useNonce)
 		{
 			if (!$submitted)
@@ -769,7 +786,7 @@ class FormTags extends EscherParser
 			}
 		}
 		
-		$value = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : ($this->fsubmitted() ? $this->gfvar($name) : $default));
+		$value = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : ($this->fsubmitted() ? $this->gfvar($name, $default) : $default));
 
 		if (strpos($rule, 'required') !== false)
 		{
@@ -828,7 +845,7 @@ class FormTags extends EscherParser
 
 		$currentForm = $this->currentForm();
 
-		$value = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : ($this->fsubmitted() ? $this->gfvar($name) : $default));
+		$value = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : ($this->fsubmitted() ? $this->gfvar($name, $default) : $default));
 
 		if (strpos($rule, 'required') !== false)
 		{
@@ -915,7 +932,7 @@ class FormTags extends EscherParser
 		$rules[] = self::makeInListRule(array_keys($options));	// anti-spoofing rule
 		$rule = implode('|', $rules);
 
-		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : ($this->fsubmitted() ? $this->gfvar($origName) : $this->glist($default));
+		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : ($this->fsubmitted() ? $this->gfvar($origName, $this->glist($default)) : $this->glist($default));
 
 		if (strpos($rule, 'required') !== false)
 		{
@@ -999,7 +1016,7 @@ class FormTags extends EscherParser
 		$rules[] = self::makeInListRule(array_keys($options));	// anti-spoofing rule
 		$rule = implode('|', $rules);
 
-		$selected = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : ($this->fsubmitted() ? $this->gfvar($name) : $default));
+		$selected = $this->output->escape($this->fsub() ? $this->input->validate($label, $name, $rule) : ($this->fsubmitted() ? $this->gfvar($name, $default) : $default));
 
 		if (strpos($rule, 'required') !== false)
 		{
@@ -1085,7 +1102,7 @@ class FormTags extends EscherParser
 		$rules[] = self::makeInListRule(array_keys($options));	// anti-spoofing rule
 		$rule = implode('|', $rules);
 
-		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : ($this->fsubmitted() ? $this->gfvar($origName) : $this->glist($default));
+		$selected = $this->fsub() ? $this->input->validate($label, $origName, $rule) : ($this->fsubmitted() ? $this->gfvar($origName, $this->glist($default)) : $this->glist($default));
 
 		if (strpos($rule, 'required') !== false)
 		{
