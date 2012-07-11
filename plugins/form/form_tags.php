@@ -31,14 +31,16 @@ if (!defined('escher'))
 class Form
 {
 	public $id;
+	public $group;
 	public $errors;
 	public $data;
 
 	//---------------------------------------------------------------------------
 
-	public function __construct($id)
+	public function __construct($id, $group)
 	{
 		$this->id = $id;
+		$this->group = $group;
 		$this->errors = array();
 	}
 }
@@ -57,7 +59,7 @@ class FormTags extends EscherParser
 	{
 		parent::__construct($params, $cacher, $content, $currentURI);
 
-		$this->_form_stack = array(new Form(NULL));	// push an unused sentinel to avoid constant checks for non-NULL current form
+		$this->_form_stack = array(new Form(NULL, NULL));	// push an unused sentinel to avoid constant checks for non-NULL current form
 
 		$info = $this->factory->getPlug('FormTags');
 		$langDir = dirname($info['file']) . '/languages';
@@ -98,6 +100,13 @@ class FormTags extends EscherParser
 	
 	//---------------------------------------------------------------------------
 	
+	protected final function inNestedForm()
+	{
+		return count($this->_form_stack) > 2;
+	}
+	
+	//---------------------------------------------------------------------------
+	
 	protected final function findForm($id)
 	{
 		return @$this->_forms[$id];
@@ -108,6 +117,13 @@ class FormTags extends EscherParser
 	protected final function fsubmitted()
 	{
 		return $this->input->post('esc_submitted');
+	}
+	
+	//---------------------------------------------------------------------------
+	
+	protected final function fgroup()
+	{
+		return $this->input->post('esc_group');
 	}
 	
 	//---------------------------------------------------------------------------
@@ -132,12 +148,25 @@ class FormTags extends EscherParser
 	}
 
 	//---------------------------------------------------------------------------
-
-	protected final function fskip(&$submitted)
+/*
+	protected final function fvisited($id)
 	{
+		if (!$visited = $this->input->post('esc_visited'))
+		{
+			return false;
+		}
+
+		return is_array($visited) ? in_array($id, $visited) : ($id === $visited);
+	}
+*/
+	//---------------------------------------------------------------------------
+
+	protected final function fskip($conditional, &$submitted)
+	{
+		$submitted = false;
+
 		if (!$fsubmitted = $this->fsubmitted())
 		{
-			$submitted = false;
 			return false;
 		}
 		
@@ -154,18 +183,30 @@ class FormTags extends EscherParser
 			return false;
 		}
 		
+		// non-conditional forms are never skipped
+
+		if (!$conditional)
+		{
+			return false;
+		}
+		
+		// an unrelated form (not part of this form group) should not be skipped
+
+		if ($this->currentForm()->group !== $this->fgroup())
+		{
+			return false;
+		}
+		
 		if (($fsubmitted = $this->fback()) && ($currentFormID === $fsubmitted))
 		{
-			$submitted = false;
 			return false;
 		}
 		
 		if (($fsubmitted = $this->fnext()) && ($currentFormID === $fsubmitted))
 		{
-			$submitted = false;
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -337,7 +378,7 @@ class FormTags extends EscherParser
 	
 	//---------------------------------------------------------------------------
 
-	protected function _tag_form_open($atts, $if = false)
+	protected function _tag_form_open($atts, $conditional = false)
 	{
 		extract($this->gatts(array(
 			'class' => '',
@@ -345,6 +386,7 @@ class FormTags extends EscherParser
 			'name' => '',
 			'action' => '',
 			'method' => 'post',
+			'group' => '',
 			'nonce' => '1',
 			'nonce_lifetime' => '86400',	// 24 hours
 			'honeypot' => '1',
@@ -360,19 +402,19 @@ class FormTags extends EscherParser
 			'redirect' => '',
 		),$atts));
 
-		$id || check($id, $this->output->escape(self::$lang->get('attribute_required', 'id', ($if ? 'form:if_open' : 'form:open'))));
-		$method || check($method, $this->output->escape(self::$lang->get('attribute_required', method, ($if ? 'form:if_open' : 'form:open'))));
+		$id || check($id, $this->output->escape(self::$lang->get('attribute_required', 'id', ($conditional ? 'form:if_open' : 'form:open'))));
+		$method || check($method, $this->output->escape(self::$lang->get('attribute_required', method, ($conditional ? 'form:if_open' : 'form:open'))));
 
 		if ($this->findForm($id))
 		{
-			check(false, $this->output->escape(self::$lang->get('illegal_tag_nesting', ($if ? 'form:if_open' : 'form:open'))));
+			check(false, $this->output->escape(self::$lang->get('illegal_tag_nesting', ($conditional ? 'form:if_open' : 'form:open'))));
 		}
 		
-		$this->pushForm($this->_forms[$id] = $this->_open_forms[] = $currentForm = new Form($id));
+		$this->pushForm($this->_forms[$id] = $this->_open_forms[] = $currentForm = new Form($id, $group));
 		
-		// if this form wasn't submitted, perhaps a nested child was...
+		// should we skip processing this form?
 		
-		if ($this->fskip($submitted))
+		if ($this->fskip($conditional, $submitted))
 		{
 			return false;
 		}
@@ -453,7 +495,7 @@ class FormTags extends EscherParser
 				{
 					$extra .= $this->parseSnippet($on_success_do);
 				}
-				elseif ($if)
+				elseif ($conditional)
 				{
 					return false;
 				}
@@ -462,6 +504,25 @@ class FormTags extends EscherParser
 		
 		$extra .= $this->_tag_form_hidden(array('name'=>'esc_submitted', 'value'=>$id));
 
+		if ($group)
+		{
+			$extra .= $this->_tag_form_hidden(array('name'=>'esc_group', 'value'=>$group));
+		}
+/*
+		$visitedIDs = $this->input->post('esc_visited', $id);
+		if (is_array($visitedIDs))
+		{
+			if (!in_array($id, $visitedIDs))
+			{
+				$visitedIDs[] = $id;
+			}
+		}
+		elseif ($visitedIDs !== $id)
+		{
+			$visitedIDs = array($id, $visitedIDs);
+		}
+		$extra .= $this->_tag_form_hidden(array('name'=>'esc_visited', 'value'=>$visitedIDs));
+*/
 		if ($useNonce)
 		{
 			if (!$submitted)
