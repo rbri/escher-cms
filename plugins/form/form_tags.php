@@ -1340,10 +1340,17 @@ class FormTags extends EscherParser
 				case 'now':
 				case 'today':
 					return $date === $today;
+				case '!now':
+				case '!today':
+					return $date !== $today;
 				case 'past':
 					return $date < $today;
+				case '!past':
+					return $date >= $today;
 				case 'future':
 					return $date > $today;
+				case '!future':
+					return $date <= $today;
 			}
 		}
 		

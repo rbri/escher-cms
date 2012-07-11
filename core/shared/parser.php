@@ -105,7 +105,7 @@ class Parser extends SparkPlug
 	public final function validateField($rule, $item, $param, $input, &$overrideError)
 	{
 		$method = "_tag_user_validate_{$rule}";
-		$result = $this->$method(array('item'=>$item, 'param'=>$param));
+		$result = $this->$method(array('item'=>$item, 'param'=>$param, 'input'=>$input));
 
 		if (is_array($result))
 		{
