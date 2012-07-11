@@ -3,8 +3,7 @@
 <div class="title">
 	View Event Log
 </div>
-
-<?= $pagination = $this->renderPagination(array('class'=>'event-pagination', 'wrapper'=>'', 'list'=>'ol', 'class_active'=>'selected', 'label_prev'=>'&larr; Newer', 'label_next'=>'Older &rarr;', 'page_url'=>$page_url,), true); ?>
+<?= $pagination = $this->renderPagination(array('class'=>'event-pagination', 'wrapper'=>'', 'list'=>'ol', 'class_active'=>'selected', 'label_prev'=>'&larr; Newer', 'label_next'=>'Older &rarr;', 'page_url'=>$page_url, 'cur_page'=>$cur_page, 'last_page'=>$last_page), true); ?>
 <table id="event-list">
 	<thead>
 		<tr>
