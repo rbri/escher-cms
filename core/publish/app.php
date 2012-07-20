@@ -138,9 +138,6 @@ class _EscherSite extends EscherApplication
 		
 		switch ($this->_productionStatus)
 		{
-			case EscherProductionStatus::Maintenance:	// Do we need to update the database schema? Are we in maintenance mode?
-				return;											// If yes, get out early so we don't load any plugins...
-
 			case EscherProductionStatus::Staging:
 				$this->setNameSpace($this->_baseNameSpace . '.staging');
 				if (!empty($this->_prefs['plug_cache_flush_staging']))
@@ -178,7 +175,12 @@ class _EscherSite extends EscherApplication
 
 		if (!empty($changedPrefs))
 		{
-			$this->loadPlugins();
+			// Do we need to update the database schema? Are we in maintenance mode?
+			// If yes, don't load any plugins...
+			if ($this->_productionStatus != EscherProductionStatus::Maintenance)
+			{
+				$this->loadPlugins();
+			}
 			$this->_prefsModel->updatePrefs($changedPrefs);
 			$this->flushSiteCaches();
 		}
@@ -190,7 +192,7 @@ class _EscherSite extends EscherApplication
 			$this->observer->observe(array($this, 'loadPlugins'), 'SparkApplication:run:before');
 		}
 
-		if (empty($this->_prefs['page_cache_active']))
+		if (empty($this->_prefs['page_cache_active']) || ($this->_productionStatus == EscherProductionStatus::Maintenance))
 		{
 			$this->disableCache();
 		}
