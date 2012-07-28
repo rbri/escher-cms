@@ -918,6 +918,14 @@ class _ContentController extends EscherAdminController
 			// build page object from form data
 			
 			$oldSlug = $page->slug;
+			
+			// prevent slug from reverting to default if user does not have permission to edit metadata
+			
+			if (!$vars['can_edit_meta'])
+			{
+				$params['pv']['page_slug'] = $oldSlug;
+			}
+
 			$this->buildPage($params['pv'], $templates, $page, $vars, false);
 			$page->categories = $categories = isset($params['pv']['add_categories']) ? $model->fetchCategoriesByID($params['pv']['add_categories'], true) : array();
 		
