@@ -738,8 +738,10 @@ class FormTags extends EscherParser
 		{
 			$rule = 'required' . (($rule !== '') ? "|{$rule}" : '');
 		}
-	
-		$values = $this->fsub() ? $this->input->validate(NULL, $origName, $rule) : $value;	// don't use posted value as this will break back/next
+		
+		// careful not to use posted values that would break back/next
+
+		$values = $this->fsub() ? $this->input->validate(NULL, $origName, $rule) : ($this->fsubmitted() && (strpos($origName, 'esc_') !== 0) ? $this->gfvar($name, $value) : $value);
 
 		$type = 'hidden';
 		$out = '';
