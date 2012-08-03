@@ -441,7 +441,7 @@ class FormTags extends EscherParser
 		$currentForm->data['required_class'] = $required_class;
 		$currentForm->data['error_class'] = $error_class;
 		
-		($useNonce = $this->truthy($nonce)) && ($noncer = $this->loadNoncer(array('adapter'=>'database', 'lifetime'=>$nonce_lifetime)));
+		($useNonce = $this->truthy($nonce)) && ($noncer = $this->loadNoncer(array('adapter'=>'database', 'lifetime'=>$nonce_lifetime, 'database'=>array('table'=>'nonce'))));
 
 		$content = '';
 		$extra = '';
