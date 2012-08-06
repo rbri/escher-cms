@@ -1392,7 +1392,7 @@ class FormTags extends EscherParser
 
 	//---------------------------------------------------------------------------
 
-	public function validate_date($item, &$param, $input)
+	public function validate_date($item, $param = NULL)
 	{
 		// We override this rule implementation to provide more user-friendly date_create()
 		// validation then the SparkPlug default.
@@ -1435,6 +1435,57 @@ class FormTags extends EscherParser
 		}
 		
 		return true;
+	}
+	
+	// --------------------------------------------------------------------------
+	
+	public function validate_date_range($item, $param)
+	{
+		// We override this rule implementation to provide more user-friendly date_create()
+		// validation then the SparkPlug default.
+
+		if (!preg_match('#^(\d{2})/(\d{2})/(\d{4})$#', $item))
+		{
+			return false;
+		}
+		
+		$param = explode(',', $param);
+		if (count($param) !== 2)
+		{
+			return false;
+		}
+		
+		$min = $param[0];
+		if (!self::validate_date($min))
+		{
+			if ($min === '*')
+			{
+				$min = NULL;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		$max = $param[1];
+		if (!self::validate_date($max))
+		{
+			if ($max === '*')
+			{
+				$max = NULL;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		$time = strtotime($item);
+
+		return 
+			(isset($min) ? (strtotime($min) <= $time) : true) &&
+			(isset($max) ? ($time <= strtotime($max)) : true);
 	}
 	
 	//---------------------------------------------------------------------------
