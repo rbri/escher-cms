@@ -170,7 +170,7 @@ class _EventLogModel extends EscherModel
 		
 		$ct->table('log');
 		$ct->field('id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger, NULL, NULL, false, iSparkDBQueryFunctionCreateTable::kFlagPrimaryKey | iSparkDBQueryFunctionCreateTable::kFlagAutoIncrement);
-		$ct->field('time', iSparkDBQueryFunctionCreateTable::kFieldTypeDate);
+		$ct->field('time', iSparkDBQueryFunctionCreateTable::kFieldTypeDate, NULL, NULL, true);
 		$ct->field('event', iSparkDBQueryFunctionCreateTable::kFieldTypeString, 255);
 		$ct->field('user_id', iSparkDBQueryFunctionCreateTable::kFieldTypeInteger);
 		$db->query($ct->compile());

@@ -55,6 +55,11 @@ class _PreferencesModel extends EscherModel
 			'val' => $pref['val'],
 		);
 		
+		if (isset($pref['data']))
+		{
+			$row['data'] = $pref['data'];
+		}
+
 		if (!empty($pref['user_id']))
 		{
 			$row['user_id'] = $pref['user_id'];

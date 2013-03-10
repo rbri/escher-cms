@@ -59,7 +59,7 @@ class TextileTags extends EscherParser
 			'strict'			=> false,
 			'lite'			=> false,
 			'noimage'		=> false,
-			'encode	'		=> false,
+			'encode'			=> false,
 			'rel'				=> false,
 		),$atts));
 		

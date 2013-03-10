@@ -102,13 +102,14 @@ class CoreTagParser extends Parser
 		}
 		
 		$status = $code;
+		$text = '';
 
 		if (isset($statusMessages[$code]))
 		{
 			$text = $statusMessages[$code];
 			$status .= (' ' . $text);
 
-			if (empty($message))
+			if ($message === '')
 			{
 				$message = $text;
 			}
@@ -594,7 +595,7 @@ class CoreTagParser extends Parser
 		),$atts));
 
 		$this->setStatus($status, $message);
-		throw new SparkHTTPException($this->_error_code, $this->_error_text, $this->_error_message, $this->_error_status);
+		throw new SparkHTTPException($this->_error_code, $this->_error_text, $this->_error_message, 0, $this->_error_status);
 	}
 
 	//---------------------------------------------------------------------------
@@ -608,6 +609,12 @@ class CoreTagParser extends Parser
 	
 	protected function _tag_core_error_status($atts)
 	{
+		if (($status = trim($this->getContent())) !== '')
+		{
+			$this->setStatus($status);
+			return '';
+		}
+
 		return $this->output->escape($this->_error_status);
 	}
 
@@ -615,6 +622,12 @@ class CoreTagParser extends Parser
 	
 	protected function _tag_core_error_message($atts)
 	{
+		if (($message = trim($this->getContent())) !== '')
+		{
+			$this->setErrorMessage($message);
+			return '';
+		}
+	
 		return $this->output->escape($this->_error_message);
 	}
 

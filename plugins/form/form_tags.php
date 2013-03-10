@@ -1371,7 +1371,7 @@ class FormTags extends EscherParser
 			PE;Prince Edward Island|
 			QC;Quebec|
 			SK;Saskatchewan|
-			YT;Yukon Territory|
+			YT;Yukon Territory
 		';
 
 		return $this->_tag_form_select($atts);
